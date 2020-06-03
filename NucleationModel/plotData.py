@@ -176,10 +176,10 @@ class PlotData():
 					* self._train_snapshot_weights[snapshot_nr]
 				weight_map[x_int][y_int] = weight_map[x_int][y_int] \
 					+ self._train_snapshot_weights[snapshot_nr]
-		#print(label_map)
-		#print(weight_map)
+		#print(np.array(label_map))
+		#return sorted([x for y in weight_map for x in y])
 		label_map = [[label_map[i][j] / weight_map[i][j] \
-			if weight_map[i][j] > 0 else float("NaN") \
+			if weight_map[i][j] > 10**(-7) else float("NaN") \
 			for j in range(len(label_map[i]))] \
 			for i in range(len(label_map))]
 		return np.array([label_map])
