@@ -178,19 +178,19 @@ def read_TPS(
 def read_RPE_and_TPS(
 		RPE_foldername, TPS_foldername, 
 		A_mcg_below, B_mcg_above, 
-		C_cage_big_below, used_frac):
+		C_cage_big_below, used_RPE_frac, used_TPS_frac):
 	print("Read RPE files")
 	RPE_paths, RPE_labels, RPE_weights, RPE_names = \
 		read_RPE(
 			RPE_foldername, A_mcg_below, B_mcg_above, 
-			C_cage_big_below, used_frac)
+			C_cage_big_below, used_RPE_frac)
 	print("Read TPS files")
 	# Read in the TPS files and generate paths, labels, weights and names.
 	# Weights are chosen based on the minimal weight assigned to the RPE paths.
 	TPS_paths, TPS_labels, TPS_weights, TPS_names = \
 		read_TPS(
 			TPS_foldername, A_mcg_below, B_mcg_above, 
-			C_cage_big_below, used_frac, min(RPE_weights))
+			C_cage_big_below, used_TPS_frac, min(RPE_weights))
 	weights = np.append(RPE_weights, TPS_weights, axis = 0)
 	weights = weights/np.mean(weights)
 	# Return the merges  RPE and TPS arrays
