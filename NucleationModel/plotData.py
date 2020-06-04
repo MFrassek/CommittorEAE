@@ -25,7 +25,8 @@ class PlotData():
 			self, subfig_size: int, used_variable_names: list, 
 			name_to_list_position: dict, resolution: int, 
 			vmin: float, vmax: float, 
-			model = None, fill_val = 0):
+			model = None, fill_val = 0, 
+			points_of_interest = None):
 		"""
 		params:
 			used_variable_names: list
@@ -70,12 +71,20 @@ class PlotData():
 							x_pos = name_to_list_position[used_variable_names[i]], 
 							y_pos = name_to_list_position[used_variable_names[j]],
 							resolution = resolution)
-					else:
+					elif points_of_interest == None:
 						label_map = self.calc_map_generated(
 							model = model, 
 							x_pos = name_to_list_position[used_variable_names[i]], 
 							y_pos = name_to_list_position[used_variable_names[j]], 
 							resolution = resolution, 
+							fill_val = fill_val)
+					else:
+						label_map = self.calc_partial_map_generated(
+							model = model,
+							x_pos = name_to_list_position[used_variable_names[i]], 
+							y_pos = name_to_list_position[used_variable_names[j]], 
+							resolution = resolution, 
+							points_of_interest = points_of_interest,
 							fill_val = fill_val)
 					super_map[-1][-1].append(label_map)
 		for k in range(out_size):
@@ -158,8 +167,9 @@ class PlotData():
 			cax,kw = mpl.colorbar.make_axes([ax for ax in axs])
 			cbar = plt.colorbar(im, cax=cax, **kw)
 			cbar.ax.tick_params(labelsize=subfig_size * len(used_variable_names))
-			plt.savefig("{}_fv{}_outN{}_r{}_{}_map.png"\
-				.format(self._stamp, fill_val, k, resolution, model_name[0]))
+			plt.savefig("{}_fv{}_outN{}_r{}_{}_p{}_map.png"\
+				.format(self._stamp, fill_val, k, resolution, model_name[0],
+					str(points_of_interest != None)[0]))
 			plt.show()
 		return super_map
 
@@ -177,7 +187,6 @@ class PlotData():
 				weight_map[x_int][y_int] = weight_map[x_int][y_int] \
 					+ self._train_snapshot_weights[snapshot_nr]
 		#print(np.array(label_map))
-		#return sorted([x for y in weight_map for x in y])
 		label_map = [[label_map[i][j] / weight_map[i][j] \
 			if weight_map[i][j] > 0 else float("NaN") \
 			for j in range(len(label_map[i]))] \
@@ -236,7 +245,7 @@ class PlotData():
 		#print(xys)
 		#print(len(xys))
 		#print(ys)
-		out_map = [[[[] for i in range(resolution)] \
+		out_map = [[[float("NaN") for i in range(resolution)] \
 			for j in range(resolution)] \
 			for k in range(out_size)] 
 		for x,y in xys:
