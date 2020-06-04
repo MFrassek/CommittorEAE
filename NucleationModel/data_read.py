@@ -27,10 +27,10 @@ def read_RPE(
 					name_lines = name_file.readlines()
 					weight_lines = weight_file.readlines()
 					reweight_lines = reweight_file.readlines()
-					name_lines, weight_lines, name_lines = \
+					name_lines, weight_lines, reweight_lines = \
 						shuffle(
 							name_lines, weight_lines, 
-							name_lines, random_state=42)
+							reweight_lines, random_state=42)
 					frac_len = int(len(name_lines)*used_frac)
 					print("Total paths: {}\t Used paths: {}"\
 						.format(len(name_lines), frac_len))
