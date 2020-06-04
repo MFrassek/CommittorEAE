@@ -121,7 +121,6 @@ def read_TPS(
 	labels = []  
 	names = []
 	for file in listdir(foldername):
-		#print(file)
 		with open("{}/{}".format(foldername,file), "r") as file_name:
 			file_name.readline()
 			path = file_name.readlines()	
@@ -170,7 +169,7 @@ def read_TPS(
 	frac_len = int(len(paths) * used_frac)
 	print("Total paths: {}\t Used paths: {}".format(len(paths), frac_len))
 	weights = [TPS_weight for i in range(frac_len)]
-	paths, labels = shuffle(paths, labels, random_state=42)
+	paths, labels, names = shuffle(paths, labels, names, random_state=42)
 	print(sum(weights))
 	return np.array(paths)[:frac_len], np.array(labels)[:frac_len], \
 		np.array(weights), np.array(names)[:frac_len]
