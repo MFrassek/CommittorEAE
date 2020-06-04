@@ -120,17 +120,19 @@ def read_TPS(
 	paths = []
 	labels = []  
 	names = []
+	precision = 2
 	for file in listdir(foldername):
 		with open("{}/{}".format(foldername,file), "r") as file_name:
 			file_name.readline()
 			path = file_name.readlines()	
-			# iterates over all snapshots in the trajectory
-			# removes the linebreak character at the end ("\n")
-			# splits them along all occurences of " "
-			# drops the first column (snapshot_index)
-			# transforms the strings into floats
-			path = np.array([list(map(float,snap[:-1]
-				.split(" ")[1:]))[:17] for snap in path])
+			# Iterate over all snapshots in the trajectory
+			# remove the linebreak character at the end ("\n")
+			# split them along all occurences of " "
+			# drop the first column (snapshot_index)
+			# transform the strings into floats
+			# and round to the given precision.
+			path = np.array([list(map(lambda x: round(float(x),precision),
+				snap[:-1].split(" ")[1:]))[:17] for snap in path])
 # # Iterate again over the path and reorder.
 # path = np.array([[snap[x] for x in all_var_order] \
 # 	for snap in path])
