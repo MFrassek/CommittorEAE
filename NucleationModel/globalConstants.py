@@ -77,7 +77,7 @@ class Const():
 		# big cage threshold under which a snapshot belongs to amorphous
 		self._big_C = 8
 		# Fraction of paths used from the read files
-		self._used_frac = 0.2
+		self._used_frac = 0.1
 		# Labels assigned to the four types of paths: AA, AB, BA, BB
 		self._path_type_labels  = [0.0, 1.0, 0.0, 0.0]
 		# Weights assigned to the totality of each of the path types
