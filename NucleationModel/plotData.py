@@ -221,8 +221,9 @@ class PlotData():
 			out_current_row = [[] for i in range(out_size)]
 			for y in ys:
 				# make predicition for current grid point
-				prediction = self.calc_map_point(model, x, y, \
-					x_pos, y_pos, in_size, fill_val)
+				prediction = self.calc_map_point(
+					model, x, y, x_pos, y_pos, 
+					in_size, fill_val)
 				#if prediction > 0.5:
 				#	print([[x if x_pos == pos_nr else y if \
 				#	y_pos == pos_nr else fill_val \
@@ -248,11 +249,13 @@ class PlotData():
 		out_map = [[[float("NaN") for i in range(resolution)] \
 			for j in range(resolution)] \
 			for k in range(out_size)] 
+		xs = np.linspace(self._minima[x_pos], self._maxima[x_pos], resolution)
+		ys = np.linspace(self._minima[y_pos], self._maxima[y_pos], resolution)
 		for x,y in xys:
 			#print(x, y)
 			prediction = self.calc_map_point(
-				model, x, y, x_pos, y_pos, 
-				in_size, fill_val = 0)
+				model, xs[x], ys[y], x_pos, y_pos, 
+				in_size, fill_val)
 			for i in range(out_size):
 				out_map[i][x][y] = prediction[i]
 		return np.array(out_map)
