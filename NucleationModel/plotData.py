@@ -193,8 +193,8 @@ class PlotData():
 			fill_val = fill_val)
 		partial_out_map = [[label_map[0][x][y] \
 			if (x,y) in xys else float("NaN") \
-			for x in range(resolution)] \
-			for y in range(resolution)]
+			for y in range(resolution)] \
+			for x in range(resolution)]
 		return np.array([partial_out_map])
 
 	def calc_map_generated(
