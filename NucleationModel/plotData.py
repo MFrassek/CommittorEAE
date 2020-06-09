@@ -25,8 +25,8 @@ class PlotData():
 			self, subfig_size: int, used_variable_names: list, 
 			name_to_list_position: dict, resolution: int, 
 			vmin: float, vmax: float, 
-			model = None, fill_val = 0, 
-			points_of_interest = None):
+			method, model = None, 
+			points_of_interest = None, fill_val = 0):
 		"""
 		params:
 			used_variable_names: list
@@ -66,26 +66,13 @@ class PlotData():
 					print("{}: {}\t{}: {}".format(
 						i, used_variable_names[i], 
 						j, used_variable_names[j]))
-					if model == None:
-						label_map = self.calc_map_given(
-							x_pos = name_to_list_position[used_variable_names[i]], 
-							y_pos = name_to_list_position[used_variable_names[j]],
-							resolution = resolution)
-					elif points_of_interest == None:
-						label_map = self.calc_map_generated(
-							model = model, 
-							x_pos = name_to_list_position[used_variable_names[i]], 
-							y_pos = name_to_list_position[used_variable_names[j]], 
-							resolution = resolution, 
-							fill_val = fill_val)
-					else:
-						label_map = self.calc_partial_map_generated(
-							model = model,
-							x_pos = name_to_list_position[used_variable_names[i]], 
-							y_pos = name_to_list_position[used_variable_names[j]], 
-							resolution = resolution, 
-							points_of_interest = points_of_interest,
-							fill_val = fill_val)
+					label_map = method(
+						x_pos = name_to_list_position[used_variable_names[i]], 
+						y_pos = name_to_list_position[used_variable_names[j]],
+						resolution = resolution,
+						model = model,
+						points_of_interest = points_of_interest,
+						fill_val = fill_val)
 					super_map[-1][-1].append(label_map)
 		for k in range(out_size):
 			print(k)
@@ -173,7 +160,9 @@ class PlotData():
 			plt.show()
 		return super_map
 
-	def calc_map_given(self, x_pos, y_pos, resolution):
+	def calc_map_given(
+			self, x_pos, y_pos, resolution,
+			model = None, points_of_interest = None, fill_val = 0):
 		label_map = [[0 for y in range(resolution)] for x in range(resolution)]
 		weight_map = [[0 for y in range(resolution)] for x in range(resolution)]		
 		for snapshot_nr in range(len(self._train_snapshots)):
@@ -193,7 +182,24 @@ class PlotData():
 			for i in range(len(label_map))]
 		return np.array([label_map])
 
-	def calc_map_generated(self, model, x_pos, y_pos, resolution, fill_val = 0):
+	def calc_partial_map_given(
+			self, x_pos, y_pos, resolution,
+			model = None, points_of_interest = None, fill_val = 0):
+		xys = list(set([(int(ele[x_pos]),int(ele[y_pos])) \
+			for ele in points_of_interest]))
+		label_map = self.calc_map_given(
+			x_pos, y_pos, 
+			resolution, 
+			fill_val = fill_val)
+		partial_out_map = [[label_map[0][x][y] \
+			if (x,y) in xys else float("NaN") \
+			for x in range(resolution)] \
+			for y in range(resolution)]
+		return np.array([partial_out_map])
+
+	def calc_map_generated(
+			self, x_pos, y_pos, resolution,
+			model = None, points_of_interest = None, fill_val = 0):
 		"""
 		Makes predictions over the full (normalized) range of 
 		two input variables with all other variables fixed to a specific value.
@@ -235,8 +241,8 @@ class PlotData():
 		return np.array(out_map)
 
 	def calc_partial_map_generated(
-			self, model, x_pos, y_pos, resolution,
-			points_of_interest, fill_val = 0):
+			self, x_pos, y_pos, resolution,
+			model = None, points_of_interest = None, fill_val = 0):
 		assert x_pos != y_pos, "x_pos and y_pos need to differ"
 		in_size = model.layers[0].output_shape[0][1]
 		out_size = model.layers[-1].output_shape[1]
