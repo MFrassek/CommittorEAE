@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 class PlotData():
 	def __init__(
 			self, train_snapshots, minima, maxima,
-			train_snapshot_labels, train_snapshot_weights, stamp):
+			train_labels, train_weights, stamp):
 		self._train_snapshots = train_snapshots
 		self._minima = minima
 		self._maxima = maxima
-		self._train_snapshot_labels = train_snapshot_labels
-		self._train_snapshot_weights = train_snapshot_weights
+		self._train_labels = train_labels
+		self._train_weights = train_weights
 		self._stamp = stamp
 
 	def __str__(self):
@@ -48,7 +48,7 @@ class PlotData():
 		"""
 #		assert len(used_variable_names) > 1, "len(used_variable_names) must exceed 1."
 		if model == None:
-			suptitle = "Given labels depending on snapshot_input"
+			suptitle = "Given labels depending on input"
 			model_name = "Given"
 			out_size = 1
 		else:
@@ -104,7 +104,7 @@ class PlotData():
 
 					if j < i:
 						if vmin >= 0:
-							if True:
+							if False:
 								im = new_axs.imshow(
 									super_map[i][j][0][k][::-1], 
 									cmap='coolwarm', 
@@ -117,7 +117,7 @@ class PlotData():
 									cmap='coolwarm', 
 									interpolation='nearest',
 									norm=mpl.colors.LogNorm(
-										vmin=0.1, 
+										vmin=0.01, 
 										vmax=vmax))
 						else:
 							im = new_axs.imshow(
@@ -165,16 +165,16 @@ class PlotData():
 			model = None, points_of_interest = None, fill_val = 0):
 		label_map = [[0 for y in range(resolution)] for x in range(resolution)]
 		weight_map = [[0 for y in range(resolution)] for x in range(resolution)]		
-		for snapshot_nr in range(len(self._train_snapshots)):
-			x_int = int(self._train_snapshots[snapshot_nr][x_pos])
-			y_int = int(self._train_snapshots[snapshot_nr][y_pos])
+		for nr in range(len(self._train_snapshots)):
+			x_int = int(self._train_snapshots[nr][x_pos])
+			y_int = int(self._train_snapshots[nr][y_pos])
 			if x_int >= 0 and x_int <= resolution-1 and y_int >= 0 \
 					and y_int <= resolution-1:
 				label_map[x_int][y_int] = label_map[x_int][y_int] \
-					+ self._train_snapshot_labels[snapshot_nr] \
-					* self._train_snapshot_weights[snapshot_nr]
+					+ self._train_labels[nr] \
+					* self._train_weights[nr]
 				weight_map[x_int][y_int] = weight_map[x_int][y_int] \
-					+ self._train_snapshot_weights[snapshot_nr]
+					+ self._train_weights[nr]
 		#print(np.array(label_map))
 		label_map = [[label_map[i][j] / weight_map[i][j] \
 			if weight_map[i][j] > 0 else float("NaN") \
@@ -287,7 +287,7 @@ class PlotData():
 		line for each dimension indifferent of the value
 		chosen for the other dimensions.
 		"""
-		suptitle = "Predicted snapshots depending on snapshot_input"
+		suptitle = "Predicted snapshots depending on input"
 		row_cnt = ((len(used_variable_names)-1)//max_row_len)+1
 		fig, axs = plt.subplots(
 			row_cnt, max_row_len,
@@ -371,9 +371,9 @@ class PlotData():
 # 		weight_map = [[0 for y in ys] for x in xs]
 # 		# Sort the labels of each snapshot to the corresponding 
 # 		# "positions" in the grid (by sorting them in the list).
-# 		for snapshot_nr in range(len(self._train_snapshots)):
-# 			x_snap = self._train_snapshots[snapshot_nr][x_pos]
-# 			y_snap = self._train_snapshots[snapshot_nr][y_pos]
+# 		for nr in range(len(self._train_snapshots)):
+# 			x_snap = self._train_snapshots[nr][x_pos]
+# 			y_snap = self._train_snapshots[nr][y_pos]
 # 			# Uses "int" to be able to use for iteration. 
 # 			# Uses "round" to round to closest full number. 
 # 			# Uses "i-min_x" to offset to start at 0. 
@@ -391,10 +391,10 @@ class PlotData():
 # 					and y_int <= resolution-1:
 				
 # 				label_map[x_int][y_int] = label_map[x_int][y_int] \
-# 					+ self._train_snapshot_labels[snapshot_nr] \
-# 					* self._train_snapshot_weights[snapshot_nr]
+# 					+ self._train_labels[nr] \
+# 					* self._train_weights[nr]
 # 				weight_map[x_int][y_int] = weight_map[x_int][y_int] \
-# 					+ self._train_snapshot_weights[snapshot_nr]
+# 					+ self._train_weights[nr]
 # 		# Calculate the weighted mean of the labels associated with
 # 		# each grid point. 
 # 		# Divide each entry of the label map with the corresponding
@@ -418,6 +418,6 @@ class PlotData():
 	# 	x_spans = [self._maxima[x_pos] - self._minima[x_pos] for x_pos in dims]
 	# 	print(x_spans)
 	# 	rounded_snapshots = []
-	# 	for snapshot_nr in range(len(self._train_snapshots)):
+	# 	for nr in range(len(self._train_snapshots)):
 	# 		for dim in dims:
 	# 			pass

@@ -9,12 +9,12 @@ class DatasetData():
 			train_snapshots,
 			val_snapshots,
 			test_snapshots,
-			train_snapshot_labels,
-			val_snapshot_labels,
-			test_snapshot_labels,
-			train_snapshot_weights,
-			val_snapshot_weights,
-			test_snapshot_weights,
+			train_labels,
+			val_labels,
+			test_labels,
+			train_weights,
+			val_weights,
+			test_weights,
 			outlier_cutoff,
 			resolution):
 		self._train_past_snapshots = train_past_snapshots
@@ -23,12 +23,12 @@ class DatasetData():
 		self._train_snapshots = train_snapshots
 		self._val_snapshots = val_snapshots
 		self._test_snapshots = test_snapshots			
-		self._train_snapshot_labels = train_snapshot_labels
-		self._val_snapshot_labels = val_snapshot_labels
-		self._test_snapshot_labels = test_snapshot_labels
-		self._train_snapshot_weights = train_snapshot_weights
-		self._val_snapshot_weights = val_snapshot_weights
-		self._test_snapshot_weights = test_snapshot_weights
+		self._train_labels = train_labels
+		self._val_labels = val_labels
+		self._test_labels = test_labels
+		self._train_weights = train_weights
+		self._val_weights = val_weights
+		self._test_weights = test_weights
 		self._outlier_cutoff = outlier_cutoff
 		self._dimensions = len(train_past_snapshots[0])
 		self._resolution = resolution
@@ -67,23 +67,23 @@ class DatasetData():
 	def test_snapshots(self):
 		return self._test_snapshots
 	@property
-	def train_snapshot_labels(self):
-		return self._train_snapshot_labels
+	def train_labels(self):
+		return self._train_labels
 	@property
-	def val_snapshot_labels(self):
-		return self._val_snapshot_labels
+	def val_labels(self):
+		return self._val_labels
 	@property
-	def test_snapshot_labels(self):
-		return self._test_snapshot_labels
+	def test_labels(self):
+		return self._test_labels
 	@property
-	def train_snapshot_weights(self):
-		return self._train_snapshot_weights
+	def train_weights(self):
+		return self._train_weights
 	@property
-	def val_snapshot_weights(self):
-		return self._val_snapshot_weights
+	def val_weights(self):
+		return self._val_weights
 	@property
-	def test_snapshot_weights(self):
-		return self._test_snapshot_weights
+	def test_weights(self):
+		return self._test_weights
 	@property
 	def dimensions(self):
 		return self._dimensions
@@ -208,7 +208,7 @@ class DatasetData():
 			return self._inv_std
 
 	def normalize(self, snapshots):
-		"""Normalize the snapshot_list by substracting the mean 
+		"""Normalize the list by substracting the mean 
 		and multiplying with the inverse of the standard deviation.
 		"""
 		return (snapshots - self.mean) * self.inv_std
@@ -335,14 +335,14 @@ class DatasetData():
 		return self.train_grid_past_snapshots, \
 			np.zeros(self._dimensions), \
 			np.ones(self._dimensions)*(self._resolution - 1), \
-			self.train_snapshot_labels, self.train_snapshot_weights
+			self.train_labels, self.train_weights
 
 	def importance_data(self):
 		return self.val_norm_past_snapshots, self.val_norm_snapshots, \
-			self.val_snapshot_labels, self.val_snapshot_weights
+			self.val_labels, self.val_weights
 
 	def stepwise_data(self):
 		return self.train_norm_past_snapshots, self.train_norm_snapshots, \
-			self.train_snapshot_labels, self.train_snapshot_weights, \
+			self.train_labels, self.train_weights, \
 			self.val_norm_past_snapshots, self.val_norm_snapshots, \
-			self.val_snapshot_labels, self.val_snapshot_weights
+			self.val_labels, self.val_weights

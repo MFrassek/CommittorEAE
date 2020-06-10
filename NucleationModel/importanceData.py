@@ -109,7 +109,7 @@ class ImportanceData():
 			losses = [[] for i in range(len(orig_loss))]
 			for variable_nr in i_s:
 				print("\tPerturbing variable {}.".format(variable_nr))
-				# generating modified snapshot_lists
+				# generating modified snapshots
 				if mode == "Perturb":
 					mod_snapshots = self.perturb_snapshots(
 						variable_nr, 

@@ -7,10 +7,10 @@ class SnapData():
 			BA_past_snapshots, BB_past_snapshots, 
 			AA_snapshots, AB_snapshots, 
 			BA_snapshots, BB_snapshots, 
-			AA_snapshot_labels, AB_snapshot_labels, 
-			BA_snapshot_labels, BB_snapshot_labels, 
-			AA_snapshot_weights, AB_snapshot_weights, 
-			BA_snapshot_weights, BB_snapshot_weights):
+			AA_labels, AB_labels, 
+			BA_labels, BB_labels, 
+			AA_weights, AB_weights, 
+			BA_weights, BB_weights):
 		self._AA_past_snapshots = AA_past_snapshots
 		self._AB_past_snapshots = AB_past_snapshots
 		self._BA_past_snapshots = BA_past_snapshots
@@ -19,14 +19,14 @@ class SnapData():
 		self._AB_snapshots = AB_snapshots
 		self._BA_snapshots = BA_snapshots
 		self._BB_snapshots = BB_snapshots
-		self._AA_snapshot_labels = AA_snapshot_labels
-		self._AB_snapshot_labels = AB_snapshot_labels
-		self._BA_snapshot_labels = BA_snapshot_labels
-		self._BB_snapshot_labels = BB_snapshot_labels
-		self._AA_snapshot_weights = AA_snapshot_weights
-		self._AB_snapshot_weights = AB_snapshot_weights
-		self._BA_snapshot_weights = BA_snapshot_weights
-		self._BB_snapshot_weights = BB_snapshot_weights
+		self._AA_labels = AA_labels
+		self._AB_labels = AB_labels
+		self._BA_labels = BA_labels
+		self._BB_labels = BB_labels
+		self._AA_weights = AA_weights
+		self._AB_weights = AB_weights
+		self._BA_weights = BA_weights
+		self._BB_weights = BB_weights
 
 
 	@property
@@ -87,48 +87,48 @@ class SnapData():
 		return self._BB_snapshots
 	
 	@property
-	def snapshot_labels(self):
-		"""returns list of all snapshot_labels in order AA, AB, BA, BB"""
+	def labels(self):
+		"""returns list of all labels in order AA, AB, BA, BB"""
 		return np.array([snapshot for paths \
-				in [self._AA_snapshot_labels, self._AB_snapshot_labels, \
-				self._BA_snapshot_labels, self._BB_snapshot_labels] \
+				in [self._AA_labels, self._AB_labels, \
+				self._BA_labels, self._BB_labels] \
 				for snapshot in paths])
 	@property
-	def AA_snapshot_labels(self):
-		return self._AA_snapshot_labels
+	def AA_labels(self):
+		return self._AA_labels
 	@property
-	def AB_snapshot_labels(self):
-		return self._AB_snapshot_labels
+	def AB_labels(self):
+		return self._AB_labels
 	@property
-	def BA_snapshot_labels(self):
-		return self._BA_snapshot_labels
+	def BA_labels(self):
+		return self._BA_labels
 	@property
-	def BB_snapshot_labels(self):
-		return self._BB_snapshot_labels
+	def BB_labels(self):
+		return self._BB_labels
 
 	@property
-	def snapshot_weights(self):
-		"""returns list of all snapshot_weights in order AA, AB, BA, BB"""
+	def weights(self):
+		"""returns list of all weights in order AA, AB, BA, BB"""
 		return np.array([snapshot for paths \
-				in [self._AA_snapshot_weights, self._AB_snapshot_weights, \
-				self._BA_snapshot_weights, self._BB_snapshot_weights] \
+				in [self._AA_weights, self._AB_weights, \
+				self._BA_weights, self._BB_weights] \
 				for snapshot in paths])
 	@property
-	def AA_snapshot_weights(self):
-		return self._AA_snapshot_weights
+	def AA_weights(self):
+		return self._AA_weights
 	@property
-	def AB_snapshot_weights(self):
-		return self._AB_snapshot_weights
+	def AB_weights(self):
+		return self._AB_weights
 	@property
-	def BA_snapshot_weights(self):
-		return self._BA_snapshot_weights
+	def BA_weights(self):
+		return self._BA_weights
 	@property
-	def BB_snapshot_weights(self):
-		return self._BB_snapshot_weights
+	def BB_weights(self):
+		return self._BB_weights
 	
 	def shuffle_lists(self):
 		return shuffle(self.past_snapshots, self.snapshots, \
-				self.snapshot_labels, self.snapshot_weights, random_state = 42)
+				self.labels, self.weights, random_state = 42)
 
 	def split_lists(self, train_ratio, val_ratio):
 		assert isinstance(train_ratio, float) \
@@ -141,7 +141,7 @@ class SnapData():
 			"Sum of train_ratio and val_ratio must be lower than 1.0"
 		train_end = int(self.snapshot_cnt * train_ratio)
 		val_end = train_end + int(self.snapshot_cnt * val_ratio) 
-		past_snapshots, snapshots, snapshot_labels, snapshot_weights \
+		past_snapshots, snapshots, labels, weights \
 			= self.shuffle_lists()
 		return np.array([*past_snapshots[:train_end]]), \
 				np.array([*past_snapshots[train_end:val_end]]), \
@@ -149,12 +149,12 @@ class SnapData():
 				np.array([*snapshots[:train_end]]), \
 				np.array([*snapshots[train_end:val_end]]), \
 				np.array([*snapshots[val_end:]]), \
-				np.array([*snapshot_labels[:train_end]]), \
-				np.array([*snapshot_labels[train_end:val_end]]), \
-				np.array([*snapshot_labels[val_end:]]), \
-				np.array([*snapshot_weights[:train_end]]), \
-				np.array([*snapshot_weights[train_end:val_end]]), \
-				np.array([*snapshot_weights[val_end:]])
+				np.array([*labels[:train_end]]), \
+				np.array([*labels[train_end:val_end]]), \
+				np.array([*labels[val_end:]]), \
+				np.array([*weights[:train_end]]), \
+				np.array([*weights[train_end:val_end]]), \
+				np.array([*weights[val_end:]])
 
 	def __str__(self):
 		return "Snapshots (cnt): {} \n{} in AA\n{} in AB\n{} in BA\n{} in BB"\
