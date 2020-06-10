@@ -3,7 +3,8 @@ import tensorflow as tf
 
 class DatasetData():
 	def __init__(
-			self, train_past_snapshots,
+			self, 
+			train_past_snapshots,
 			val_past_snapshots,
 			test_past_snapshots,
 			train_snapshots,
