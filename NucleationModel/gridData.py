@@ -139,5 +139,5 @@ class GridData():
 			for key in weight_dict}
 		pBs = [pB_dict[tuple(key)] for key in grid_snapshots]
 		# return pB_dict, weighted_label_dict, weight_dict
-		return pB_dict, pBs
+		return pB_dict, np.array(pBs)
 	
