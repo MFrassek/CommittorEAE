@@ -7,31 +7,7 @@ class AutoEncoder:
 	def __init__(self, const):
 		self._const = const
 
-	def binary_neg_likelihood(self, y_actual, y_pred):
-		# nB log pB + nA log (1-pB)
-		return -(y_actual * tf.math.log(y_pred) \
-			+ (1-y_actual) * tf.math.log(1-y_pred))
-
-	def binomial_neg_likelihood(self, y_actual, y_pred):
-		# label here symbolizes number of paths that ended in B (0,1,2)
-		return -(2*y_actual * tf.math.log(y_pred) \
-			+ (2*(1-y_actual)) * tf.math.log(1-y_pred))
-
-	def log_loss(self, y_actual, y_pred):
-		return -tf.math.log(abs(y_actual-y_pred))
-
-
-	def difference_of_logs(self, y_actual, y_pred):
-		return tf.math.log(y_actual)
-		#return abs(tf.math.log(y_actual)-tf.math.log(y_pred))
-
-	def masked_difference_of_logs(self, y_actual, y_pred):
-		mask = K.not_equal(y_actual, 0)
-		return self.difference_of_logs(y_actual, y_pred)
-
-
-
-	def model(self, dimensions):
+	def model(self, dimensions, loss_function):
 		encoder_input = keras.Input(
 			shape = (dimensions,),
 			name = self._const.input_name)
@@ -123,24 +99,14 @@ class AutoEncoder:
 
 		autoencoder.compile(
 			optimizer = keras.optimizers.RMSprop(1e-3),
-		#	loss = {self._const.output_name_1: self.log_loss,
-		#	loss = {self._const.output_name_1: self.masked_difference_of_logs,
-			loss = {self._const.output_name_1: self.difference_of_logs,
-		#   loss = {OUTPUT_NAME_1:keras.losses.CategoricalHinge(),
-		#	loss = {self._const.output_name_1: self.binary_neg_likelihood,
-		#	loss = {self._const.output_name_1: self.binomial_neg_likelihood,
+			loss = {self._const.output_name_1: loss_function,
 				self._const.output_name_2: keras.losses.MeanAbsoluteError()},
 			loss_weights = [self._const.label_loss_weight, 
 				self._const.reconstruction_loss_weight])
 
 		autoencoder_1.compile(
 			optimizer = keras.optimizers.RMSprop(1e-3), 
-		#	loss = {self._const.output_name_1: self.log_loss},
-		#	loss = {self._const.output_name_1: self.masked_difference_of_logs},
-			loss = {self._const.output_name_1: self.difference_of_logs},
-		#   loss = {OUTPUT_NAME_1:keras.losses.CategoricalHinge()}, \
-		#	loss = {self._const.output_name_1: self.binomial_neg_likelihood},
-		#	loss = {self._const.output_name_1: self.binary_neg_likelihood},
+			loss = {self._const.output_name_1: loss_function},
 			loss_weights = [self._const.label_loss_weight])
 
 		autoencoder_2.compile(
