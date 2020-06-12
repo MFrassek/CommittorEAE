@@ -154,7 +154,7 @@ class PlotData():
 			cax,kw = mpl.colorbar.make_axes([ax for ax in axs])
 			cbar = plt.colorbar(im, cax=cax, **kw)
 			cbar.ax.tick_params(labelsize=subfig_size * len(used_variable_names))
-			plt.savefig("{}_fv{}_outN{}_r{}_{}_p{}_map.png"\
+			plt.savefig("results/{}_fv{}_outN{}_r{}_{}_p{}_map.png"\
 				.format(self._stamp, fill_val, k, resolution, model_name[0],
 					str(points_of_interest != None)[0]))
 			plt.show()
@@ -343,7 +343,7 @@ class PlotData():
 			for i in range(len(used_variable_names)%max_row_len, max_row_len):
 				new_axs[i].axis("off")
 		plt.tight_layout(rect = [0, 0, 1, 0.8])
-		plt.savefig("{}_fv{}_r{}_scat.png"\
+		plt.savefig("results/{}_fv{}_r{}_scat.png"\
 			.format(self._stamp, fill_val, resolution)) 
 		plt.show()
 		return
