@@ -11,7 +11,7 @@ def binomial_neg_likelihood(y_actual, y_pred):
 		+ (2*(1-y_actual)) * tf.math.log(1-y_pred))
 
 def log_loss(y_actual, y_pred):
-	return -tf.math.log(abs(y_actual-y_pred))
+	return tf.math.log(abs(y_actual-y_pred))
 
 
 def difference_of_logs(y_actual, y_pred):
