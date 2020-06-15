@@ -20,3 +20,5 @@ def difference_of_logs(y_actual, y_pred):
 def KL_divergence(y_actual, y_pred):
 	return y_actual * tf.math.log(abs(y_actual/y_pred))
 
+def KL_divergence_inv(y_actual, y_pred):
+	return y_pred * tf.math.log(abs(y_pred/y_actual))
