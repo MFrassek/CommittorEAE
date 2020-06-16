@@ -34,3 +34,11 @@ def squaredError(y_actual, y_pred):
 
 def logSquaredError(y_actual, y_pred):
 	return tf.math.log((y_actual - y_pred)**2)
+
+def logBinaryNegLikelihood(y_actual, y_pred):
+	return tf.math.log(-(y_actual * tf.math.log(y_pred) \
+		+ (1-y_actual) * tf.math.log(1-y_pred)))
+
+def logBinomialNegLikelihood(y_actual, y_pred):
+	return tf.math.log(-(2*y_actual * tf.math.log(y_pred) \
+		+ (2*(1-y_actual)) * tf.math.log(1-y_pred)))
