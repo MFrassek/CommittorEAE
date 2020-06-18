@@ -2,73 +2,43 @@ import numpy as np
 from collections import Counter
 import matplotlib.pyplot as plt
 
-class GridData():
-	def __init__(self, resolution):
+class Gridifier():
+	def __init__(self, base_snapshots, resolution):
+		self._dimensions = len(base_snapshots[0])
+		self._minima = np.amin(base_snapshots, axis = 0)
+		self._maxima = np.amax(base_snapshots, axis = 0)
+		self._spans = self._maxima - self._minima 
 		self._resolution = resolution
-	# 	self._minima = minima
-	# 	self._maxima = maxima
-	# 	self._snapshots = snapshots
-	# 	self._labels = labels
-	# 	self._weights = weights
-	# 	self._dimensions = len(self._minima)
-	# 	self._snapshot_cnt = len(self.snapshots)
-
-	# def __str__(self):
-	# 	return "{}-dimensional {}-grid for {} snapshots."\
-	# 		.format(self._dimensions, self._resolution, self._snapshot_cnt)
-	# 	#"{}".format(self.resolution) \
-	# 	#	+(len(self.minima)-1)*"x{}".format(self.resolution) \
-	# 	#	+ " grid for {} snapshots"\
-	# 	#		.format(self.resolution, self.resolution, len(self.snapshots))
+		self._inverse_spans_times_resolution = \
+			1 / self._spans * (self._resolution - 1)
 
 	@property
 	def resolution(self):
 		return self._resolution
-	# @property
-	# def minima(self):
-	# 	return self._minima
-	# @property
-	# def maxima(self):
-	# 	return self._maxima
-	# @property
-	# def snapshots(self):
-	# 	return self._snapshots
-	# @property
-	# def labels(self):
-	# 	return self._labels
-	# @property
-	# def weights(self):
-	# 	return self._weights
-	# @property
-	# def dimensions(self):
-	# 	return self._dimensions
-	# @property
-	# def snapshot_cnt(self):
-	# 	return self._snapshot_cnt
 
-	# def gridify(self, snapshots, minima, maxima):
-	# 	"""Take a list of snapshots and round all entries
-	# 	to the closest gridpoint.
-	# 	The positions of the gridpoints are
-	# 	determined by the chosen resolution as well as the minima and
-	# 	maxima of the snapshots.
-	# 	"""
-	# 	dimensions = len(minima)
-	# 	# Calculate the inverse of the spans to allow for 
-	# 	# multiplication instead of division. 
-	# 	# Then multiply with the resolution, to reduce the 
-	# 	# number of multiplications later.		
-	# 	inv_spans_res = np.array([1 / (maxima[i] - minima[i]) * \
-	# 		(self._resolution - 1) for i in range(dimensions)])
-	# 	# Use broadcasting to shift (- np.array(minima)) and rescale
-	# 	# (* inv_spans_res) the entries in snapshots.
-	# 	# Then increase all values by 0.5 and floor them to have an
-	# 	# efficient way of rounding.
-	# 	grid_snaps = np.floor((snapshots - np.array(minima)) \
-	# 		* inv_spans_res + 0.5)
-	# 	return grid_snaps
+	@property
+	def minima(self):
+		return self._minima
 
+	@property
+	def maxima(self):
+		return self._maxima
 	
+	def gridify_snapshots(self, snapshots):
+		"""Take a list of snapshots and round all entries
+		to the closest gridpoint.
+		The positions of the gridpoints are determined by the chosen 
+		resolution as well as the gridfiers given minima and maxima.
+		"""
+		# Use broadcasting to 
+		# shift (- self._minima) 
+		# rescale (* self._inverse_spans_times_resolution) 
+		# increase by 0.5 and
+		# round
+		# to have an efficient way of rounding.
+		grid_snapshots = np.floor((snapshots - self._minima) \
+			* self._inverse_spans_times_resolution + 0.5)
+		return grid_snapshots
 
 	def plot_distribution(
 			self, grid_snapshots, max_row_len, 
@@ -93,7 +63,7 @@ class GridData():
 			fontsize=subfig_size*max_row_len*2, 
 			y=1.04 - 0.04*row_cnt)				
 
-		for i in range(dimensions):   
+		for i in range(dimensions):
 			if row_cnt > 1:
 				new_axs = axs[i//max_row_len]
 			else:
