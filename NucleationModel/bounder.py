@@ -1,17 +1,15 @@
 import numpy as np
 
 class Bounder():
-	def __init__(self, snapshots, outlier_cutoff):
-		self._snapshots = snapshots
-		self._dimensions = len(snapshots[0])
-		self._outlier_cutoff = outlier_cutoff
+	def __init__(self, base_snapshots, outlier_cutoff):
+		self._dimensions = len(base_snapshots[0])
 		self._lower_bound = np.percentile(
-			self._snapshots, 
-			100 * self._outlier_cutoff, 
+			base_snapshots, 
+			100 * outlier_cutoff, 
 			axis = 0)
 		self._upper_bound = np.percentile(
-			self._snapshots, 
-			100 * (1 - self._outlier_cutoff),
+			base_snapshots, 
+			100 * (1 - outlier_cutoff),
 			axis = 0)
 
 	@property
