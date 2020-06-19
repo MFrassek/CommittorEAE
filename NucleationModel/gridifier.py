@@ -88,26 +88,4 @@ class Gridifier():
 		plt.tight_layout(rect = [0, 0, 1, 0.8])
 		plt.savefig("hist_{}_{}.png".format(file_name, self._resolution)) 
 		plt.show()
-
-
-	def approximate_pB(self, grid_snapshots, labels, weights):
-		weighted_label_dict = {}
-		weight_dict = {}
-		print("Fill hash maps")
-		for snapshot_nr in range(len(grid_snapshots)):
-			gridpoint_tuple = tuple(grid_snapshots[snapshot_nr])
-			try:
-				weighted_label_dict[gridpoint_tuple] \
-					+= weights[snapshot_nr] * labels[snapshot_nr]
-				weight_dict[gridpoint_tuple] += weights[snapshot_nr]
-			except:
-				weighted_label_dict[gridpoint_tuple] \
-					= weights[snapshot_nr] * labels[snapshot_nr]
-				weight_dict[gridpoint_tuple] = weights[snapshot_nr]
-		print("Rescale")
-		pB_dict = {key: weighted_label_dict[key] / weight_dict[key] \
-			for key in weight_dict}
-		pBs = [pB_dict[tuple(key)] for key in grid_snapshots]
-		# return pB_dict, weighted_label_dict, weight_dict
-		return pB_dict, np.array(pBs)
 	
