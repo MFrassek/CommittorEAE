@@ -5,7 +5,6 @@ class pB_Approximator():
 	def approximate_pBs(grid_snapshots, labels, weights):
 		weighted_label_dict = {}
 		weight_dict = {}
-		print("Fill hash maps")
 		for snapshot_nr in range(len(grid_snapshots)):
 			gridpoint_tuple = tuple(grid_snapshots[snapshot_nr])
 			if gridpoint_tuple in weighted_label_dict:
@@ -16,7 +15,6 @@ class pB_Approximator():
 				weighted_label_dict[gridpoint_tuple] \
 					= weights[snapshot_nr] * labels[snapshot_nr]
 				weight_dict[gridpoint_tuple] = weights[snapshot_nr]
-		print("Rescale")
 		pB_dict = {key: weighted_label_dict[key] / weight_dict[key] \
 			for key in weight_dict}
 		pBs = [pB_dict[tuple(key)] for key in grid_snapshots]
