@@ -4,82 +4,72 @@ import tensorflow as tf
 class DatasetData():
 	def __init__(
 			self, 
-			train_past_snapshots,
-			val_past_snapshots,
-			test_past_snapshots,
-			train_snapshots,
-			val_snapshots,
-			test_snapshots,
-			train_labels,
-			val_labels,
-			test_labels,
-			train_weights,
-			val_weights,
-			test_weights):
-		self._train_past_snapshots = train_past_snapshots
-		self._val_past_snapshots = val_past_snapshots
-		self._test_past_snapshots = test_past_snapshots
-		self._train_snapshots = train_snapshots
-		self._val_snapshots = val_snapshots
-		self._test_snapshots = test_snapshots			
-		self._train_labels = train_labels
-		self._val_labels = val_labels
-		self._test_labels = test_labels
-		self._train_weights = train_weights
-		self._val_weights = val_weights
-		self._test_weights = test_weights
-		self._train_size = len(train_past_snapshots)
-		self._val_size = len(val_past_snapshots)
-		self._test_size = len(test_past_snapshots)
+			past_snapshots,
+			snapshots,
+			labels,
+			weights,
+			flag):
+		self._past_snapshots = past_snapshots
+		self._snapshots = snapshots		
+		self._labels = labels
+		self._weights = weights
+		self._flag = flag
+		self._size = len(labels)
+		self._dimensions = len(snapshots[0])
 
 	def __str__(self):
-		return "{} training snapshots\n{} testing snapshots\n\
-		{} input dimensions"\
-			.format(self.train_size, self.test_size, self._dimensions)
+		return "{} set has a size of {} snapshots along {} input dimensions"\
+			.format(self._flag, self._size, self._dimensions)
+
+	@staticmethod
+	def initialize_train_val_test_datasets(
+			train_past_snapshots,
+			train_snapshots,
+			train_labels,
+			train_weights,
+			val_past_snapshots,
+			val_snapshots,
+			val_labels,
+			val_weights,
+			test_past_snapshots,
+			test_snapshots,
+			test_labels,
+			test_weights):
+		return DatasetData(
+				train_past_snapshots, 
+				train_snapshots, 
+				train_labels, 
+				train_weights, 
+				"Training"), \
+			DatasetData(
+				val_past_snapshots, 
+				val_snapshots, 
+				val_labels, 
+				val_weights, 
+				"Validation"), \
+			DatasetData(
+				test_past_snapshots, 
+				test_snapshots, 
+				test_labels, 
+				test_weights, 
+				"Testing")
 
 	@property
-	def train_size(self):
-		return self._train_size
+	def size(self):
+		return self._size
 	@property
-	def val_size(self):
-		return self._val_size
-	@property
-	def test_size(self):
-		return self._test_size
+	def flag(self):
+		return self._flag
 
 	@property
-	def train_past_snapshots(self):
-		return self._train_past_snapshots
+	def past_snapshots(self):
+		return self._past_snapshots
 	@property
-	def val_past_snapshots(self):
-		return self._val_past_snapshots
+	def snapshots(self):
+		return self._snapshots
 	@property
-	def test_past_snapshots(self):
-		return self._test_past_snapshots
+	def labels(self):
+		return self._labels
 	@property
-	def train_snapshots(self):
-		return self._train_snapshots
-	@property
-	def val_snapshots(self):
-		return self._val_snapshots
-	@property
-	def test_snapshots(self):
-		return self._test_snapshots
-	@property
-	def train_labels(self):
-		return self._train_labels
-	@property
-	def val_labels(self):
-		return self._val_labels
-	@property
-	def test_labels(self):
-		return self._test_labels
-	@property
-	def train_weights(self):
-		return self._train_weights
-	@property
-	def val_weights(self):
-		return self._val_weights
-	@property
-	def test_weights(self):
-		return self._test_weights
+	def weights(self):
+		return self._weights

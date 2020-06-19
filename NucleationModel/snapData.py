@@ -144,16 +144,16 @@ class SnapData():
 		past_snapshots, snapshots, labels, weights \
 			= self.shuffle_lists()
 		return np.array([*past_snapshots[:train_end]]), \
-				np.array([*past_snapshots[train_end:val_end]]), \
-				np.array([*past_snapshots[val_end:]]), \
 				np.array([*snapshots[:train_end]]), \
-				np.array([*snapshots[train_end:val_end]]), \
-				np.array([*snapshots[val_end:]]), \
 				np.array([*labels[:train_end]]), \
-				np.array([*labels[train_end:val_end]]), \
-				np.array([*labels[val_end:]]), \
 				np.array([*weights[:train_end]]), \
+				np.array([*past_snapshots[train_end:val_end]]), \
+				np.array([*snapshots[train_end:val_end]]), \
+				np.array([*labels[train_end:val_end]]), \
 				np.array([*weights[train_end:val_end]]), \
+				np.array([*past_snapshots[val_end:]]), \
+				np.array([*snapshots[val_end:]]), \
+				np.array([*labels[val_end:]]), \
 				np.array([*weights[val_end:]])
 
 	def __str__(self):
