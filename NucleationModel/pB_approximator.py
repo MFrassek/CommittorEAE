@@ -2,7 +2,7 @@ import numpy as np
 
 class pB_Approximator():
 	@staticmethod
-	def approximate_pB(grid_snapshots, labels, weights):
+	def approximate_pBs(grid_snapshots, labels, weights):
 		weighted_label_dict = {}
 		weight_dict = {}
 		print("Fill hash maps")
