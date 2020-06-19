@@ -26,7 +26,8 @@ class PlotData():
 			name_to_list_position: dict, resolution: int, 
 			vmin: float, vmax: float, 
 			method, model = None, 
-			points_of_interest = None, fill_val = 0):
+			points_of_interest = None, fill_val = 0,
+			norm = "Log"):
 		"""
 		params:
 			used_variable_names: list
@@ -103,15 +104,8 @@ class PlotData():
 						labelleft= False)  
 
 					if j < i:
-						if vmin >= 0:
-							if False:
-								im = new_axs.imshow(
-									super_map[i][j][0][k][::-1], 
-									cmap='coolwarm', 
-									interpolation='nearest', 
-									vmin=vmin, 
-									vmax=vmax)
-							else:
+						if norm == "Log":
+							if vmin >= 0:
 								im = new_axs.imshow(
 									super_map[i][j][0][k][::-1], 
 									cmap='coolwarm', 
@@ -119,15 +113,23 @@ class PlotData():
 									norm=mpl.colors.LogNorm(
 										vmin=0.01, 
 										vmax=vmax))
+							else:
+								im = new_axs.imshow(
+									super_map[i][j][0][k][::-1], 
+									cmap='coolwarm', 
+									interpolation='nearest', 
+									norm=mpl.colors.SymLogNorm(
+										linthresh=0.01*(vmax-vmin), 
+										linscale=0.1*(vmax-vmin), 
+										vmin=vmin, vmax=vmax))
 						else:
 							im = new_axs.imshow(
 								super_map[i][j][0][k][::-1], 
 								cmap='coolwarm', 
 								interpolation='nearest', 
-								norm=mpl.colors.SymLogNorm(
-									linthresh=0.01*(vmax-vmin), 
-									linscale=0.1*(vmax-vmin), 
-									vmin=vmin, vmax=vmax))
+								norm=mpl.colors.Normalize(
+									vmin=vmin, 
+									vmax=vmax))
 						# Only sets the leftmost and lowest label.
 						if i == len(used_variable_names) - 1:
 							new_axs.set_xlabel(
