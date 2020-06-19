@@ -53,83 +53,91 @@ class Pipeline():
 		snapshots = self._gridifier.gridify_snapshots(snapshots)		
 		return snapshots
 
-	def rbnga(self, snapshots, labels, weights):
+	def rbnga(self, dataset):
 		"""Reduce, bound, normalize and gridify snapshots 
 		and approximate the pBs.
 		"""
-		snapshots = self._reducer.reduce_snapshots(snapshots)
+		snapshots = self._reducer.reduce_snapshots(dataset.past_snapshots)
 		snapshots = self._bounder.bound_snapshots(snapshots)
 		snapshots = self._normalizer.normalize_snapshots(snapshots)
 		snapshots = self._gridifier.gridify_snapshots(snapshots)		
 		pB_dict, pBs = pB_Approximator.approximate_pBs(
 			snapshots,
-			labels,
-			weights)
+			dataset.labels,
+			dataset.weights)
 		return snapshots, pB_dict, pBs
 
-	def rbngat(self, snapshots, labels, weights):
+	def rbngat(self, dataset):
 		"""Reduce, bound, normalize and gridify snapshots,
 		approximate the pBs
 		and trimm the snapshots, labels and weights.
 		"""
-		snapshots = self._reducer.reduce_snapshots(snapshots)
+		snapshots = self._reducer.reduce_snapshots(dataset.past_snapshots)
 		snapshots = self._bounder.bound_snapshots(snapshots)
 		snapshots = self._normalizer.normalize_snapshots(snapshots)
 		snapshots = self._gridifier.gridify_snapshots(snapshots)		
 		pB_dict, pBs = pB_Approximator.approximate_pBs(
 			snapshots,
-			labels,
-			weights)
+			dataset.labels,
+			dataset.weights)
 		trimmer = Trimmer(pBs)
 		snapshots = trimmer.trim_snapshots(snapshots)
-		label = trimmer.trim_snapshots(labels)
-		weights = trimmer.trim_snapshots(weights)
+		labels = trimmer.trim_snapshots(dataset.labels)
+		weights = trimmer.trim_snapshots(dataset.weights)
 		pB_dict = trimmer.trim_dict(pB_dict)
 		pBs = trimmer.trim_snapshots(pBs)
 		return snapshots, labels, weights, pB_dict, pBs
 
-	def rbngatb(self, snapshots, labels, weights):
+	def rbngatb(self, dataset):
 		"""Reduce, bound, normalize and gridify snapshots,
 		approximate the pBs,
 		trimm the snapshots, labels and weights
 		and generate balanced weights for the pBs.
 		"""
-		snapshots = self._reducer.reduce_snapshots(snapshots)
+		snapshots = self._reducer.reduce_snapshots(dataset.past_snapshots)
 		snapshots = self._bounder.bound_snapshots(snapshots)
 		snapshots = self._normalizer.normalize_snapshots(snapshots)
 		snapshots = self._gridifier.gridify_snapshots(snapshots)		
 		pB_dict, pBs = pB_Approximator.approximate_pBs(
 			snapshots,
-			labels,
-			weights)
+			dataset.labels,
+			dataset.weights)
 		trimmer = Trimmer(pBs)
 		snapshots = trimmer.trim_snapshots(snapshots)
-		label = trimmer.trim_snapshots(labels)
-		weights = trimmer.trim_snapshots(weights)
+		labels = trimmer.trim_snapshots(dataset.labels)
+		weights = trimmer.trim_snapshots(dataset.weights)
 		pB_dict = trimmer.trim_dict(pB_dict)
 		pBs = trimmer.trim_snapshots(pBs)
 		pB_weights = pB_Balancer.balance(pBs, self._const.balance_bins)
 		return snapshots, labels, weights, pB_dict, pBs, pB_weights
 
-	def plot_data(self, dataset):
-		return self.rbng(dataset.train_past_snapshots), \
+	def plot_data(self, trainDataset):
+		assert trainDataset.flag == "Training", \
+			"trainDataset needs to be a training set."
+		return self.rbng(trainDataset.past_snapshots), \
 			np.zeros(self._dimensions), \
 			np.ones(self._dimensions)*(self._const.resolution - 1), \
-			dataset.train_labels, \
-			dataset.train_weights
+			trainDataset.labels, \
+			trainDataset.weights
 
-	def importance_data(self, dataset): 
-		return self.rbn(dataset.val_past_snapshots), \
-			self.rbn(dataset.val_snapshots), \
-			dataset.val_labels, \
-			dataset.val_weights
+	def importance_data(self, valDataset): 
+		assert valDataset.flag == "Validation", \
+			"valDataset needs to be a validation set."
+		return self.rbn(valDataset.past_snapshots), \
+			self.rbn(valDataset.snapshots), \
+			valDataset.labels, \
+			valDataset.weights
 
-	def stepwise_data(self, dataset):
-		return self.rbn(dataset.train_past_snapshots), \
-			self.rbn(dataset.train_snapshots), \
-			dataset.train_labels, \
-			dataset.train_weights, \
-			self.rbn(dataset.val_past_snapshots), \
-			self.rbn(dataset.val_snapshots), \
-			dataset.val_labels, \
-			dataset.val_weights
+	def stepwise_data(self, trainDataset, valDataset):
+		assert trainDataset.flag == "Training", \
+			"trainDataset needs to be a training set."
+		assert valDataset.flag == "Validation", \
+			"valDataset needs to be a validation set."
+		return self.rbn(trainDataset.past_snapshots), \
+			self.rbn(trainDataset.snapshots), \
+			trainDataset.labels, \
+			trainDataset.weights, \
+			self.rbn(valDataset.past_snapshots), \
+			self.rbn(valDataset.snapshots), \
+			valDataset.labels, \
+			valDataset.weights
