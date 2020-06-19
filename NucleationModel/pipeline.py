@@ -21,6 +21,20 @@ class Pipeline():
 		self._gridifier = Gridifier(base_snapshots, self._const.resolution)
 		#base_snapshots = self._gridifier.gridify_snapshots(base_snapshots)
 
+	@property
+	def mean(self):
+		return self._normalizer.mean
+	@property
+	def std(self):
+		return self._normalizer.std
+	
+	@property
+	def minima(self):
+		return self._gridifier.minima
+	@property
+	def maxima(self):
+		return self._gridifier.maxima
+
 	def rbn(self, snapshots):
 		snapshots = self._reducer.reduce_snapshots(snapshots)
 		snapshots = self._bounder.bound_snapshots(snapshots)
