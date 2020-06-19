@@ -98,6 +98,8 @@ class Const():
 		self._val_ratio = 0.1
 		# Fraction of most extreme values that are considered outliers to both sides
 		self._outlier_cutoff = 0.01
+		# Number of bins to balance the pBs
+		self._balance_bins = 10
 
 		"""System parameters"""
 		# Number of cores used
@@ -228,6 +230,10 @@ class Const():
 	@property
 	def outlier_cutoff(self):
 		return self._outlier_cutoff
+	@property
+	def balance_bins(self):
+		return self._balance_bins
+	
 	@property
 	def cores_used(self):
 		return self._cores_used
