@@ -22,10 +22,9 @@ class PlotData():
 		return self._stamp
 	
 	def plot_super_map(
-			self, subfig_size: int, used_variable_names: list, 
-			name_to_list_position: dict, resolution: int, 
-			vmin: float, vmax: float, 
-			method, model = None, 
+			self, used_variable_names: list, 
+			name_to_list_position: dict, 
+			method, const, model = None, 
 			points_of_interest = None, fill_val = 0,
 			norm = "Log"):
 		"""
@@ -34,12 +33,6 @@ class PlotData():
 				all values to be visited as x_pos
 			used_variable_names: list
 				all values to be visited as y_pos
-			v_min: float/int
-				lower bound on the color map
-			v_max: float/int
-				upper bound on the color map
-			resolution: int
-				resolution of the produced output list and corresponding figure
 			model:
 				tf model used for predictions
 				default None
@@ -70,7 +63,7 @@ class PlotData():
 					label_map = method(
 						x_pos = name_to_list_position[used_variable_names[i]], 
 						y_pos = name_to_list_position[used_variable_names[j]],
-						resolution = resolution,
+						resolution = const.resolution,
 						model = model,
 						points_of_interest = points_of_interest,
 						fill_val = fill_val)
@@ -80,11 +73,11 @@ class PlotData():
 			fig, axs = plt.subplots(
 				len(used_variable_names), len(used_variable_names),
 				figsize = (
-					subfig_size * len(used_variable_names), 
-					subfig_size * len(used_variable_names)))
+					const.subfig_size * len(used_variable_names), 
+					const.subfig_size * len(used_variable_names)))
 			fig.suptitle(
 				suptitle, 
-				fontsize = subfig_size*len(used_variable_names)*2)				
+				fontsize = const.subfig_size*len(used_variable_names)*2)				
 			
 			for i in range(len(used_variable_names)):
 				for j in range(len(used_variable_names)):
@@ -105,59 +98,59 @@ class PlotData():
 
 					if j < i:
 						if norm == "Log":
-							if vmin >= 0:
+							if const.min_label >= 0:
 								im = new_axs.imshow(
 									super_map[i][j][0][k][::-1], 
 									cmap='coolwarm', 
 									interpolation='nearest',
 									norm=mpl.colors.LogNorm(
-										vmin=0.01, 
-										vmax=vmax))
+										vmin=const.logvmin, 
+										vmax=const.max_label))
 							else:
 								im = new_axs.imshow(
 									super_map[i][j][0][k][::-1], 
 									cmap='coolwarm', 
 									interpolation='nearest', 
 									norm=mpl.colors.SymLogNorm(
-										linthresh=0.01*(vmax-vmin), 
-										linscale=0.1*(vmax-vmin), 
-										vmin=vmin, vmax=vmax))
+										linthresh=0.01*(const.max_label-const.min_label), 
+										linscale=0.1*(const.max_label-const.min_label), 
+										vmin=const.min_label, vmax=const.max_label))
 						else:
 							im = new_axs.imshow(
 								super_map[i][j][0][k][::-1], 
 								cmap='coolwarm', 
 								interpolation='nearest', 
 								norm=mpl.colors.Normalize(
-									vmin=vmin, 
-									vmax=vmax))
+									vmin=const.min_label, 
+									vmax=const.max_label))
 						# Only sets the leftmost and lowest label.
 						if i == len(used_variable_names) - 1:
 							new_axs.set_xlabel(
 								"${}$".format(used_variable_names[j]),
-								fontsize=subfig_size * 10)
+								fontsize=const.subfig_size * 10)
 						if j == 0:
 							new_axs.set_ylabel(
 								"${}$".format(used_variable_names[i]),
-								fontsize=subfig_size * 10)
+								fontsize=const.subfig_size * 10)
 						# Overwrites labels if predictions are based on the bn.
 						if model != None:
 							if model.input_names[0] == "encoded_snapshots":
 								if i == len(used_variable_names) - 1:
 									new_axs.set_xlabel(
 										"b{}".format(used_variable_names[j]),
-										fontsize=subfig_size * 10)
+										fontsize=const.subfig_size * 10)
 								if j == 0:
 									new_axs.set_ylabel(
 										"b{}".format(used_variable_names[i]),
-										fontsize=subfig_size * 10)
+										fontsize=const.subfig_size * 10)
 					else:
 						# Remove all subplots where i >= j.
 						new_axs.axis("off")
 			cax,kw = mpl.colorbar.make_axes([ax for ax in axs])
 			cbar = plt.colorbar(im, cax=cax, **kw)
-			cbar.ax.tick_params(labelsize=subfig_size * len(used_variable_names))
+			cbar.ax.tick_params(labelsize=const.subfig_size * len(used_variable_names))
 			plt.savefig("results/{}_fv{}_outN{}_r{}_{}_p{}_map.png"\
-				.format(self._stamp, fill_val, k, resolution, model_name[0],
+				.format(self._stamp, fill_val, k, const.resolution, model_name[0],
 					str(points_of_interest != None)[0]))
 			plt.show()
 		return super_map
@@ -170,6 +163,7 @@ class PlotData():
 		for nr in range(len(self._train_snapshots)):
 			x_int = int(self._train_snapshots[nr][x_pos])
 			y_int = int(self._train_snapshots[nr][y_pos])
+			#print(x_int, y_int, self._train_labels[nr])
 			if x_int >= 0 and x_int <= resolution-1 and y_int >= 0 \
 					and y_int <= resolution-1:
 				label_map[x_int][y_int] = label_map[x_int][y_int] \
@@ -277,8 +271,8 @@ class PlotData():
 
 
 	def plot_super_scatter(
-			self, subfig_size: int, used_variable_names: list, 
-			name_to_list_position: dict, resolution: int, 
+			self, used_variable_names: list, 
+			name_to_list_position: dict, const,
 			model, max_row_len = 6, fill_val = 0):
 		"""Generates a superfigure of scater plots.
 		Iterates over the different dimensions and based on 
@@ -294,13 +288,13 @@ class PlotData():
 		fig, axs = plt.subplots(
 			row_cnt, max_row_len,
 			figsize=(
-				subfig_size*max_row_len,
-				subfig_size*row_cnt*1.3))
+				const.subfig_size*max_row_len,
+				const.subfig_size*row_cnt*1.3))
 		#fig, axs = plt.subplots(1, len(used_variable_names), \
 					#figsize=(fig_size,fig_size/len(used_variable_names)/0.8))
 		fig.suptitle(
 			suptitle, 
-			fontsize=subfig_size*max_row_len*2, 
+			fontsize=const.subfig_size*max_row_len*2, 
 			y=1.04 - 0.04*row_cnt)				
 
 		for i in used_variable_names:
@@ -309,7 +303,7 @@ class PlotData():
 			xs, ys = self.calc_scatter_generated(
 				model = model, 
 				x_pos = name_to_list_position[i],
-				resolution = resolution, 
+				resolution = const.resolution, 
 				fill_val = fill_val)
 
 			#axs[used_variable_names.index(i)//6][used_variable_names.index(i)%6].tick_params(
@@ -326,7 +320,7 @@ class PlotData():
 				left = False,
 				labelleft= False)	
 			im = new_axs[used_variable_names.index(i)%max_row_len]\
-				.scatter(xs, ys, s=subfig_size*20)
+				.scatter(xs, ys, s=const.subfig_size*20)
 			new_axs[used_variable_names.index(i)%max_row_len]\
 				.set_xlim(
 					[self._minima[name_to_list_position[i]],
@@ -338,7 +332,7 @@ class PlotData():
 			new_axs[used_variable_names.index(i)%max_row_len]\
 				.set_xlabel(
 					"${}$".format(i),
-					fontsize=subfig_size*10)
+					fontsize=const.subfig_size*10)
 		# if not all rows are filled 
 		# remove the remaining empty subplots in the last row
 		if len(used_variable_names)%max_row_len != 0:
@@ -346,7 +340,7 @@ class PlotData():
 				new_axs[i].axis("off")
 		plt.tight_layout(rect = [0, 0, 1, 0.8])
 		plt.savefig("results/{}_fv{}_r{}_scat.png"\
-			.format(self._stamp, fill_val, resolution)) 
+			.format(self._stamp, fill_val, const.resolution)) 
 		plt.show()
 		return
 

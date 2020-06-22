@@ -143,6 +143,7 @@ class Const():
 		# Sub-figure size for the plot_* functions
 #		self._subfig_size = 5
 		self._subfig_size = 2
+		self._logvmin = 10**(-2)
 		# Thresholds for correlation between dimensions
 		self._corr_thresholds = [0.5, 0.1]
 		if min(self._path_type_weights) >= 0 \
@@ -297,6 +298,9 @@ class Const():
 	@property
 	def subfig_size(self):
 		return self._subfig_size
+	@property
+	def logvmin(self):
+		return self._logvmin
 	@property
 	def corr_thresholds(self):
 		return self._corr_thresholds
