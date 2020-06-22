@@ -47,46 +47,35 @@ class Pipeline():
 
 	def rbng(self, snapshots):
 		"""Reduce, bound, normalize and gridify snapshots."""
-		snapshots = self._reducer.reduce_snapshots(snapshots)
-		snapshots = self._bounder.bound_snapshots(snapshots)
-		snapshots = self._normalizer.normalize_snapshots(snapshots)
-		snapshots = self._gridifier.gridify_snapshots(snapshots)		
-		return snapshots
+		snapshots = self.rbn(snapshots)
+		grid_snapshots = self._gridifier.gridify_snapshots(snapshots)		
+		return grid_snapshots, snapshots
 
 	def rbnga(self, dataset):
 		"""Reduce, bound, normalize and gridify snapshots 
 		and approximate the pBs.
 		"""
-		snapshots = self._reducer.reduce_snapshots(dataset.past_snapshots)
-		snapshots = self._bounder.bound_snapshots(snapshots)
-		snapshots = self._normalizer.normalize_snapshots(snapshots)
-		snapshots = self._gridifier.gridify_snapshots(snapshots)		
+		grid_snapshots, snapshots = self.rbng(dataset.past_snapshots)		
 		pB_dict, pBs = pB_Approximator.approximate_pBs(
-			snapshots,
+			grid_snapshots,
 			dataset.labels,
 			dataset.weights)
-		return snapshots, pB_dict, pBs
+		return grid_snapshots, snapshots, pB_dict, pBs
 
 	def rbngat(self, dataset):
 		"""Reduce, bound, normalize and gridify snapshots,
 		approximate the pBs
 		and trimm the snapshots, labels and weights.
 		"""
-		snapshots = self._reducer.reduce_snapshots(dataset.past_snapshots)
-		snapshots = self._bounder.bound_snapshots(snapshots)
-		snapshots = self._normalizer.normalize_snapshots(snapshots)
-		snapshots = self._gridifier.gridify_snapshots(snapshots)		
-		pB_dict, pBs = pB_Approximator.approximate_pBs(
-			snapshots,
-			dataset.labels,
-			dataset.weights)
+		grid_snapshots, snapshots, pB_dict, pBs = self.rbnga(dataset)
 		trimmer = Trimmer(pBs)
+		grid_snapshots = trimmer.trim_snapshots(grid_snapshots)
 		snapshots = trimmer.trim_snapshots(snapshots)
 		labels = trimmer.trim_snapshots(dataset.labels)
 		weights = trimmer.trim_snapshots(dataset.weights)
 		pB_dict = trimmer.trim_dict(pB_dict)
 		pBs = trimmer.trim_snapshots(pBs)
-		return snapshots, labels, weights, pB_dict, pBs
+		return grid_snapshots, snapshots, labels, weights, pB_dict, pBs
 
 	def rbngatb(self, dataset):
 		"""Reduce, bound, normalize and gridify snapshots,
@@ -94,27 +83,17 @@ class Pipeline():
 		trimm the snapshots, labels and weights
 		and generate balanced weights for the pBs.
 		"""
-		snapshots = self._reducer.reduce_snapshots(dataset.past_snapshots)
-		snapshots = self._bounder.bound_snapshots(snapshots)
-		snapshots = self._normalizer.normalize_snapshots(snapshots)
-		snapshots = self._gridifier.gridify_snapshots(snapshots)		
-		pB_dict, pBs = pB_Approximator.approximate_pBs(
-			snapshots,
-			dataset.labels,
-			dataset.weights)
-		trimmer = Trimmer(pBs)
-		snapshots = trimmer.trim_snapshots(snapshots)
-		labels = trimmer.trim_snapshots(dataset.labels)
-		weights = trimmer.trim_snapshots(dataset.weights)
-		pB_dict = trimmer.trim_dict(pB_dict)
-		pBs = trimmer.trim_snapshots(pBs)
+		grid_snapshots, snapshots, labels, weights, pB_dict, pBs = \
+			self.rbngat(dataset)
 		pB_weights = pB_Balancer.balance(pBs, self._const.balance_bins)
-		return snapshots, labels, weights, pB_dict, pBs, pB_weights
+		return grid_snapshots, snapshots, labels, weights, \
+			pB_dict, pBs, pB_weights
+
 
 	def plot_data(self, trainDataset):
 		assert trainDataset.flag == "Training", \
 			"trainDataset needs to be a training set."
-		return self.rbng(trainDataset.past_snapshots), \
+		return self.rbng(trainDataset.past_snapshots)[0], \
 			np.zeros(self._dimensions), \
 			np.ones(self._dimensions)*(self._const.resolution - 1), \
 			trainDataset.labels, \
