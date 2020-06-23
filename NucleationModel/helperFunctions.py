@@ -36,14 +36,14 @@ def make_halfpoint_divided_colormap(logvmin):
 	c_map = ListedColormap(np.vstack((
 		bottom(np.linspace(
 			0, 
-			1 - halfpoint - (2 / resolution),
+			1 - halfpoint - (4 / resolution),
 			resolution - halfpoint_int)),
 		middle(np.linspace(
 			0.9, 
 			1.0, 
-			2)),
+			4)),
 		top(np.linspace(
-			1 - halfpoint + (2 / resolution),
+			1 - halfpoint + (4 / resolution),
 			1,
 			halfpoint_int)))), "SplitSummer")
 	return c_map

@@ -101,7 +101,7 @@ class PlotData():
 							if const.min_label >= 0:
 								im = new_axs.imshow(
 									super_map[i][j][0][k][::-1], 
-									cmap='coolwarm', 
+									cmap=const.cmap, 
 									interpolation='nearest',
 									norm=mpl.colors.LogNorm(
 										vmin=const.logvmin, 
@@ -109,7 +109,7 @@ class PlotData():
 							else:
 								im = new_axs.imshow(
 									super_map[i][j][0][k][::-1], 
-									cmap='coolwarm', 
+									cmap=const.cmap, 
 									interpolation='nearest', 
 									norm=mpl.colors.SymLogNorm(
 										linthresh=0.01*(const.max_label-const.min_label), 
@@ -118,7 +118,7 @@ class PlotData():
 						else:
 							im = new_axs.imshow(
 								super_map[i][j][0][k][::-1], 
-								cmap='coolwarm', 
+								cmap=const.cmap, 
 								interpolation='nearest', 
 								norm=mpl.colors.Normalize(
 									vmin=const.min_label, 
