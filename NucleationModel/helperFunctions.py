@@ -27,24 +27,27 @@ def get_size(obj, seen = None):
 	return size
 
 def make_halfpoint_divided_colormap(logvmin):
-	resolution = 100
-	halfpoint = math.log(0.5,10)/math.log(logvmin,10)
-	halfpoint_int = round(halfpoint*resolution)
+	resolution = 1001
+	bandwidth = 0.3
+	lower_bound_halfpoint = math.log(0.5-bandwidth/2,10)/math.log(logvmin,10)
+	lower_bound_halfpoint_int = round(lower_bound_halfpoint*resolution)
+	upper_bound_halfpoint = math.log(0.5+bandwidth/2,10)/math.log(logvmin,10)
+	upper_bound_halfpoint_int = round(upper_bound_halfpoint*resolution)
 	bottom = cm.get_cmap("summer", resolution)
 	middle = cm.get_cmap("Greys", 10)
 	top = cm.get_cmap("summer", resolution)
 	c_map = ListedColormap(np.vstack((
 		bottom(np.linspace(
 			0, 
-			1 - halfpoint - (4 / resolution),
-			resolution - halfpoint_int)),
+			1 - lower_bound_halfpoint,
+			resolution - lower_bound_halfpoint_int)),
 		middle(np.linspace(
 			0.9, 
 			1.0, 
-			4)),
+			lower_bound_halfpoint_int - upper_bound_halfpoint_int)),
 		top(np.linspace(
-			1 - halfpoint + (4 / resolution),
+			1 - upper_bound_halfpoint,
 			1,
-			halfpoint_int)))), "SplitSummer")
+			upper_bound_halfpoint_int)))), "SplitSummer")
 	return c_map
 
