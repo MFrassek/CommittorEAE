@@ -141,12 +141,12 @@ class Const():
 
 		"""Visualization parameters"""
 		# Resolution for the calc_* and plot_* functions
-		self._resolution = 15
+		self._resolution = 25
 		# Sub-figure size for the plot_* functions
 #		self._subfig_size = 5
 		self._subfig_size = 2
 		# Lower bondary for a logarithmic colormap
-		self._logvmin = 10**(-2)
+		self._logvmin = 10**(-10)
 		# Colormap used for the heat map plots
 		self._cmap = make_halfpoint_divided_colormap(self._logvmin)
 		# Thresholds for correlation between dimensions
