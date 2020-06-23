@@ -25,6 +25,13 @@ class Pipeline():
 		#base_snapshots = self._gridifier.gridify_snapshots(base_snapshots)
 
 	@property
+	def lower_bound(self):
+		return self._bounder.lower_bound
+	@property
+	def upper_bound(self):
+		return self._bounder.upper_bound
+
+	@property
 	def mean(self):
 		return self._normalizer.mean
 	@property
