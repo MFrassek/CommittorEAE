@@ -96,16 +96,6 @@ class Pipeline():
 		return grid_snapshots, snapshots, labels, weights, \
 			pB_dict, pBs, pB_weights
 
-
-	def plot_data(self, trainDataset):
-		assert trainDataset.flag == "Training", \
-			"trainDataset needs to be a training set."
-		return self.rbng(trainDataset.past_snapshots)[0], \
-			np.zeros(self._dimensions), \
-			np.ones(self._dimensions)*(self._const.resolution - 1), \
-			trainDataset.labels, \
-			trainDataset.weights
-
 	def importance_data(self, valDataset): 
 		assert valDataset.flag == "Validation", \
 			"valDataset needs to be a validation set."

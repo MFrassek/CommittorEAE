@@ -315,18 +315,33 @@ class Const():
 		return self._corr_thresholds
 
 	@property
-	def stamp(self):
-		return "tr{}_re{}_p{}_o{}_oc{}_bn{}_{}*({}{}+{}{}|{}{})_pw{}:{}:{}:{}_lw{}:{}_e{}" \
+	def data_stamp(self):
+		return "tr{}_re{}_p{}_o{}_oc{}"\
 			.format(
-				str(self._transitioned)[0],str(self._turnedback)[0], 
-				str(self._progress)[0], self._offset, self._outlier_cutoff,
-				str(self._bottleneck_size), str(self._node_mult), 
-				str(self._encoder_hidden), str(self._encoder_act_func), 
-				str(self._decoder_1_hidden), str(self._decoder_1_act_func), 
-				str(self._decoder_2_hidden), str(self._decoder_2_act_func), 
-				self._path_type_weights[0], self._path_type_weights[1], 
-				self._path_type_weights[2], self.path_type_weights[3], 
-				self._loss_weights[0], self._loss_weights[1], 
+				str(self._transitioned)[0],
+				str(self._turnedback)[0], 
+				str(self._progress)[0], 
+				self._offset, 
+				self._outlier_cutoff)
+	
+	@property
+	def model_stamp(self):
+		return "bn{}_{}*({}{}+{}{}|{}{})_pw{}:{}:{}:{}_lw{}:{}_e{}" \
+			.format(
+				str(self._bottleneck_size), 
+				str(self._node_mult), 
+				str(self._encoder_hidden), 
+				str(self._encoder_act_func), 
+				str(self._decoder_1_hidden), 
+				str(self._decoder_1_act_func), 
+				str(self._decoder_2_hidden), 
+				str(self._decoder_2_act_func), 
+				self._path_type_weights[0], 
+				self._path_type_weights[1], 
+				self._path_type_weights[2], 
+				self.path_type_weights[3], 
+				self._loss_weights[0], 
+				self._loss_weights[1], 
 				self._epochs)
 	
 	# Define setter methods for all variables that can be changed.

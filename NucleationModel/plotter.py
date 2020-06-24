@@ -2,30 +2,22 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-class PlotData():
-	def __init__(
-			self, train_snapshots, minima, maxima,
-			train_labels, train_weights, stamp):
-		self._train_snapshots = train_snapshots
-		self._minima = minima
-		self._maxima = maxima
-		self._train_labels = train_labels
-		self._train_weights = train_weights
-		self._stamp = stamp
-
-	def __str__(self):
-		return "Minima: {}\nMaxima: {}\nStamp: {}"\
-			.format(self._minima, self._maxima, self._stamp)
-
-	@property
-	def stamp(self):
-		return self._stamp
-	
+class Plotter():	
+	@staticmethod
 	def plot_super_map(
-			self, used_variable_names: list, 
+			used_variable_names: list, 
 			name_to_list_position: dict, 
-			method, const, model = None, 
-			points_of_interest = None, fill_val = 0,
+			const, 
+			pre_stamp, 
+			method, 
+			model = None, 
+			minima = None,
+			maxima = None,
+			grid_snapshots = None,
+			labels = None,
+			weights = None,
+			points_of_interest = None, 
+			fill_val = 0,
 			norm = "Log"):
 		"""
 		params:
@@ -64,6 +56,11 @@ class PlotData():
 						x_pos = name_to_list_position[used_variable_names[i]], 
 						y_pos = name_to_list_position[used_variable_names[j]],
 						resolution = const.resolution,
+						minima = minima, 
+						maxima = maxima, 
+						grid_snapshots = grid_snapshots,
+						labels = labels,
+						weights = weights,
 						model = model,
 						points_of_interest = points_of_interest,
 						fill_val = fill_val)
@@ -149,53 +146,104 @@ class PlotData():
 			cax,kw = mpl.colorbar.make_axes([ax for ax in axs])
 			cbar = plt.colorbar(im, cax=cax, **kw)
 			cbar.ax.tick_params(labelsize=const.subfig_size * len(used_variable_names))
-			plt.savefig("results/{}_fv{}_outN{}_r{}_{}_p{}_map.png"\
-				.format(self._stamp, fill_val, k, const.resolution, model_name[0],
-					str(points_of_interest != None)[0]))
+			if str(method).split(" ")[1].split("_")[-1][:3] == "gen":
+				if "partial" in str(method).split(" ")[1]:
+					method_stamp = "genP"
+				else:
+					method_stamp = "gen"
+				plt.savefig("results/{}_{}_{}_{}_fv{}_outN{}_r{}_map.png"\
+					.format(
+						pre_stamp, method_stamp, const.data_stamp, 
+						const.model_stamp, fill_val, k, const.resolution))
+			elif str(method).split(" ")[1].split("_")[-1][:3] == "giv":
+				if "partial" in str(method).split(" ")[1]:
+					method_stamp = "givP"
+				else:
+					method_stamp = "giv"
+				plt.savefig("results/{}_{}_{}_r{}_map.png"\
+					.format(
+						pre_stamp, method_stamp, 
+						const.data_stamp, const.resolution))
 			plt.show()
 		return super_map
 
+	@staticmethod
 	def calc_map_given(
-			self, x_pos, y_pos, resolution,
-			model = None, points_of_interest = None, fill_val = 0):
+			x_pos, 
+			y_pos, 
+			resolution,
+			minima = None, 
+			maxima = None, 
+			grid_snapshots = None,
+			labels = None,
+			weights = None,
+			model = None, 
+			points_of_interest = None, 
+			fill_val = 0):
 		label_map = [[0 for y in range(resolution)] for x in range(resolution)]
 		weight_map = [[0 for y in range(resolution)] for x in range(resolution)]		
-		for nr in range(len(self._train_snapshots)):
-			x_int = int(self._train_snapshots[nr][x_pos])
-			y_int = int(self._train_snapshots[nr][y_pos])
-			#print(x_int, y_int, self._train_labels[nr])
+		for nr in range(len(grid_snapshots)):
+			x_int = int(grid_snapshots[nr][x_pos])
+			y_int = int(grid_snapshots[nr][y_pos])
 			if x_int >= 0 and x_int <= resolution-1 and y_int >= 0 \
 					and y_int <= resolution-1:
 				label_map[x_int][y_int] = label_map[x_int][y_int] \
-					+ self._train_labels[nr] \
-					* self._train_weights[nr]
+					+ labels[nr] \
+					* weights[nr]
 				weight_map[x_int][y_int] = weight_map[x_int][y_int] \
-					+ self._train_weights[nr]
-		#print(np.array(label_map))
+					+ weights[nr]
 		label_map = [[label_map[i][j] / weight_map[i][j] \
 			if weight_map[i][j] > 0 else float("NaN") \
 			for j in range(len(label_map[i]))] \
 			for i in range(len(label_map))]
 		return np.array([label_map])
 
+	@staticmethod
 	def calc_partial_map_given(
-			self, x_pos, y_pos, resolution,
-			model = None, points_of_interest = None, fill_val = 0):
+			x_pos, 
+			y_pos, 
+			resolution,
+			minima = None, 
+			maxima = None, 
+			grid_snapshots = None,
+			labels = None,
+			weights = None,
+			model = None, 
+			points_of_interest = None, 
+			fill_val = 0):
 		xys = list(set([(int(ele[x_pos]),int(ele[y_pos])) \
 			for ele in points_of_interest]))
-		label_map = self.calc_map_given(
-			x_pos, y_pos, 
-			resolution, 
-			fill_val = fill_val)
+		label_map = Plotter.calc_map_given(
+				x_pos = x_pos, 
+				y_pos = y_pos, 
+				resolution = resolution,
+				minima = minima, 
+				maxima = maxima, 
+				grid_snapshots = grid_snapshots,
+				labels = labels,
+				weights = weights,
+				model = model, 
+				points_of_interest = points_of_interest, 
+				fill_val = fill_val)
 		partial_out_map = [[label_map[0][x][y] \
 			if (x,y) in xys else float("NaN") \
 			for y in range(resolution)] \
 			for x in range(resolution)]
 		return np.array([partial_out_map])
 
+	@staticmethod
 	def calc_map_generated(
-			self, x_pos, y_pos, resolution,
-			model = None, points_of_interest = None, fill_val = 0):
+			x_pos, 
+			y_pos, 
+			resolution,
+			minima = None, 
+			maxima = None, 
+			grid_snapshots = None,
+			labels = None,
+			weights = None,
+			model = None, 
+			points_of_interest = None, 
+			fill_val = 0):
 		"""
 		Makes predictions over the full (normalized) range of 
 		two input variables with all other variables fixed to a specific value.
@@ -216,29 +264,40 @@ class PlotData():
 		assert x_pos != y_pos, "x_pos and y_pos need to differ"
 		in_size = model.layers[0].output_shape[0][1]
 		out_size = model.layers[-1].output_shape[1]
-		xs = np.linspace(self._minima[x_pos], self._maxima[x_pos], resolution)
-		ys = np.linspace(self._minima[y_pos], self._maxima[y_pos], resolution)
+		xs = np.linspace(minima[x_pos], maxima[x_pos], resolution)
+		ys = np.linspace(minima[y_pos], maxima[y_pos], resolution)
 		out_map = [[] for i in range(out_size)]
 		for x in xs:
 			out_current_row = [[] for i in range(out_size)]
 			for y in ys:
 				# make predicition for current grid point
-				prediction = self.calc_map_point(
-					model, x, y, x_pos, y_pos, 
-					in_size, fill_val)
-				#if prediction > 0.5:
-				#	print([[x if x_pos == pos_nr else y if \
-				#	y_pos == pos_nr else fill_val \
-				#	for pos_nr in range(in_size)]])
+				prediction = Plotter.calc_map_point(
+					model = model, 
+					x = x, 
+					y = y, 
+					x_pos = x_pos, 
+					y_pos = y_pos, 
+					in_size = in_size, 
+					fill_val = fill_val)
 				for i in range(out_size):
 					out_current_row[i].append(prediction[i])
 			for i in range(out_size):
 				out_map[i].append(out_current_row[i])
 		return np.array(out_map)
 
+	@staticmethod
 	def calc_partial_map_generated(
-			self, x_pos, y_pos, resolution,
-			model = None, points_of_interest = None, fill_val = 0):
+			x_pos, 
+			y_pos, 
+			resolution,
+			minima = None, 
+			maxima = None, 
+			grid_snapshots = None,
+			labels = None,
+			weights = None,
+			model = None, 
+			points_of_interest = None, 
+			fill_val = 0):
 		assert x_pos != y_pos, "x_pos and y_pos need to differ"
 		in_size = model.layers[0].output_shape[0][1]
 		out_size = model.layers[-1].output_shape[1]
@@ -251,29 +310,46 @@ class PlotData():
 		out_map = [[[float("NaN") for i in range(resolution)] \
 			for j in range(resolution)] \
 			for k in range(out_size)] 
-		xs = np.linspace(self._minima[x_pos], self._maxima[x_pos], resolution)
-		ys = np.linspace(self._minima[y_pos], self._maxima[y_pos], resolution)
+		xs = np.linspace(minima[x_pos], maxima[x_pos], resolution)
+		ys = np.linspace(minima[y_pos], maxima[y_pos], resolution)
 		for x,y in xys:
 			#print(x, y)
-			prediction = self.calc_map_point(
-				model, xs[x], ys[y], x_pos, y_pos, 
-				in_size, fill_val)
+			prediction = Plotter.calc_map_point(
+				model = model, 
+				x = xs[x], 
+				y = ys[y], 
+				x_pos = x_pos, 
+				y_pos = y_pos, 
+				in_size = in_size, 
+				fill_val = fill_val)
 			for i in range(out_size):
 				out_map[i][x][y] = prediction[i]
 		return np.array(out_map)
 
+	@staticmethod
 	def calc_map_point(
-			self, model, x, y, x_pos, y_pos, 
-			in_size, fill_val = 0):
+			model, 
+			x, 
+			y, 
+			x_pos, 
+			y_pos, 
+			in_size, 
+			fill_val = 0):
 		return model.predict([[x if x_pos == pos_nr else y if \
 					y_pos == pos_nr else fill_val \
 					for pos_nr in range(in_size)]])[0]
 
-
+	@staticmethod
 	def plot_super_scatter(
-			self, used_variable_names: list, 
-			name_to_list_position: dict, const,
-			model, max_row_len = 6, fill_val = 0):
+			used_variable_names: list, 
+			name_to_list_position: dict, 
+			const, 
+			pre_stamp, 
+			model,
+			minima,
+			maxima, 
+			fill_val = 0,
+			max_row_len = 6):
 		"""Generates a superfigure of scater plots.
 		Iterates over the different dimensions and based on 
 		different input values for one dimensions
@@ -290,8 +366,6 @@ class PlotData():
 			figsize=(
 				const.subfig_size*max_row_len,
 				const.subfig_size*row_cnt*1.3))
-		#fig, axs = plt.subplots(1, len(used_variable_names), \
-					#figsize=(fig_size,fig_size/len(used_variable_names)/0.8))
 		fig.suptitle(
 			suptitle, 
 			fontsize=const.subfig_size*max_row_len*2, 
@@ -300,13 +374,13 @@ class PlotData():
 		for i in used_variable_names:
 			#print(i)   
 			#print(name_to_list_position[i])
-			xs, ys = self.calc_scatter_generated(
+			xs, ys = Plotter.calc_scatter_generated(
 				model = model, 
+				minima = minima,
+				maxima = maxima,
 				x_pos = name_to_list_position[i],
 				resolution = const.resolution, 
 				fill_val = fill_val)
-
-			#axs[used_variable_names.index(i)//6][used_variable_names.index(i)%6].tick_params(
 			if row_cnt > 1:
 				new_axs = axs[(used_variable_names.index(i))//max_row_len]
 			else:
@@ -323,12 +397,12 @@ class PlotData():
 				.scatter(xs, ys, s=const.subfig_size*20)
 			new_axs[used_variable_names.index(i)%max_row_len]\
 				.set_xlim(
-					[self._minima[name_to_list_position[i]],
-					self._maxima[name_to_list_position[i]]])
+					[minima[name_to_list_position[i]],
+					maxima[name_to_list_position[i]]])
 			new_axs[used_variable_names.index(i)%max_row_len]\
 				.set_ylim(
-					[self._minima[name_to_list_position[i]],
-					self._maxima[name_to_list_position[i]]])
+					[minima[name_to_list_position[i]],
+					maxima[name_to_list_position[i]]])
 			new_axs[used_variable_names.index(i)%max_row_len]\
 				.set_xlabel(
 					"${}$".format(i),
@@ -339,81 +413,26 @@ class PlotData():
 			for i in range(len(used_variable_names)%max_row_len, max_row_len):
 				new_axs[i].axis("off")
 		plt.tight_layout(rect = [0, 0, 1, 0.8])
-		plt.savefig("results/{}_fv{}_r{}_scat.png"\
-			.format(self._stamp, fill_val, const.resolution)) 
+		plt.savefig("results/{}_{}_{}_fv{}_r{}_scat.png"\
+			.format(
+				pre_stamp, const.data_stamp, const.model_stamp, 
+				fill_val, const.resolution))
 		plt.show()
 		return
 
-	def calc_scatter_generated(self, model, x_pos, resolution, fill_val = 0):
+	@staticmethod
+	def calc_scatter_generated(
+			model, 
+			minima, 
+			maxima, 
+			x_pos, 
+			resolution, 
+			fill_val = 0):
 		in_size = model.layers[0].output_shape[0][1]
-		xs = np.linspace(self._minima[x_pos], self._maxima[x_pos], resolution)
+		xs = np.linspace(minima[x_pos], maxima[x_pos], resolution)
 		ys = []
 		for x in xs:
 			prediction = model.predict([[x if x_pos == pos_nr else fill_val \
 					for pos_nr in range(in_size)]])[0]
 			ys.append(prediction[x_pos])
 		return xs, ys 
-
-# 	def calc_map_given(self, x_pos, y_pos, resolution):
-# 		""""""
-# 		xs = np.linspace(self._minima[x_pos], self._maxima[x_pos], resolution)
-# 		ys = np.linspace(self._minima[y_pos], self._maxima[y_pos], resolution)
-# 		x_span = self._maxima[x_pos] - self._minima[x_pos]
-# 		y_span = self._maxima[y_pos] - self._minima[y_pos]
-			
-
-# 		# Generate two lists of lists of zeros to add all labels and weights to.
-# 		label_map = [[0 for y in ys] for x in xs]
-# 		weight_map = [[0 for y in ys] for x in xs]
-# 		# Sort the labels of each snapshot to the corresponding 
-# 		# "positions" in the grid (by sorting them in the list).
-# 		for nr in range(len(self._train_snapshots)):
-# 			x_snap = self._train_snapshots[nr][x_pos]
-# 			y_snap = self._train_snapshots[nr][y_pos]
-# 			# Uses "int" to be able to use for iteration. 
-# 			# Uses "round" to round to closest full number. 
-# 			# Uses "i-min_x" to offset to start at 0. 
-# 			# Uses "//x_span*(resolution-1)" to rescale and return int.
-# 			x_int = int((x_snap - self._minima[x_pos])\
-# 				/x_span*(resolution-1)+0.5)
-# 			y_int = int((y_snap - self._minima[y_pos])\
-# 					/y_span*(resolution-1)+0.5)
-# 			# After the gridpoint closest to the snapshot position is determined,
-# 			# if the snapshot lies within the bounds
-# 			# the snapshot's label is multiplied with its weight 
-# 			# and added to that grid point.
-# 			# The weight is added to the corresponding postion of the weight map.
-# 			if x_int >= 0 and x_int <= resolution-1 and y_int >= 0 \
-# 					and y_int <= resolution-1:
-				
-# 				label_map[x_int][y_int] = label_map[x_int][y_int] \
-# 					+ self._train_labels[nr] \
-# 					* self._train_weights[nr]
-# 				weight_map[x_int][y_int] = weight_map[x_int][y_int] \
-# 					+ self._train_weights[nr]
-# 		# Calculate the weighted mean of the labels associated with
-# 		# each grid point. 
-# 		# Divide each entry of the label map with the corresponding
-# 		# entry in the weight map. If no snapshots were associated
-# 		# with that grid point, and the corresponding weight in the 
-# 		# weight_map is 0, set the cell value to NaN. 
-# #		label_map = list(map(lambda y: list(map(lambda x: np.mean(x) \
-# #						if len(x) > 0 else float('Nan'),y)),label_map))
-# 		print(label_map)
-# 		print(weight_map)
-# 		label_map = [[label_map[i][j] / weight_map[i][j] \
-# 			if weight_map[i][j] > 0 else float("NaN") \
-# 			for j in range(len(label_map[i]))] \
-# 			for i in range(len(label_map))]
-# 		return np.array([label_map])
-
-	# def calc_full_map_given(self, resolution):
-	# 	dims = range(len(self._minima))
-	# 	xs_s = [np.linspace(self._minima[x_pos], self._maxima[x_pos], resolution) for x_pos in dims]
-	# 	print(xs)
-	# 	x_spans = [self._maxima[x_pos] - self._minima[x_pos] for x_pos in dims]
-	# 	print(x_spans)
-	# 	rounded_snapshots = []
-	# 	for nr in range(len(self._train_snapshots)):
-	# 		for dim in dims:
-	# 			pass
