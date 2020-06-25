@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from helperFunctions import function_to_str
 
 class Plotter():	
 	@staticmethod
@@ -146,8 +147,8 @@ class Plotter():
 			cax,kw = mpl.colorbar.make_axes([ax for ax in axs])
 			cbar = plt.colorbar(im, cax=cax, **kw)
 			cbar.ax.tick_params(labelsize=const.subfig_size * len(used_variable_names))
-			if str(method).split(" ")[1].split("_")[-1][:3] == "gen":
-				if "partial" in str(method).split(" ")[1]:
+			if function_to_str(method).split("_")[-1][:3] == "gen":
+				if "partial" in function_to_str(method):
 					method_stamp = "genP"
 				else:
 					method_stamp = "gen"
@@ -155,8 +156,8 @@ class Plotter():
 					.format(
 						pre_stamp, method_stamp, const.data_stamp, 
 						const.model_stamp, fill_val, k, const.resolution))
-			elif str(method).split(" ")[1].split("_")[-1][:3] == "giv":
-				if "partial" in str(method).split(" ")[1]:
+			elif function_to_str(method).split("_")[-1][:3] == "giv":
+				if "partial" in function_to_str(method):
 					method_stamp = "givP"
 				else:
 					method_stamp = "giv"

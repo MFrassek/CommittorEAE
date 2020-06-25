@@ -51,3 +51,5 @@ def make_halfpoint_divided_colormap(logvmin):
 			upper_bound_halfpoint_int)))), "SplitSummer")
 	return c_map
 
+def function_to_str(function):
+	return str(function).split(" ")[1]
