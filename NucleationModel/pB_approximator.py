@@ -18,4 +18,5 @@ class pB_Approximator():
 		pB_dict = {key: weighted_label_dict[key] / weight_dict[key] \
 			for key in weight_dict}
 		pBs = [pB_dict[tuple(key)] for key in grid_snapshots]
-		return pB_dict, np.array(pBs)
+		pB_weights = [weight_dict[tuple(key)] for key in grid_snapshots]
+		return pB_dict, np.array(pBs), pB_weights

@@ -63,18 +63,19 @@ class Pipeline():
 		and approximate the pBs.
 		"""
 		grid_snapshots, snapshots = self.rbng(dataset.past_snapshots)		
-		pB_dict, pBs = pB_Approximator.approximate_pBs(
+		pB_dict, pBs, pB_weights = pB_Approximator.approximate_pBs(
 			grid_snapshots,
 			dataset.labels,
 			dataset.weights)
-		return grid_snapshots, snapshots, pB_dict, pBs
+		return grid_snapshots, snapshots, pB_dict, pBs, pB_weights
 
 	def rbngat(self, dataset):
 		"""Reduce, bound, normalize and gridify snapshots,
 		approximate the pBs
 		and trimm the snapshots, labels and weights.
 		"""
-		grid_snapshots, snapshots, pB_dict, pBs = self.rbnga(dataset)
+		grid_snapshots, snapshots, \
+			pB_dict, pBs, pB_weights = self.rbnga(dataset)
 		trimmer = Trimmer(pBs)
 		grid_snapshots = trimmer.trim_snapshots(grid_snapshots)
 		snapshots = trimmer.trim_snapshots(snapshots)
@@ -82,7 +83,9 @@ class Pipeline():
 		weights = trimmer.trim_snapshots(dataset.weights)
 		pB_dict = trimmer.trim_dict(pB_dict)
 		pBs = trimmer.trim_snapshots(pBs)
-		return grid_snapshots, snapshots, labels, weights, pB_dict, pBs
+		pB_weights = trimmer.trim_snapshots(pB_weights)
+		return grid_snapshots, snapshots, labels, weights, \
+			pB_dict, pBs, pB_weights
 
 	def rbngatb(self, dataset):
 		"""Reduce, bound, normalize and gridify snapshots,
@@ -90,11 +93,11 @@ class Pipeline():
 		trimm the snapshots, labels and weights
 		and generate balanced weights for the pBs.
 		"""
-		grid_snapshots, snapshots, labels, weights, pB_dict, pBs = \
-			self.rbngat(dataset)
-		pB_weights = pB_Balancer.balance(pBs, self._const.balance_bins)
+		grid_snapshots, snapshots, labels, weights, \
+			pB_dict, pBs, pB_weights = self.rbngat(dataset)
+		pBb_weights = pB_Balancer.balance(pBs, self._const.balance_bins)
 		return grid_snapshots, snapshots, labels, weights, \
-			pB_dict, pBs, pB_weights
+			pB_dict, pBs, pB_weights, pBb_weights
 
 	def importance_data(self, valDataset): 
 		assert valDataset.flag == "Validation", \
