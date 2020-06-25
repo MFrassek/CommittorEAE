@@ -3,3 +3,5 @@
 *.png
 */__pycache__/*
 NucleationModel/__pycache__/*
+__pycache__/
+*.pyc
