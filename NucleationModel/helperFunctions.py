@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
+
 def get_size(obj, seen = None):
 	"""Recursively finds size of objects
 	Copied from https://goshippo.com/blog/measure-real-size-any-python-object/
@@ -25,6 +26,7 @@ def get_size(obj, seen = None):
 	elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
 		size += sum([get_size(i, seen) for i in obj])
 	return size
+
 
 def make_halfpoint_divided_colormap(logvmin):
 	resolution = 1001
@@ -51,5 +53,22 @@ def make_halfpoint_divided_colormap(logvmin):
 			upper_bound_halfpoint_int)))), "SplitSummer")
 	return c_map
 
+
 def function_to_str(function):
 	return str(function).split(" ")[1]
+
+
+def get_all_ranges(datasets: list):
+	ranges = [
+		[np.float("inf"), np.float("-inf")]
+		for i, _ in enumerate(datasets[0].past_snapshots[0])
+		]
+	dimensions = len(ranges)
+	for dataset in datasets:
+		for snapshot in dataset.past_snapshots:
+			for dim in range(dimensions):
+				if snapshot[dim] < ranges[dim][0]:
+					ranges[dim][0] = snapshot[dim]
+				if snapshot[dim] > ranges[dim][1]:
+					ranges[dim][1] = snapshot[dim]
+	return ranges
