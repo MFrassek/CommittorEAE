@@ -22,19 +22,17 @@ class ImportanceData():
         covar_matrix = np.cov(self._columns)
         strong_corr_inputs = []
         weak_corr_inputs = []
-        for row_nr in range(len(covar_matrix)):
-            for entry_nr in range(len(covar_matrix[row_nr])):
+        for row_nr, row in enumerate(covar_matrix):
+            for entry_nr, entry in enumerate(row):
                 if row_nr > entry_nr:
-                    if abs(covar_matrix[row_nr][entry_nr]) \
-                            >= self._strong_corr_threshold:
+                    if abs(entry) >= self._strong_corr_threshold:
                         strong_corr_inputs.append(
                             [[str(row_nr), str(entry_nr)],
-                             "{:.3f}".format(covar_matrix[row_nr][entry_nr])])
-                    elif abs(covar_matrix[row_nr][entry_nr]) \
-                            >= self._weak_corr_threshold:
+                             "{:.3f}".format(entry)])
+                    elif abs(entry) >= self._weak_corr_threshold:
                         weak_corr_inputs.append(
                             [[str(row_nr), str(entry_nr)],
-                             "{:.3f}".format(covar_matrix[row_nr][entry_nr])])
+                             "{:.3f}".format(entry)])
         if len(strong_corr_inputs) > 0 or len(weak_corr_inputs) > 0:
             print(("Caution!\nCorrelation between input data can affect the "
                   + "reliability of the importance measure.\n"
@@ -142,18 +140,18 @@ class ImportanceData():
                 mod_loss = \
                     model.evaluate(mod_val_ds, verbose=0, steps=eval_steps)
                 # append the losses to a collective list for later comparison
-                for i in range(len(orig_loss)):
-                    losses[i].append(max(0, mod_loss[i] - orig_loss[i]))
+                for i, loss in enumerate(orig_loss):
+                    loss.append(max(0, mod_loss[i] - orig_loss[i]))
             # average over the loss lists
             # negative increases of loss are set to zero
-            for row_nr in range(len(losses)):
-                full_loss = sum(losses[row_nr])
-                for col_nr in range(len(losses[row_nr])):
+            for row_nr, row in enumerate(losses):
+                full_loss = sum(row)
+                for entry_nr, entry in enumerate(row):
                     if full_loss > 0:
-                        losses[row_nr][col_nr] = \
-                            losses[row_nr][col_nr]/full_loss
+                        entry = \
+                            entry / full_loss
                     else:
-                        losses[row_nr][col_nr] = 0
+                        entry = 0
             meta_losses.append(np.array(losses))
 
         tot_norm_losses = np.transpose([sum(np.transpose(sum(meta_losses)))])
@@ -180,13 +178,13 @@ class ImportanceData():
         fig.suptitle(
             "Input importance measures",
             fontsize=subfig_size*4, y=1.04 - 0.04*len(loss_names))
-        for mode_nr in range(len(modes)):
+        for mode_nr, mode in enumerate(modes):
             losses = self.calc_importance(
-                *modes[mode_nr], model, val_ds,
+                *mode, model, val_ds,
                 i_s, repetitions, batch_size)
             # Takes care of different handling of subplots if
             # there is one vs several rows/columns.
-            for loss_nr in range(len(loss_names)):
+            for loss_nr, loss_name in enumerate(loss_names):
                 if len(modes) == 1:
                     if len(loss_names) == 1:
                         new_axs = axs
@@ -204,7 +202,7 @@ class ImportanceData():
                         fontsize=subfig_size*3)
                 if mode_nr == 0:
                     new_axs.set_ylabel(
-                        "{}".format(loss_names[loss_nr]),
+                        "{}".format(loss_name),
                         fontsize=subfig_size*3)
                 new_axs.tick_params(
                     axis='x',

@@ -62,8 +62,7 @@ def function_to_str(function):
 def get_all_ranges(datasets: list):
     ranges = [
         [np.float("inf"), np.float("-inf")]
-        for i, _ in enumerate(datasets[0].past_snapshots[0])
-        ]
+        for i in datasets[0].past_snapshots[0]]
     dimensions = len(ranges)
     for dataset in datasets:
         for snapshot in dataset.past_snapshots:

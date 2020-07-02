@@ -107,11 +107,11 @@ def compare_super_maps(map1, map2):
     are_equal = True
     unequal_counter = 0
     above_counter = 0
-    for y in range(len(map1)):
-        for x in range(len(map1[y])):
-            for z in range(len(map1[y][x])):
-                for i in range(len(map1[y][x][z][z])):
-                    for j in range(len(map1[y][x][z][z][i])):
+    for y, _ in enumerate(map1):
+        for x, _ in enumerate(map1[y]):
+            for z, _ in enumerate(map1[y][x]):
+                for i, _ in enumerate(map1[y][x][z][z]):
+                    for j, _ in enumerate(map1[y][x][z][z][i]):
                         if map1[y][x][z][z][i][j] != map2[y][x][z][z][i][j] \
                             and not (np.isnan(map1[y][x][z][z][i][j])
                                      and np.isnan(map2[y][x][z][z][i][j])):

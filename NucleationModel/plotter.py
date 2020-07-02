@@ -45,17 +45,17 @@ class Plotter():
             out_size = model.layers[-1].output_shape[1]
 
         super_map = []
-        for i in range(len(used_variable_names)):
+        for i, var_name_i in enumerate(used_variable_names):
             super_map.append([])
-            for j in range(len(used_variable_names)):
+            for j, var_name_j in enumerate(used_variable_names):
                 super_map[-1].append([])
                 if j < i:
                     print("{}: {}\t{}: {}".format(
-                        i, used_variable_names[i],
-                        j, used_variable_names[j]))
+                        i, var_name_i,
+                        j, var_name_j))
                     label_map = method(
-                        x_pos=name_to_list_position[used_variable_names[i]],
-                        y_pos=name_to_list_position[used_variable_names[j]],
+                        x_pos=name_to_list_position[var_name_i],
+                        y_pos=name_to_list_position[var_name_j],
                         resolution=const.resolution,
                         minima=minima,
                         maxima=maxima,
@@ -77,8 +77,8 @@ class Plotter():
                 suptitle,
                 fontsize=const.subfig_size*len(used_variable_names)*2)
 
-            for i in range(len(used_variable_names)):
-                for j in range(len(used_variable_names)):
+            for i, _ in enumerate(used_variable_names):
+                for j, _ in enumerate(used_variable_names):
                     # Defines new_axs to take care of different
                     # handling of only one column of subplots.
                     if len(used_variable_names) == 1:
@@ -195,9 +195,9 @@ class Plotter():
         label_map = [[0 for y in range(resolution)] for x in range(resolution)]
         weight_map = [[0 for y in range(resolution)]
                       for x in range(resolution)]
-        for nr in range(len(grid_snapshots)):
-            x_int = int(grid_snapshots[nr][x_pos])
-            y_int = int(grid_snapshots[nr][y_pos])
+        for nr, snapshot in enumerate(grid_snapshots):
+            x_int = int(snapshot[x_pos])
+            y_int = int(snapshot[y_pos])
             if x_int >= 0 and x_int <= resolution-1 and y_int >= 0 \
                     and y_int <= resolution-1:
                 label_map[x_int][y_int] = label_map[x_int][y_int] \

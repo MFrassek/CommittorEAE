@@ -115,10 +115,10 @@ class StepwiseData:
         losses = []
         # param limit may not exceed total number of variables available
         param_limit = min(param_limit, len(used)+len(unused))
-        for i in range(len(unused)):
-            print(used+[unused[i]])
+        for i, unused_i in enumerate(unused):
+            print(used+[unused_i])
             losses.append(self.get_score(
-                used=used+[unused[i]],
+                used=used+[unused_i],
                 name_to_list_position=name_to_list_position,
                 epochs=epochs,
                 repetitions=repetitions,
@@ -156,7 +156,7 @@ class StepwiseData:
         losses = []
         # param limit may not exceed total number of variables available
         param_limit = min(param_limit, len(used)+len(unused))
-        for i in range(len(used)):
+        for i, _ in enumerate(used):
             print(used[:i]+used[i+1:])
             losses.append(self.get_score(
                 used=used[:i]+used[i+1:],

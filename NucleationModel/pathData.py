@@ -99,10 +99,9 @@ class PathData:
         AB_weights = []
         BA_weights = []
 
-        for path_nr in range(len(self._paths)):
+        for path_nr, path in enumerate(self._paths):
             # iterates over all indices within paths and uses the index to
             # assign the current path, path_label and path_weight
-            path = self._paths[path_nr]
             path_label = self._path_labels[path_nr]
             path_weight = self._path_weights[path_nr]
             for snapshot_nr in range(offset, len(path)):

@@ -437,7 +437,7 @@ class Const():
     def used_names(self, used_vars):
         # Generate a dictionary containing the names of the used variables.
         var_names = {i: self._all_var_names[used_vars[i]]
-                     for i in range(len(used_vars))}
+                     for i, _ in enumerate(used_vars)}
         return var_names
 
     def used_order(self, used_vars):
