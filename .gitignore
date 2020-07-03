@@ -8,3 +8,4 @@ __pycache__/
 */*.pyc
 */*/*.pyc
 *checkpoint.ipynb
+*/RPE*
