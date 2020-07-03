@@ -68,10 +68,10 @@ class Const():
 
         """Pre-Dataset parameters"""
         # Name of the folder in which the complete RPE data is found
-        self._RPE_folder_name = "RPE_mod"
         self._RPE_folder_name = "RPE_org"
+        #self._RPE_folder_name = "RPE_low"
+        #self._RPE_folder_name = "RPE_high"
         # Name of the folder in which the TPS paths are found
-        self._TPS_folder_name = "TPS_mod"
         self._TPS_folder_name = "TPS"
         # MCG threshold below which a snapshot belongs to state A
         self._mcg_A = 18
@@ -80,7 +80,7 @@ class Const():
         # big cage threshold under which a snapshot belongs to amorphous
         self._big_C = 8
         # Fraction of paths used from the read files
-        self._used_frac = 0.1
+        self._used_frac = 0.7
         # Labels assigned to the four types of paths: AA, AB, BA, BB
         self._path_type_labels = [0.0, 1.0, 0.0, 0.0]
         # Weights assigned to the totality of each of the path types
