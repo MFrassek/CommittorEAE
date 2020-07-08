@@ -103,7 +103,7 @@ class Plotter():
                                     interpolation='nearest',
                                     norm=mpl.colors.LogNorm(
                                         vmin=const.logvmin,
-                                        vmax=const.max_label))
+                                        vmax=1-const.logvmin))
                             else:
                                 im = new_axs.imshow(
                                     super_map[i][j][0][k][::-1],
@@ -148,7 +148,7 @@ class Plotter():
                         # Remove all subplots where i >= j.
                         new_axs.axis("off")
             cax, kw = mpl.colorbar.make_axes([ax for ax in axs])
-            cbar = plt.colorbar(im, cax=cax, **kw)
+            cbar = plt.colorbar(im, cax=cax, **kw, extend="both")
             cbar.ax.tick_params(labelsize=const.subfig_size
                                 * len(used_variable_names))
             if function_to_str(method).split("_")[-1][:3] == "gen":
