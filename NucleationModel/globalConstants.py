@@ -80,7 +80,7 @@ class Const():
         # big cage threshold under which a snapshot belongs to amorphous
         self._big_C = 8
         # Fraction of paths used from the read files
-        self._used_frac = 0.7
+        self._used_frac = 0.1
         # Labels assigned to the four types of paths: AA, AB, BA, BB
         self._path_type_labels = [0.0, 1.0, 0.0, 0.0]
         # Weights assigned to the totality of each of the path types
@@ -102,7 +102,7 @@ class Const():
         self._val_ratio = 0.1
         # Fraction of most extreme values that are considered
         # outliers to both sides
-        self._outlier_cutoff = 0.01
+        self._outlier_cutoff = 0.005
         # Number of bins to balance the pBs
         self._balance_bins = 10
 
