@@ -9,6 +9,8 @@ class Plotter():
     def plot_super_map(
             used_variable_names: list,
             name_to_list_position: dict,
+            lower_bound,
+            upper_bound,
             const,
             pre_stamp,
             method,
@@ -88,12 +90,11 @@ class Plotter():
                     new_axs.tick_params(
                         axis='both',
                         which='both',
-                        bottom=False,
                         top=False,
-                        labelbottom=False,
+                        labelleft=False,
                         left=False,
-                        labelleft=False)
-
+                        labelbottom=False,
+                        bottom=False)
                     if j < i:
                         if norm == "Log":
                             if const.min_label >= 0:
@@ -103,7 +104,8 @@ class Plotter():
                                     interpolation='nearest',
                                     norm=mpl.colors.LogNorm(
                                         vmin=const.logvmin,
-                                        vmax=1-const.logvmin))
+                                        vmax=1-const.logvmin),
+                                    extent=[0, 1, 0, 1])
                             else:
                                 im = new_axs.imshow(
                                     super_map[i][j][0][k][::-1],
@@ -115,7 +117,8 @@ class Plotter():
                                         linscale=0.1*(const.max_label
                                                       - const.min_label),
                                         vmin=const.min_label,
-                                        vmax=const.max_label))
+                                        vmax=const.max_label),
+                                    extent=[0, 1, 0, 1])
                         else:
                             im = new_axs.imshow(
                                 super_map[i][j][0][k][::-1],
@@ -123,16 +126,39 @@ class Plotter():
                                 interpolation='nearest',
                                 norm=mpl.colors.Normalize(
                                     vmin=const.min_label,
-                                    vmax=const.max_label))
+                                    vmax=const.max_label),
+                                extent=[0, 1, 0, 1])
                         # Only sets the leftmost and lowest label.
                         if i == len(used_variable_names) - 1:
                             new_axs.set_xlabel(
                                 "${}$".format(used_variable_names[j]),
                                 fontsize=const.subfig_size * 10)
+                            new_axs.tick_params(
+                                labelbottom=True,
+                                bottom=True)
+                            new_axs.set_xticks(np.linspace(0, 1, 3))
+                            new_axs.set_xticklabels(
+                                np.around(
+                                    np.linspace(
+                                        lower_bound[j],
+                                        upper_bound[j],
+                                        3),
+                                    2),
+                                rotation=60)
                         if j == 0:
                             new_axs.set_ylabel(
                                 "${}$".format(used_variable_names[i]),
                                 fontsize=const.subfig_size * 10)
+                            new_axs.tick_params(
+                                labelleft=True,
+                                left=True)
+                            new_axs.set_yticks(np.linspace(0, 1, 3))
+                            new_axs.set_yticklabels(np.around(
+                                np.linspace(
+                                    lower_bound[i],
+                                    upper_bound[i],
+                                    3),
+                                2))
                         # Overwrites labels if predictions are based on the bn.
                         if model is not None:
                             if model.input_names[0] == "encoded_snapshots":
