@@ -144,7 +144,8 @@ class Plotter():
                                         upper_bound[j],
                                         3),
                                     2),
-                                rotation=60)
+                                rotation=60,
+                                fontsize=const.subfig_size*6)
                         if j == 0:
                             new_axs.set_ylabel(
                                 "${}$".format(used_variable_names[i]),
@@ -158,7 +159,8 @@ class Plotter():
                                     lower_bound[i],
                                     upper_bound[i],
                                     3),
-                                2))
+                                2),
+                                fontsize=const.subfig_size*6)
                         # Overwrites labels if predictions are based on the bn.
                         if model is not None:
                             if model.input_names[0] == "encoded_snapshots":
