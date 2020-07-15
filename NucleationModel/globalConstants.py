@@ -80,20 +80,20 @@ class Const():
         # big cage threshold under which a snapshot belongs to amorphous
         self._big_C = 8
         # Fraction of paths used from the read files
-        self._used_frac = 0.1
-        # Labels assigned to the four types of paths: AA, AB, BA, BB
-        self._path_type_labels = [0.0, 1.0, 0.0, 0.0]
+        self._used_RPE_frac = 0.1
+        self._used_TPS_frac = 0.1
+        # Labels assigned to the four types of paths
+        self._AA_label = 0.0
+        self._AB_label = 1.0
+        self._BA_label = 0.0
+        self._BB_label = 1.0
         # Weights assigned to the totality of each of the path types
         self._path_type_weights = [1, 1, 0, 0]
         # If True snapshots of transition paths are assigned labels
         # according to their position within the path
         self._progress = False
-        # If True transition paths (AB, BA) are taken into account
-        # for the dataset
-        self._transitioned = True
-        # If True paths returning to their starting state (AA, BB)
-        # are taken into account for the dataset
-        self._turnedback = True
+        # List of labels to keep
+        self._keep_labels = ["AA", "AB", "BA", "BB"]
         # Ratio of training set compared to the whole dataset
         self._train_ratio = 0.6
         # Ratio of validation set compared to whole dataset
@@ -209,12 +209,28 @@ class Const():
         return self._big_C
 
     @property
-    def used_frac(self):
-        return self._used_frac
+    def used_RPE_frac(self):
+        return self._used_RPE_frac
 
     @property
-    def path_type_labels(self):
-        return self._path_type_labels
+    def used_TPS_frac(self):
+        return self._used_TPS_frac
+
+    @property
+    def AA_label(self):
+        return self._AA_label
+
+    @property
+    def AB_label(self):
+        return self._AB_label
+
+    @property
+    def BA_label(self):
+        return self._BA_label
+
+    @property
+    def BB_label(self):
+        return self._BB_label
 
     @property
     def min_label(self):
@@ -237,19 +253,21 @@ class Const():
         return self._progress
 
     @property
-    def transitioned(self):
-        return self._transitioned
-
-    @property
-    def turnedback(self):
-        return self._turnedback
+    def keep_labels(self):
+        return self._keep_labels
 
     @property
     def train_ratio(self):
+        assert isinstance(self._train_ratio, float) \
+            and self._train_ratio > 0.0, \
+            "train_ratio needs to be a float higher than 0.0"
         return self._train_ratio
 
     @property
     def val_ratio(self):
+        assert isinstance(self._val_ratio, float) \
+            and self._val_ratio > 0.0, \
+            "val_ratio needs to be a float higher than 0.0"
         return self._val_ratio
 
     @property
@@ -360,8 +378,7 @@ class Const():
     def data_stamp(self):
         return "tr{}_re{}_p{}_oc{}"\
             .format(
-                str(self._transitioned)[0],
-                str(self._turnedback)[0],
+                "_".join(self._keep_labels),
                 str(self._progress)[0],
                 self._outlier_cutoff)
 
@@ -406,15 +423,10 @@ class Const():
         assert isinstance(x, int), "Can only be set to type int"
         self._offset = x
 
-    @transitioned.setter
-    def transitioned(self, x):
-        assert isinstance(x, bool), "Can only be set to type bool"
-        self._transitioned = x
-
-    @turnedback.setter
-    def turnedback(self, x):
-        assert isinstance(x, bool), "Can only be set to type bool"
-        self._turnedback = x
+    @keep_labels.setter
+    def keep_labels(self, x):
+        assert isinstance(x, list), "Can only be set to type list"
+        self._keep_labels = x
 
     @bottleneck_size.setter
     def bottleneck_size(self, x):

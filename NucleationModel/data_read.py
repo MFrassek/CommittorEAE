@@ -4,7 +4,118 @@ import numpy as np
 from sklearn.utils import shuffle
 
 
-def read_RPE(
+def make_train_val_test_from_RPE_and_TPS(const):
+    return make_train_val_test_split_snapshots_from_snapshots(
+        *make_snapshots_from_paths(
+            *filter_paths(
+                *make_paths_from_RPE_and_TPS_data(
+                    const),
+                const),
+            const),
+        const)
+
+
+def make_train_val_test_split_snapshots_from_snapshots(
+        snapshots,
+        snapshot_labels,
+        snapshot_weights,
+        const):
+    train_end = int(len(snapshots) * const.train_ratio)
+    val_end = train_end + int(len(snapshots) * const.val_ratio)
+    snapshots, snapshot_labels, snapshot_weights = \
+        shuffle(
+            snapshots,
+            snapshot_labels,
+            snapshot_weights,
+            random_state=42)
+    return np.array([*snapshots[:train_end]]), \
+        np.array([*snapshot_labels[:train_end]]), \
+        np.array([*snapshot_weights[:train_end]]), \
+        np.array([*snapshots[train_end:val_end]]), \
+        np.array([*snapshot_labels[train_end:val_end]]), \
+        np.array([*snapshot_weights[train_end:val_end]]), \
+        np.array([*snapshots[val_end:]]), \
+        np.array([*snapshot_labels[val_end:]]), \
+        np.array([*snapshot_weights[val_end:]])
+
+
+def make_snapshots_from_paths(paths, path_labels, path_weights, const):
+    snapshots = []
+    snapshot_labels = []
+    snapshot_weights = []
+    for path_nr, path in enumerate(paths):
+        path_label = path_labels[path_nr]
+        path_weight = path_weights[path_nr]
+        for snapshot_nr, snapshot in enumerate(path):
+            # Iterate over all indices within each path and appends
+            # accordingly the snapshot as well as label
+            # and weight.
+            snapshots.append(snapshot)
+            snapshot_weights.append(path_weight)
+            if path_label == "AA":
+                snapshot_labels.append(const.AA_label)
+            if path_label == "BB":
+                snapshot_labels.append(const.BB_label)
+            if path_label == "AB":
+                if const.progress:
+                    # Calculate the progess label in such a way,
+                    # that the first snapshot of the current path
+                    # is assigned the same label as AA paths,
+                    # the last snapshot is assigned the same label
+                    # as BB paths and all other snapshot labels are
+                    # mapped linearly in between.
+                    snapshot_labels.append(
+                        ((const.BB_label - const.AA_label)
+                         * (snapshot_nr) / (len(path) - 1.0))
+                        + const.AA_label)
+                else:
+                    snapshot_labels.append(const.AB_label)
+            if path_label == "BA":
+                if const.progress:
+                    # Corresponding to labels of AB paths, but
+                    # starting with the label ob BB paths and
+                    # ending with the label of AA paths.
+                    snapshot_labels.append(
+                        ((const.BB_label - const.AA_label)
+                         * (len(path) - (snapshot_nr + 1))
+                         / (len(path) - 1)) + const.AA_label)
+                else:
+                    snapshot_labels.append(const.BA_label)
+    print("Mean weights: {}".format(np.mean(snapshot_weights)))
+    return np.array(snapshots), \
+        np.array(snapshot_labels), \
+        np.array(snapshot_weights)
+
+
+def filter_paths(paths, path_labels, path_weights, const):
+    filtered_tuple_list = [(path, label, weight) for (path, label, weight)
+                           in zip(paths, path_labels, path_weights)
+                           if label in const.keep_labels]
+    return list(map(list, zip(*filtered_tuple_list)))
+
+
+def make_paths_from_RPE_and_TPS_data(const):
+    print("Read RPE files")
+    RPE_paths, RPE_labels, RPE_weights, RPE_names = \
+        make_paths_from_RPE_data(
+            const.RPE_folder_name, const.mcg_A, const.mcg_B,
+            const.big_C, const.used_RPE_frac)
+    print("Read TPS files")
+    # Read in the TPS files and generate paths, labels, weights and names.
+    # Weights are chosen based on the minimal weight assigned to the RPE paths.
+    TPS_paths, TPS_labels, TPS_weights, TPS_names = \
+        make_paths_from_TPS_data(
+            const.TPS_folder_name, const.mcg_A, const.mcg_B,
+            const.big_C, const.used_TPS_frac, min(RPE_weights))
+    weights = np.append(RPE_weights, TPS_weights, axis=0)
+    weights = weights/np.mean(weights)
+    # Return the merges  RPE and TPS arrays
+    return np.append(RPE_paths, TPS_paths, axis=0), \
+        np.append(RPE_labels, TPS_labels, axis=0), \
+        weights
+
+
+def make_paths_from_RPE_data(
         foldername, A_mcg_below, B_mcg_above,
         C_cage_big_below, used_frac):
     """"""
@@ -106,17 +217,17 @@ def read_RPE(
         np.array(weights), np.array(names)
 
 
-def read_TPS(
+def make_paths_from_TPS_data(
         foldername, A_mcg_below, B_mcg_above,
         C_cage_big_below, used_frac, TPS_weight):
     paths = []
-    labels = [] 
+    labels = []
     names = []
     precision = 2
     for file in listdir(foldername):
         with open("{}/{}".format(foldername, file), "r") as file_name:
             file_name.readline()
-            path = file_name.readlines()    
+            path = file_name.readlines()
             # Iterate over all snapshots in the trajectory
             # remove the linebreak character at the end ("\n")
             # split them along all occurences of " "
@@ -163,31 +274,6 @@ def read_TPS(
     print(sum(weights))
     return np.array(paths)[:frac_len], np.array(labels)[:frac_len], \
         np.array(weights), np.array(names)[:frac_len]
-
-
-def read_RPE_and_TPS(
-        RPE_foldername, TPS_foldername,
-        A_mcg_below, B_mcg_above,
-        C_cage_big_below, used_RPE_frac, used_TPS_frac):
-    print("Read RPE files")
-    RPE_paths, RPE_labels, RPE_weights, RPE_names = \
-        read_RPE(
-            RPE_foldername, A_mcg_below, B_mcg_above,
-            C_cage_big_below, used_RPE_frac)
-    print("Read TPS files")
-    # Read in the TPS files and generate paths, labels, weights and names.
-    # Weights are chosen based on the minimal weight assigned to the RPE paths.
-    TPS_paths, TPS_labels, TPS_weights, TPS_names = \
-        read_TPS(
-            TPS_foldername, A_mcg_below, B_mcg_above,
-            C_cage_big_below, used_TPS_frac, min(RPE_weights))
-    weights = np.append(RPE_weights, TPS_weights, axis=0)
-    weights = weights/np.mean(weights)
-    # Return the merges  RPE and TPS arrays
-    return np.append(RPE_paths, TPS_paths, axis=0), \
-        np.append(RPE_labels, TPS_labels, axis=0), \
-        weights,\
-        np.append(RPE_names, TPS_names, axis=0)
 
 
 def read_shooting_points(filename):
