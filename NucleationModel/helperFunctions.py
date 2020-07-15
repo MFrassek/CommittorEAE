@@ -31,7 +31,7 @@ def get_size(obj, seen=None):
 
 def make_halfpoint_divided_colormap(logvmin):
     resolution = 1001
-    bandwidth = 0.3
+    bandwidth = 0.1
     lower_bound_halfpoint = math.log(0.5-bandwidth/2, 10)/math.log(logvmin, 10)
     lower_bound_halfpoint_int = round(lower_bound_halfpoint*resolution)
     upper_bound_halfpoint = math.log(0.5+bandwidth/2, 10)/math.log(logvmin, 10)
