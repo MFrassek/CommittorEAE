@@ -97,16 +97,12 @@ def filter_paths(paths, path_labels, path_weights, const):
 def make_paths_from_RPE_and_TPS_data(const):
     print("Read RPE files")
     RPE_paths, RPE_labels, RPE_weights, RPE_names = \
-        make_paths_from_RPE_data(
-            const.RPE_folder_name, const.mcg_A, const.mcg_B,
-            const.big_C, const.used_RPE_frac)
+        make_paths_from_RPE_data(const)
     print("Read TPS files")
     # Read in the TPS files and generate paths, labels, weights and names.
     # Weights are chosen based on the minimal weight assigned to the RPE paths.
     TPS_paths, TPS_labels, TPS_weights, TPS_names = \
-        make_paths_from_TPS_data(
-            const.TPS_folder_name, const.mcg_A, const.mcg_B,
-            const.big_C, const.used_TPS_frac, min(RPE_weights))
+        make_paths_from_TPS_data(min(RPE_weights), const)
     weights = np.append(RPE_weights, TPS_weights, axis=0)
     weights = weights/np.mean(weights)
     # Return the merges  RPE and TPS arrays
@@ -115,10 +111,8 @@ def make_paths_from_RPE_and_TPS_data(const):
         weights
 
 
-def make_paths_from_RPE_data(
-        foldername, A_mcg_below, B_mcg_above,
-        C_cage_big_below, used_frac):
-    """"""
+def make_paths_from_RPE_data(const):
+    foldername = const.RPE_folder_name
     paths = []
     labels = []
     mc_weights = []
@@ -145,7 +139,7 @@ def make_paths_from_RPE_data(
                         shuffle(
                             name_lines, weight_lines,
                             reweight_lines, random_state=42)
-                    frac_len = int(len(name_lines)*used_frac)
+                    frac_len = int(len(name_lines) * const.used_RPE_frac)
                     print("Total paths: {}\t Used paths: {}"
                           .format(len(name_lines), frac_len))
                     path_names = list(map(
@@ -173,40 +167,23 @@ def make_paths_from_RPE_data(
                             path = np.array([list(map(float, snap[:-1]
                                             .split(" ")[1:]))[:17]
                                             for snap in path])
-                            if ((path[0][0] > A_mcg_below and
-                                path[0][0] < B_mcg_above) or
-                                (path[-1][0] > A_mcg_below and
-                                 path[-1][0] < B_mcg_above)):
+                            if path_outside_state_definition(path, const):
                                 print(("Path in {} begins (mcg = {}) or ends"
                                        + "(mcg = {}) outside of state"
                                        + " definition.")
                                       .format(
-                                       path_names[file_nr],
-                                       path[0][0],
-                                       path[-1][0]))
+                                        path_names[file_nr],
+                                        path[0][0],
+                                        path[-1][0]))
                             else:
-                                if path[0][0] <= A_mcg_below:
-                                    if path[-1][0] <= A_mcg_below:
-                                        label = "AA"
-                                    elif path[-1][0] >= B_mcg_above:
-                                        if np.amax(path, axis=0)[8] \
-                                                >= C_cage_big_below:
-                                            label = "AB"
-                                        else:
-                                            label = "AC"
-                                elif path[0][0] >= B_mcg_above:
-                                    if path[-1][0] <= A_mcg_below:
-                                        label = "BA"
-                                    elif path[-1][0] >= B_mcg_above:
-                                        label = "BB"
                                 paths.append(path)
-                                labels.append(label)
+                                labels.append(determine_label(path, const))
                                 mc_weights.append(weight_names[file_nr])
                                 reweights.append(reweight_names[file_nr])
                                 names.append("{}_{}"
                                              .format(
-                                              folder,
-                                              path_names[file_nr][:-4]))
+                                                folder,
+                                                path_names[file_nr][:-4]))
 
     # Multiply the two weight lists.
     weights = np.array(mc_weights) * np.array(reweights)
@@ -217,9 +194,8 @@ def make_paths_from_RPE_data(
         np.array(weights), np.array(names)
 
 
-def make_paths_from_TPS_data(
-        foldername, A_mcg_below, B_mcg_above,
-        C_cage_big_below, used_frac, TPS_weight):
+def make_paths_from_TPS_data(TPS_weight, const):
+    foldername = const.TPS_folder_name
     paths = []
     labels = []
     names = []
@@ -237,43 +213,53 @@ def make_paths_from_TPS_data(
             path = np.array(
                 [list(map(lambda x: round(float(x), precision),
                  snap[:-1].split(" ")[1:]))[:17] for snap in path])
-            if ((path[0][0] > A_mcg_below and
-                 path[0][0] < B_mcg_above) or
-                (path[-1][0] > A_mcg_below and
-                 path[-1][0] < B_mcg_above)):
+            if path_outside_state_definition(path, const):
                 print(("Path in {} begins (mcg = {}) or ends"
                        + "(mcg = {}) outside of state definition.")
                       .format(
-                       file,
-                       path[0][0],
-                       path[-1][0]))
-                label = "N"
+                        file,
+                        path[0][0],
+                        path[-1][0]))
             else:
-                if path[0][0] <= A_mcg_below:
-                    if path[-1][0] <= A_mcg_below:
-                        label = "AA"
-                    elif path[-1][0] >= B_mcg_above:
-                        if np.amax(path, axis=0)[8] \
-                                >= C_cage_big_below:
-                            label = "AB"
-                        else:
-                            label = "AC"
-                elif path[0][0] >= B_mcg_above:
-                    if path[-1][0] <= A_mcg_below:
-                        label = "BA"
-                    elif path[-1][0] >= B_mcg_above:
-                        label = "BB"
                 paths.append(path)
-                labels.append(label)
+                labels.append(determine_label(path, const))
                 names.append(file[:3])
 
-    frac_len = int(len(paths) * used_frac)
+    frac_len = int(len(paths) * const.used_TPS_frac)
     print("Total paths: {}\t Used paths: {}".format(len(paths), frac_len))
     weights = [TPS_weight for i in range(frac_len)]
     paths, labels, names = shuffle(paths, labels, names, random_state=42)
     print(sum(weights))
     return np.array(paths)[:frac_len], np.array(labels)[:frac_len], \
         np.array(weights), np.array(names)[:frac_len]
+
+
+def path_outside_state_definition(path, const):
+    return (snapshots_outside_state_definition(path[0], const)
+            or snapshots_outside_state_definition(path[-1], const))
+
+
+def snapshots_outside_state_definition(snapshot, const):
+    return snapshot[0] > const.mcg_A and snapshot[0] < const.mcg_B
+
+
+def determine_label(path, const):
+    if path[0][0] <= const.mcg_A:
+        if path[-1][0] <= const.mcg_A:
+            return "AA"
+        elif path[-1][0] >= const.mcg_B:
+            if np.amax(path, axis=0)[8] \
+                    >= const.big_C:
+                return "AB"
+            else:
+                return "AC"
+    elif path[0][0] >= const.mcg_B:
+        if path[-1][0] <= const.mcg_A:
+            return "BA"
+        elif path[-1][0] >= const.mcg_B:
+            return "BB"
+    else:
+        return "NN"
 
 
 def read_shooting_points(filename):
