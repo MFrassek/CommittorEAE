@@ -5,12 +5,10 @@ import tensorflow as tf
 class DatasetData():
     def __init__(
             self,
-            past_snapshots,
             snapshots,
             labels,
             weights,
             flag):
-        self._past_snapshots = past_snapshots
         self._snapshots = snapshots
         self._labels = labels
         self._weights = weights
@@ -24,32 +22,26 @@ class DatasetData():
 
     @staticmethod
     def initialize_train_val_test_datasets(
-            train_past_snapshots,
             train_snapshots,
             train_labels,
             train_weights,
-            val_past_snapshots,
             val_snapshots,
             val_labels,
             val_weights,
-            test_past_snapshots,
             test_snapshots,
             test_labels,
             test_weights):
         return DatasetData(
-                train_past_snapshots,
                 train_snapshots,
                 train_labels,
                 train_weights,
                 "Training"), \
             DatasetData(
-                val_past_snapshots,
                 val_snapshots,
                 val_labels,
                 val_weights,
                 "Validation"), \
             DatasetData(
-                test_past_snapshots,
                 test_snapshots,
                 test_labels,
                 test_weights,
@@ -62,10 +54,6 @@ class DatasetData():
     @property
     def flag(self):
         return self._flag
-
-    @property
-    def past_snapshots(self):
-        return self._past_snapshots
 
     @property
     def snapshots(self):

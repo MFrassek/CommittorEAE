@@ -5,21 +5,17 @@ import numpy as np
 
 class StepwiseData:
     def __init__(
-            self, train_past_snapshots, train_snapshots,
+            self, train_snapshots,
             train_labels, train_weights,
-            val_past_snapshots, val_snapshots,
+            val_snapshots,
             val_labels, val_weights):
-        self._train_past_snapshots = train_past_snapshots
         self._train_snapshots = train_snapshots
-        self._train_snapshot_cnt = len(train_past_snapshots)
-        self._train_past_columns = np.transpose(train_past_snapshots)
+        self._train_snapshot_cnt = len(train_snapshots)
         self._train_columns = np.transpose(train_snapshots)
         self._train_labels = train_labels
         self._train_weights = train_weights
-        self._val_past_snapshots = val_past_snapshots
         self._val_snapshots = val_snapshots
-        self._val_snapshot_cnt = len(val_past_snapshots)
-        self._val_past_columns = np.transpose(val_past_snapshots)
+        self._val_snapshot_cnt = len(val_snapshots)
         self._val_columns = np.transpose(val_snapshots)
         self._val_labels = val_labels
         self._val_weights = val_weights
@@ -43,29 +39,21 @@ class StepwiseData:
             const:
                 object of global constants
         """
-        red_train_past_snapshots = []
         red_train_snapshots = []
-        red_val_past_snapshots = []
         red_val_snapshots = []
 
         # add together the used columns
         for i in used:
-            red_train_past_snapshots\
-                .append(self._train_past_columns[name_to_list_position[i]])
             red_train_snapshots\
                 .append(self._train_columns[name_to_list_position[i]])
-            red_val_past_snapshots\
-                .append(self._val_past_columns[name_to_list_position[i]])
             red_val_snapshots\
                 .append(self._val_columns[name_to_list_position[i]])
 
-        red_train_past_snapshots = np.transpose(red_train_past_snapshots)
         red_train_snapshots = np.transpose(red_train_snapshots)
-        red_val_past_snapshots = np.transpose(red_val_past_snapshots)
         red_val_snapshots = np.transpose(red_val_snapshots)
 
         red_train_ds = tf.data.Dataset.from_tensor_slices(
-            ({const.input_name: red_train_past_snapshots},
+            ({const.input_name: red_train_snapshots},
              {const.output_name_1: self._train_labels,
               const.output_name_2: red_train_snapshots},
              {const.output_name_1: self._train_weights,
@@ -73,7 +61,7 @@ class StepwiseData:
             .shuffle(self._train_snapshot_cnt) \
             .batch(const.batch_size)
         red_val_ds = tf.data.Dataset.from_tensor_slices(
-            ({const.input_name: red_val_past_snapshots},
+            ({const.input_name: red_val_snapshots},
              {const.output_name_1: self._val_labels,
               const.output_name_2: red_val_snapshots},
              {const.output_name_1: self._val_weights,

@@ -41,28 +41,12 @@ class PathData:
     def path_weights(self):
         return self._path_weights
 
-    def offset_paths(self, offset):
-        """Generates two sets of truncated paths that are offset
-        by 'offset' from each other.
-        The paths of the first set get truncated at their ends
-        by n = 'offset' snapshots, while the paths of the second
-        set are truncated in their beginnings."""
-        assert offset > 0 and isinstance(offset, int), \
-            "offset needs to be chosen as a positive integer"
-        return np.array([path[:-offset] for path in self._paths]), \
-            np.array([path[offset:] for path in self._paths])
-
     def snapshots_labels_weights(
-            self, offset, progress,
+            self, progress,
             transitioned, turnedback):
         """Generates snapshots, labels and weights
         for each path type (AA, AB, BA, BB).
         params:
-            offset: int
-                Used to generate two snapshots that are offset
-                by n = 'offset' snapshots.
-                labels and weights are defined
-                based on the "later" snapshots
             progress: bool
                 Defines whether the preset labels self._AB_label and
                 self._BA_label are used, or whether
@@ -81,8 +65,6 @@ class PathData:
                 state (AA and BB) should be considered
         """
 
-        AA_past_snapshots = []
-        BB_past_snapshots = []
         AA_snapshots = []
         BB_snapshots = []
         AA_labels = []
@@ -90,8 +72,6 @@ class PathData:
         AA_weights = []
         BB_weights = []
 
-        AB_past_snapshots = []
-        BA_past_snapshots = []
         AB_snapshots = []
         BA_snapshots = []
         AB_labels = []
@@ -104,7 +84,7 @@ class PathData:
             # assign the current path, path_label and path_weight
             path_label = self._path_labels[path_nr]
             path_weight = self._path_weights[path_nr]
-            for snapshot_nr in range(offset, len(path)):
+            for snapshot_nr in range(len(path)):
                 # iterates over all indices within each path and appends
                 # accordingly the snapshot as well as label
                 # and weight
@@ -132,8 +112,7 @@ class PathData:
                             # mapped linearly in between.
                             AB_labels.append(
                                 ((self._BB_label - self._AA_label)
-                                 * (snapshot_nr + offset)
-                                 / (len(path) - 1.0 + offset))
+                                 * (snapshot_nr) / (len(path) - 1.0))
                                 + self._AA_label)
                         else:
                             AB_labels.append(self._AB_label)
@@ -144,40 +123,13 @@ class PathData:
                             # corresponding to labels of AB paths, but
                             # starting with the label ob BB paths and
                             # ending with the label of AA paths
-                            BA_labels.append(((self._BB_label
-                                             - self._AA_label)
-                                             * (len(trajectory)
-                                             - (snapshot_nr + offset + 1))
-                                             / (len(trajectory) + offset - 1))
-                                             + self._AA_label)
+                            BA_labels.append(
+                                ((self._BB_label - self._AA_label)
+                                 * (len(trajectory) - (snapshot_nr + 1))
+                                 / (len(trajectory) - 1)) + self._AA_label)
                         else:
                             BA_labels.append(self._BA_label)
                         BA_weights.append(path_weight)
-
-            if offset > 0:
-                # generates the past_snapshots only is offset is > 0,
-                # by truncating each path by the last 'offset' snapshots
-                # and subsequently appending the remainin snapshots
-                # to the past_snapshots
-                for snapshot_nr in range(len(path)-offset):
-                    if turnedback:
-                        if path_label == "AA":
-                            AA_past_snapshots.append(path[snapshot_nr])
-                        if path_label == "BB":
-                            BB_past_snapshots.append(path[snapshot_nr])
-                    if transitioned:
-                        if path_label == "AB":
-                            AB_past_snapshots.append(path[snapshot_nr])
-                        if path_label == "BA":
-                            BA_past_snapshots.append(path[snapshot_nr])
-
-        if offset == 0:
-            # If the offset is 0, past_snapshots and regular snapshots
-            # are identical. A copying process is therefore sufficient.
-            AA_past_snapshots = [*AA_snapshots]
-            BA_past_snapshots = [*AB_snapshots]
-            AB_past_snapshots = [*BA_snapshots]
-            BB_past_snapshots = [*BB_snapshots]
 
         all_snapshot_cnt = len(AA_snapshots) + len(AB_snapshots) \
             + len(BA_snapshots) + len(BA_snapshots)
@@ -194,9 +146,7 @@ class PathData:
         print("Sum weights AA after: {}\t Sum weights AB after: {}"
               .format(sum(AA_weights), sum(AB_weights)))
 
-        return np.array(AA_past_snapshots), np.array(AB_past_snapshots), \
-            np.array(BA_past_snapshots), np.array(BB_past_snapshots), \
-            np.array(AA_snapshots), np.array(AB_snapshots), \
+        return np.array(AA_snapshots), np.array(AB_snapshots), \
             np.array(BA_snapshots), np.array(BB_snapshots), \
             np.array(AA_labels), np.array(AB_labels), \
             np.array(BA_labels), np.array(BB_labels), \

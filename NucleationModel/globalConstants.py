@@ -85,8 +85,6 @@ class Const():
         self._path_type_labels = [0.0, 1.0, 0.0, 0.0]
         # Weights assigned to the totality of each of the path types
         self._path_type_weights = [1, 1, 0, 0]
-        # Offset to generate datasets with future predictions
-        self._offset = 0
         # If True snapshots of transition paths are assigned labels
         # according to their position within the path
         self._progress = False
@@ -360,12 +358,11 @@ class Const():
 
     @property
     def data_stamp(self):
-        return "tr{}_re{}_p{}_o{}_oc{}"\
+        return "tr{}_re{}_p{}_oc{}"\
             .format(
                 str(self._transitioned)[0],
                 str(self._turnedback)[0],
                 str(self._progress)[0],
-                self._offset,
                 self._outlier_cutoff)
 
     @property

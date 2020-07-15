@@ -7,12 +7,11 @@ import matplotlib.pyplot as plt
 
 class ImportanceData():
     def __init__(
-            self, past_snapshots, snapshots, labels, weights,
+            self, snapshots, labels, weights,
             corr_thresholds):
-        self._past_snapshots = past_snapshots
         self._snapshots = snapshots
-        self._snapshot_cnt = len(past_snapshots)
-        self._columns = np.transpose(past_snapshots)
+        self._snapshot_cnt = len(snapshots)
+        self._columns = np.transpose(snapshots)
         self._labels = labels
         self._weights = weights
         self._strong_corr_threshold = corr_thresholds[0]
@@ -102,7 +101,7 @@ class ImportanceData():
                 print("The mean mode does not entail stochasticity. \nNumber"
                       + " of repetitions was set to '1' for this measurement.")
                 repetitions = 1
-            mean_value_array = np.mean(self._past_snapshots, axis=0)
+            mean_value_array = np.mean(self._snapshots, axis=0)
         elif mode == "HIPR":
             min_value = mode_var[0]
             max_value = mode_var[1]

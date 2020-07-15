@@ -66,7 +66,7 @@ class Pipeline():
         """Reduce, bound, normalize and gridify snapshots
         and approximate the pBs.
         """
-        grid_snapshots, snapshots = self.rbng(dataset.past_snapshots)
+        grid_snapshots, snapshots = self.rbng(dataset.snapshots)
         pB_dict, pBs, pB_weights = pB_Approximator.approximate_pBs(
             grid_snapshots,
             dataset.labels,
@@ -106,8 +106,7 @@ class Pipeline():
     def importance_data(self, valDataset):
         assert valDataset.flag == "Validation", \
             "valDataset needs to be a validation set."
-        return self.rbn(valDataset.past_snapshots), \
-            self.rbn(valDataset.snapshots), \
+        return self.rbn(valDataset.snapshots), \
             valDataset.labels, \
             valDataset.weights
 
@@ -116,11 +115,9 @@ class Pipeline():
             "trainDataset needs to be a training set."
         assert valDataset.flag == "Validation", \
             "valDataset needs to be a validation set."
-        return self.rbn(trainDataset.past_snapshots), \
-            self.rbn(trainDataset.snapshots), \
+        return self.rbn(trainDataset.snapshots), \
             trainDataset.labels, \
             trainDataset.weights, \
-            self.rbn(valDataset.past_snapshots), \
             self.rbn(valDataset.snapshots), \
             valDataset.labels, \
             valDataset.weights

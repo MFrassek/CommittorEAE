@@ -4,18 +4,12 @@ from sklearn.utils import shuffle
 
 class SnapData():
     def __init__(
-            self, AA_past_snapshots, AB_past_snapshots,
-            BA_past_snapshots, BB_past_snapshots,
-            AA_snapshots, AB_snapshots,
+            self, AA_snapshots, AB_snapshots,
             BA_snapshots, BB_snapshots,
             AA_labels, AB_labels,
             BA_labels, BB_labels,
             AA_weights, AB_weights,
             BA_weights, BB_weights):
-        self._AA_past_snapshots = AA_past_snapshots
-        self._AB_past_snapshots = AB_past_snapshots
-        self._BA_past_snapshots = BA_past_snapshots
-        self._BB_past_snapshots = BB_past_snapshots
         self._AA_snapshots = AA_snapshots
         self._AB_snapshots = AB_snapshots
         self._BA_snapshots = BA_snapshots
@@ -49,30 +43,6 @@ class SnapData():
     @property
     def BB_snapshot_cnt(self):
         return len(self._BB_snapshots)
-
-    @property
-    def past_snapshots(self):
-        """returns list of all past_snapshots in order AA, AB, BA, BB"""
-        return np.array([snapshot for paths
-                        in [self._AA_past_snapshots, self._AB_past_snapshots,
-                            self._BA_past_snapshots, self._BB_past_snapshots]
-                        for snapshot in paths])
-
-    @property
-    def AA_past_snapshots(self):
-        return self._AA_past_snapshots
-
-    @property
-    def AB_past_snapshots(self):
-        return self._AB_past_snapshots
-
-    @property
-    def BA_past_snapshots(self):
-        return self._BA_past_snapshots
-
-    @property
-    def BB_past_snapshots(self):
-        return self._BB_snapshots
 
     @property
     def snapshots(self):
@@ -148,7 +118,6 @@ class SnapData():
 
     def shuffle_lists(self):
         return shuffle(
-            self.past_snapshots,
             self.snapshots,
             self.labels,
             self.weights,
@@ -165,17 +134,14 @@ class SnapData():
             "Sum of train_ratio and val_ratio must be lower than 1.0"
         train_end = int(self.snapshot_cnt * train_ratio)
         val_end = train_end + int(self.snapshot_cnt * val_ratio)
-        past_snapshots, snapshots, labels, weights \
+        snapshots, labels, weights \
             = self.shuffle_lists()
-        return np.array([*past_snapshots[:train_end]]), \
-            np.array([*snapshots[:train_end]]), \
+        return np.array([*snapshots[:train_end]]), \
             np.array([*labels[:train_end]]), \
             np.array([*weights[:train_end]]), \
-            np.array([*past_snapshots[train_end:val_end]]), \
             np.array([*snapshots[train_end:val_end]]), \
             np.array([*labels[train_end:val_end]]), \
             np.array([*weights[train_end:val_end]]), \
-            np.array([*past_snapshots[val_end:]]), \
             np.array([*snapshots[val_end:]]), \
             np.array([*labels[val_end:]]), \
             np.array([*weights[val_end:]])
