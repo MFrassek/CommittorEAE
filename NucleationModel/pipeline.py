@@ -96,14 +96,29 @@ class Pipeline():
         return grid_snapshots, snapshots, labels, weights, \
             pB_dict, pBs, pB_weights
 
-    def rbngatb(self, dataset):
+    def rbngatn(self, dataset):
         """Reduce, bound, normalize and gridify snapshots,
-        approximate the pBs,
+        approximate the pBs
         trimm the snapshots, labels and weights
-        and generate balanced weights for the pBs.
+        and renormalize the snapshots after trimming.
         """
         grid_snapshots, snapshots, labels, weights, \
             pB_dict, pBs, pB_weights = self.rbngat(dataset)
+        new_mean = np.mean(snapshots, axis=0)
+        new_inv_std = 1 / np.std(snapshots, axis=0)
+        snapshots = (snapshots - new_mean) * new_inv_std
+        return grid_snapshots, snapshots, labels, weights, \
+            pB_dict, pBs, pB_weights
+
+    def rbngatnb(self, dataset):
+        """Reduce, bound, normalize and gridify snapshots,
+        approximate the pBs,
+        trimm the snapshots, labels and weights
+        normalize the snapshots again after trimming
+        and generate balanced weights for the pBs.
+        """
+        grid_snapshots, snapshots, labels, weights, \
+            pB_dict, pBs, pB_weights = self.rbngatn(dataset)
         pBb_weights = pB_Balancer.balance(pBs, self._const.balance_bins)
         return grid_snapshots, snapshots, labels, weights, \
             pB_dict, pBs, pB_weights, pBb_weights
