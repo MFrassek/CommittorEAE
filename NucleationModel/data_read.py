@@ -58,33 +58,34 @@ def make_snapshots_from_paths(paths, path_labels, path_weights, const):
                 snapshot_labels.append(const.BB_label)
             if path_label == "AB":
                 if const.progress:
-                    # Calculate the progess label in such a way,
-                    # that the first snapshot of the current path
-                    # is assigned the same label as AA paths,
-                    # the last snapshot is assigned the same label
-                    # as BB paths and all other snapshot labels are
-                    # mapped linearly in between.
                     snapshot_labels.append(
-                        ((const.BB_label - const.AA_label)
-                         * (snapshot_nr) / (len(path) - 1.0))
-                        + const.AA_label)
+                        calculate_progress_label(
+                            len(path), snapshot_nr, const))
                 else:
                     snapshot_labels.append(const.AB_label)
             if path_label == "BA":
                 if const.progress:
-                    # Corresponding to labels of AB paths, but
-                    # starting with the label ob BB paths and
-                    # ending with the label of AA paths.
                     snapshot_labels.append(
-                        ((const.BB_label - const.AA_label)
-                         * (len(path) - (snapshot_nr + 1))
-                         / (len(path) - 1)) + const.AA_label)
+                        const.BB_label - calculate_progress_label(
+                            len(path), snapshot_nr, const))
                 else:
                     snapshot_labels.append(const.BA_label)
     print("Mean weights: {}".format(np.mean(snapshot_weights)))
     return np.array(snapshots), \
         np.array(snapshot_labels), \
         np.array(snapshot_weights)
+
+
+def calculate_progress_label(path_len, snapshot_nr, const):
+    """Calculate the progress label in such a way, that the first
+    snapshot of the current path is assigned the same label as an
+    AA path, the last snapshot is assigned the same label as an BB
+    path, and all other snapshot labels are mapped lineraly between
+    them.
+    """
+    return (const.BB_label - const.AA_label) \
+        * (snapshot_nr) / (path_len - 1.0) \
+        + const.AA_label
 
 
 def filter_paths(paths, path_labels, path_weights, const):
