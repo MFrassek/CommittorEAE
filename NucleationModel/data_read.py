@@ -70,7 +70,9 @@ def make_snapshots_from_paths(paths, path_labels, path_weights, const):
                             len(path), snapshot_nr, const))
                 else:
                     snapshot_labels.append(const.BA_label)
-    print("Mean weights: {}".format(np.mean(snapshot_weights)))
+    snapshot_weights = np.array(snapshot_weights)/np.mean(snapshot_weights)
+    print("Total mean weights: {}".format(np.mean(snapshot_weights)))
+    print("Total sum weights: {}".format(np.sum(snapshot_weights)))
     return np.array(snapshots), \
         np.array(snapshot_labels), \
         np.array(snapshot_weights)
@@ -104,12 +106,10 @@ def make_paths_from_RPE_and_TPS_data(const):
     # Weights are chosen based on the minimal weight assigned to the RPE paths.
     TPS_paths, TPS_labels, TPS_weights, TPS_names = \
         make_paths_from_TPS_data(min(RPE_weights), const)
-    weights = np.append(RPE_weights, TPS_weights, axis=0)
-    weights = weights/np.mean(weights)
     # Return the merges  RPE and TPS arrays
     return np.append(RPE_paths, TPS_paths, axis=0), \
         np.append(RPE_labels, TPS_labels, axis=0), \
-        weights
+        np.append(RPE_weights, TPS_weights, axis=0)
 
 
 def make_paths_from_RPE_data(const):
@@ -188,9 +188,6 @@ def make_paths_from_RPE_data(const):
 
     # Multiply the two weight lists.
     weights = np.array(mc_weights) * np.array(reweights)
-    # Normalize the weights, so that their mean equals 1.
-    print("Sum weights: {}".format(sum(weights)))
-    print("Mean weights: {}".format(np.mean(weights)))
     return np.array(paths), np.array(labels), \
         np.array(weights), np.array(names)
 
@@ -230,7 +227,6 @@ def make_paths_from_TPS_data(TPS_weight, const):
     print("Total paths: {}\t Used paths: {}".format(len(paths), frac_len))
     weights = [TPS_weight for i in range(frac_len)]
     paths, labels, names = shuffle(paths, labels, names, random_state=42)
-    print(sum(weights))
     return np.array(paths)[:frac_len], np.array(labels)[:frac_len], \
         np.array(weights), np.array(names)[:frac_len]
 
