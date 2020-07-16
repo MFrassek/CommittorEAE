@@ -234,11 +234,19 @@ class Const():
 
     @property
     def min_label(self):
-        return min(self._path_type_labels)
+        return min(
+            self._AA_label,
+            self._AB_label,
+            self._BA_label,
+            self._BB_label)
 
     @property
     def max_label(self):
-        return max(self._path_type_labels)
+        return max(
+            self._AA_label,
+            self._AB_label,
+            self._BA_label,
+            self._BB_label)
 
     @property
     def path_type_weights(self):
@@ -376,7 +384,7 @@ class Const():
 
     @property
     def data_stamp(self):
-        return "tr{}_re{}_p{}_oc{}"\
+        return "kl{}_p{}_oc{}"\
             .format(
                 "_".join(self._keep_labels),
                 str(self._progress)[0],
