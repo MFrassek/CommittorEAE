@@ -14,6 +14,7 @@ class Pipeline():
         self._const = const
         self._reduced_list_var_names = reduced_list_var_names
         self._dimensions = len(reduced_list_var_names)
+        self._snapshot_cnt = len(base_snapshots)
         self._reducer = Reducer(
             self._reduced_list_var_names,
             self._const.name_to_list_position)
@@ -48,6 +49,10 @@ class Pipeline():
     @property
     def maxima(self):
         return self._gridifier.maxima
+
+    @property
+    def snapshot_cnt(self):
+        return self._snapshot_cnt
 
     def rbn(self, snapshots):
         """Reduce, bound and normalize snapshots."""
