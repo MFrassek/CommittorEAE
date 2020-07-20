@@ -99,7 +99,9 @@ class Plotter():
                         if norm == "Log":
                             if const.min_label >= 0:
                                 im = new_axs.imshow(
-                                    super_map[i][j][0][k][::-1],
+                                    np.maximum(
+                                        super_map[i][j][0][k][::-1],
+                                        const.logvmin / 2),
                                     cmap=const.cmap,
                                     interpolation='nearest',
                                     norm=mpl.colors.LogNorm(
@@ -108,7 +110,9 @@ class Plotter():
                                     extent=[0, 1, 0, 1])
                             else:
                                 im = new_axs.imshow(
-                                    super_map[i][j][0][k][::-1],
+                                    np.maximum(
+                                        super_map[i][j][0][k][::-1],
+                                        const.logvmin / 2),
                                     cmap=const.cmap,
                                     interpolation='nearest',
                                     norm=mpl.colors.SymLogNorm(
@@ -121,7 +125,9 @@ class Plotter():
                                     extent=[0, 1, 0, 1])
                         else:
                             im = new_axs.imshow(
-                                super_map[i][j][0][k][::-1],
+                                np.maximum(
+                                    super_map[i][j][0][k][::-1],
+                                    const.logvmin / 2),
                                 cmap=const.cmap,
                                 interpolation='nearest',
                                 norm=mpl.colors.Normalize(

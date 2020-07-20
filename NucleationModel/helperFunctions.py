@@ -52,8 +52,8 @@ def make_halfpoint_divided_colormap(logvmin):
             1 - upper_bound_halfpoint,
             1,
             upper_bound_halfpoint_int)))), "SplitSummer")
-    c_map.set_under([0.9, 0.9, 0.9, 1])
-    c_map.set_over([0.9, 0.9, 0.9, 1])
+    c_map.set_under([0.2, 0.9, 0.5, 0.9])
+    c_map.set_over([1, 0.7, 0.1, 0.9])
     return c_map
 
 
