@@ -107,7 +107,8 @@ class AutoEncoder:
             optimizer=keras.optimizers.RMSprop(1e-3),
             loss={const.output_name_2: keras.losses.MeanAbsoluteError()},
             loss_weights=[const.reconstruction_loss_weight])
-        return autoencoder, autoencoder_1, autoencoder_2
+        return autoencoder, autoencoder_1, autoencoder_2, \
+            encoder, decoder_1, decoder_2
 
     @staticmethod
     def visualize(model, file_name: str):
