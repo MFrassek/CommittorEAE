@@ -4,6 +4,7 @@ from normalizer import Normalizer
 from gridifier import Gridifier
 from pB_approximator import pB_Approximator
 from trimmer import Trimmer
+from trimmer import HalfTrimmer
 from pB_balancer import pB_Balancer
 
 import numpy as np
