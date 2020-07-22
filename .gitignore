@@ -9,3 +9,4 @@ __pycache__/
 */*/*.pyc
 *checkpoint.ipynb
 */RPE*
+NucleationModel/results/*
