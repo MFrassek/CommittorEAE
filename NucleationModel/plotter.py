@@ -385,6 +385,8 @@ class Plotter():
     def plot_super_scatter(
             used_variable_names: list,
             name_to_list_position: dict,
+            lower_bound,
+            upper_bound,
             const,
             pre_stamp,
             model,
@@ -413,40 +415,51 @@ class Plotter():
             fontsize=const.subfig_size*max_row_len*2,
             y=1.04 - 0.04*row_cnt)
 
-        for i in used_variable_names:
+        for i, var_name in enumerate(used_variable_names):
             xs, ys = Plotter.calc_scatter_generated(
                 model=model,
                 minima=minima,
                 maxima=maxima,
-                x_pos=name_to_list_position[i],
+                x_pos=name_to_list_position[var_name],
                 resolution=const.resolution,
                 fill_val=fill_val)
             if row_cnt > 1:
-                new_axs = axs[(used_variable_names.index(i))//max_row_len]
+                new_axs = axs[i//max_row_len]
             else:
                 new_axs = axs
-            new_axs[used_variable_names.index(i) % max_row_len].tick_params(
+            im = new_axs[i % max_row_len]\
+                .scatter(xs, ys, s=const.subfig_size*20)
+            new_axs[i % max_row_len]\
+                .set_xlim(
+                    [minima[name_to_list_position[var_name]],
+                     maxima[name_to_list_position[var_name]]])
+            new_axs[i % max_row_len]\
+                .set_ylim(
+                    [minima[name_to_list_position[var_name]],
+                     maxima[name_to_list_position[var_name]]])
+            new_axs[i % max_row_len]\
+                .set_xlabel(
+                    "${}$".format(var_name),
+                    fontsize=const.subfig_size*10)
+            new_axs[i % max_row_len].tick_params(
                 axis='both',
                 which='both',
                 top=False,
-                bottom=False,
-                labelbottom=False,
+                labelbottom=True,
+                bottom=True,
                 left=False,
                 labelleft=False)
-            im = new_axs[used_variable_names.index(i) % max_row_len]\
-                .scatter(xs, ys, s=const.subfig_size*20)
-            new_axs[used_variable_names.index(i) % max_row_len]\
-                .set_xlim(
-                    [minima[name_to_list_position[i]],
-                     maxima[name_to_list_position[i]]])
-            new_axs[used_variable_names.index(i) % max_row_len]\
-                .set_ylim(
-                    [minima[name_to_list_position[i]],
-                     maxima[name_to_list_position[i]]])
-            new_axs[used_variable_names.index(i) % max_row_len]\
-                .set_xlabel(
-                    "${}$".format(i),
-                    fontsize=const.subfig_size*10)
+            new_axs[i % max_row_len].set_xticks(
+                np.linspace(min(xs), max(xs), 3))
+            new_axs[i % max_row_len].set_xticklabels(
+                np.around(
+                    np.linspace(
+                        lower_bound[i],
+                        upper_bound[i],
+                        3),
+                    2),
+                rotation=60,
+                fontsize=const.subfig_size*6)
         # if not all rows are filled
         # remove the remaining empty subplots in the last row
         if len(used_variable_names) % max_row_len != 0:
