@@ -6,6 +6,7 @@ from pB_approximator import pB_Approximator
 from trimmer import Trimmer
 from trimmer import HalfTrimmer
 from pB_balancer import pB_Balancer
+from hypercube_balancer import Hypercube_Balancer
 
 import numpy as np
 
@@ -116,13 +117,16 @@ class Pipeline():
         approximate the pBs,
         trimm the snapshots, labels and weights
         normalize the snapshots again after trimming
-        and generate balanced weights for the pBs.
+        and generate balanced weights for the pBs and snapshots.
         """
         grid_snapshots, snapshots, labels, weights, \
             pB_dict, pBs, pB_weights = self.rbngatn(dataset)
-        pBb_weights = pB_Balancer.balance(pBs, self._const.balance_bins)
+        pBb_weights = pB_Balancer.balance(
+            pBs, self._const.balance_bins)
+        hcb_weights = Hypercube_Balancer.balance(
+            snapshots, self._const.balance_bins)
         return grid_snapshots, snapshots, labels, weights, \
-            pB_dict, pBs, pB_weights, pBb_weights
+            pB_dict, pBs, pB_weights, pBb_weights, hcb_weights
 
     def importance_data(self, valDataset):
         assert valDataset.flag == "Validation", \
