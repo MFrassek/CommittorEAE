@@ -11,14 +11,17 @@ class AutoEncoder:
             name=const.input_name)
         x = keras.layers.Dense(
             dimensions * const.node_mult,
+            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
             activation=const.encoder_act_func)(encoder_input)
         for i in range(const.encoder_hidden - 1):
             x = keras.layers.Dense(
                 dimensions * const.node_mult,
+                kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
                 activation=const.encoder_act_func)(x)
 
         encoder_output = keras.layers.Dense(
             const.bottleneck_size,
+            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
             activation=const.encoder_act_func,
             name="bottleneck")(x)
 
@@ -33,14 +36,17 @@ class AutoEncoder:
 
         x1 = keras.layers.Dense(
             dimensions * const.node_mult,
+            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
             activation=const.decoder_1_act_func)(decoder_input)
         for i in range(const.decoder_1_hidden):
             x1 = keras.layers.Dense(
                 dimensions * const.node_mult,
+                kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
                 activation=const.decoder_1_act_func)(x1)
 
         decoder_output_1 = keras.layers.Dense(
             1,
+            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
             activation=const.decoder_1_act_func,
             name=const.output_name_1)(x1)
 
@@ -51,14 +57,17 @@ class AutoEncoder:
 
         x2 = keras.layers.Dense(
             dimensions * const.node_mult,
+            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
             activation=const.decoder_2_act_func)(decoder_input)
         for i in range(const.decoder_2_hidden):
             x2 = keras.layers.Dense(
                 dimensions * const.node_mult,
+                kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
                 activation=const.decoder_2_act_func)(x2)
 
         decoder_output_2 = keras.layers.Dense(
             dimensions,
+            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
             activation=const.decoder_2_act_func,
             name=const.output_name_2)(x2)
 

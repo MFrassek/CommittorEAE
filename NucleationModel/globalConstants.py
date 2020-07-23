@@ -129,6 +129,8 @@ class Const():
         self._decoder_1_act_func = "sigmoid"
         # Activation function in the decoder_2
         self._decoder_2_act_func = "tanh"
+        # Regularizer applied to all hidden layers
+        self._regularizer = 0.0001
         # Ratio of weights for label and reconstruction loss
         self._loss_weights = [1, 1]
         # Names of input and output in the model.
@@ -327,6 +329,10 @@ class Const():
         return self._decoder_2_act_func
 
     @property
+    def regularizer(self):
+        return self._regularizer
+
+    @property
     def loss_weights(self):
         return self._loss_weights
 
@@ -392,7 +398,7 @@ class Const():
 
     @property
     def model_stamp(self):
-        return "bn{}_{}*({}{}+{}{}|{}{})_pw{}:{}:{}:{}_lw{}:{}_e{}" \
+        return "bn{}_{}*({}{}+{}{}|{}{})_reg{}_pw{}:{}:{}:{}_lw{}:{}_e{}" \
             .format(
                 str(self._bottleneck_size),
                 str(self._node_mult),
@@ -402,6 +408,7 @@ class Const():
                 str(self._decoder_1_act_func),
                 str(self._decoder_2_hidden),
                 str(self._decoder_2_act_func),
+                self._regularizer,
                 self._path_type_weights[0],
                 self._path_type_weights[1],
                 self._path_type_weights[2],
