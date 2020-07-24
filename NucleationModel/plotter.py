@@ -14,37 +14,31 @@ class Plotter():
             const,
             pre_stamp,
             method,
-            model=None,
-            minima=None,
-            maxima=None,
-            grid_snapshots=None,
-            labels=None,
-            weights=None,
-            points_of_interest=None,
-            fill_val=0,
-            norm="Log"):
+            norm="Log",
+            **kwargs):
         """
         params:
             used_variable_names: list
                 all values to be visited as x_pos
             used_variable_names: list
                 all values to be visited as y_pos
-            model:
-                tf model used for predictions
-                default None
-            fill_val: float/int
-                value assigned to all dimensions not specifically targeted
-                default 0 (mean of the normalized list)
         """
-        if model is None:
+        method_name = function_to_str(method)
+        if "given" in method_name:
             suptitle = "Given labels depending on input"
             model_name = "Given"
             out_size = 1
-        else:
+            axis_label = "${}$"
+        elif "generated" in method_name:
+            model = kwargs["model"]
             suptitle = "Predicted {} depending on {}"\
-                        .format(model.output_names[0], model.input_names[0])
+                .format(model.output_names[0], model.input_names[0])
             model_name = model.name
             out_size = model.layers[-1].output_shape[1]
+            if model.input_names[0] == "encoded_snapshots":
+                "b{}"
+            else:
+                axis_label = "${}$"
 
         super_map = []
         for i, var_name_i in enumerate(used_variable_names):
@@ -59,14 +53,7 @@ class Plotter():
                         x_pos=name_to_list_position[var_name_i],
                         y_pos=name_to_list_position[var_name_j],
                         resolution=const.resolution,
-                        minima=minima,
-                        maxima=maxima,
-                        grid_snapshots=grid_snapshots,
-                        labels=labels,
-                        weights=weights,
-                        model=model,
-                        points_of_interest=points_of_interest,
-                        fill_val=fill_val)
+                        **kwargs)
                     super_map[-1][-1].append(label_map)
         for k in range(out_size):
             print(k)
@@ -137,7 +124,7 @@ class Plotter():
                         # Only sets the leftmost and lowest label.
                         if i == len(used_variable_names) - 1:
                             new_axs.set_xlabel(
-                                "${}$".format(used_variable_names[j]),
+                                axis_label.format(used_variable_names[j]),
                                 fontsize=const.subfig_size * 10)
                             new_axs.tick_params(
                                 labelbottom=True,
@@ -146,15 +133,13 @@ class Plotter():
                             new_axs.set_xticklabels(
                                 np.around(
                                     np.linspace(
-                                        lower_bound[j],
-                                        upper_bound[j],
-                                        3),
+                                        lower_bound[j], upper_bound[j], 3),
                                     2),
                                 rotation=60,
                                 fontsize=const.subfig_size*6)
                         if j == 0:
                             new_axs.set_ylabel(
-                                "${}$".format(used_variable_names[i]),
+                                axis_label.format(used_variable_names[i]),
                                 fontsize=const.subfig_size * 10)
                             new_axs.tick_params(
                                 labelleft=True,
@@ -162,22 +147,9 @@ class Plotter():
                             new_axs.set_yticks(np.linspace(0, 1, 3))
                             new_axs.set_yticklabels(np.around(
                                 np.linspace(
-                                    lower_bound[i],
-                                    upper_bound[i],
-                                    3),
+                                    lower_bound[i], upper_bound[i], 3),
                                 2),
                                 fontsize=const.subfig_size*6)
-                        # Overwrites labels if predictions are based on the bn.
-                        if model is not None:
-                            if model.input_names[0] == "encoded_snapshots":
-                                if i == len(used_variable_names) - 1:
-                                    new_axs.set_xlabel(
-                                        "b{}".format(used_variable_names[j]),
-                                        fontsize=const.subfig_size * 10)
-                                if j == 0:
-                                    new_axs.set_ylabel(
-                                        "b{}".format(used_variable_names[i]),
-                                        fontsize=const.subfig_size * 10)
                     else:
                         # Remove all subplots where i >= j.
                         new_axs.axis("off")
@@ -190,13 +162,12 @@ class Plotter():
                     method_stamp = "genP"
                 else:
                     method_stamp = "gen"
-                plt.savefig("results/{}_{}_{}_{}_fv{}_outN{}_r{}_map.png"
+                plt.savefig("results/{}_{}_{}_{}_outN{}_r{}_map.png"
                             .format(
                                 pre_stamp,
                                 method_stamp,
                                 const.data_stamp,
                                 const.model_stamp,
-                                fill_val,
                                 k,
                                 const.resolution))
             elif function_to_str(method).split("_")[-1][:3] == "giv":
@@ -218,13 +189,9 @@ class Plotter():
             x_pos,
             y_pos,
             resolution,
-            minima=None,
-            maxima=None,
-            grid_snapshots=None,
-            labels=None,
-            weights=None,
-            model=None,
-            points_of_interest=None,
+            grid_snapshots,
+            labels,
+            weights,
             fill_val=0):
         label_map = [[0 for y in range(resolution)] for x in range(resolution)]
         weight_map = [[0 for y in range(resolution)]
@@ -250,13 +217,10 @@ class Plotter():
             x_pos,
             y_pos,
             resolution,
-            minima=None,
-            maxima=None,
-            grid_snapshots=None,
-            labels=None,
-            weights=None,
-            model=None,
-            points_of_interest=None,
+            grid_snapshots,
+            labels,
+            weights,
+            points_of_interest,
             fill_val=0):
         xys = list(set([(int(ele[x_pos]), int(ele[y_pos]))
                         for ele in points_of_interest]))
@@ -264,13 +228,9 @@ class Plotter():
                 x_pos=x_pos,
                 y_pos=y_pos,
                 resolution=resolution,
-                minima=minima,
-                maxima=maxima,
                 grid_snapshots=grid_snapshots,
                 labels=labels,
                 weights=weights,
-                model=model,
-                points_of_interest=points_of_interest,
                 fill_val=fill_val)
         partial_out_map = [[label_map[0][x][y]
                            if (x, y) in xys else float("NaN")
@@ -283,13 +243,9 @@ class Plotter():
             x_pos,
             y_pos,
             resolution,
-            minima=None,
-            maxima=None,
-            grid_snapshots=None,
-            labels=None,
-            weights=None,
-            model=None,
-            points_of_interest=None,
+            minima,
+            maxima,
+            model,
             fill_val=0):
         """
         Makes predictions over the full (normalized) range of
@@ -337,13 +293,10 @@ class Plotter():
             x_pos,
             y_pos,
             resolution,
-            minima=None,
-            maxima=None,
-            grid_snapshots=None,
-            labels=None,
-            weights=None,
-            model=None,
-            points_of_interest=None,
+            minima,
+            maxima,
+            model,
+            points_of_interest,
             fill_val=0):
         assert x_pos != y_pos, "x_pos and y_pos need to differ"
         in_size = model.layers[0].output_shape[0][1]
