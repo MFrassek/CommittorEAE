@@ -128,7 +128,7 @@ class Plotter():
                                 fontsize=const.subfig_size * 10)
                             new_axs.tick_params(
                                 labelbottom=True,
-                                bottom=True)
+                                bottom=True,)
                             new_axs.set_xticks(np.linspace(0, 1, 3))
                             new_axs.set_xticklabels(
                                 np.around(
@@ -153,6 +153,7 @@ class Plotter():
                     else:
                         # Remove all subplots where i >= j.
                         new_axs.axis("off")
+            fig.align_labels()
             cax, kw = mpl.colorbar.make_axes([ax for ax in axs])
             cbar = plt.colorbar(im, cax=cax, **kw, extend="both")
             cbar.ax.tick_params(labelsize=const.subfig_size
@@ -367,6 +368,7 @@ class Plotter():
             suptitle,
             fontsize=const.subfig_size*max_row_len*2,
             y=1.04 - 0.04*row_cnt)
+        fig.align_labels()
 
         for i, var_name in enumerate(used_variable_names):
             xs, ys = Plotter.calc_scatter_generated(
