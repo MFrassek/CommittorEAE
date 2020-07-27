@@ -2,6 +2,7 @@ from os import listdir
 import glob
 import numpy as np
 from sklearn.utils import shuffle
+from collections import Counter
 
 
 def make_train_val_test_from_RPE_and_TPS(const):
@@ -19,15 +20,22 @@ def make_train_val_test_split_snapshots_from_snapshots(
         snapshots,
         snapshot_labels,
         snapshot_weights,
+        snapshot_origins,
         const):
     train_end = int(len(snapshots) * const.train_ratio)
     val_end = train_end + int(len(snapshots) * const.val_ratio)
-    snapshots, snapshot_labels, snapshot_weights = \
+    origCounter = Counter(snapshot_origins)
+    snapshots, snapshot_labels, snapshot_weights, snapshot_origins = \
         shuffle(
             snapshots,
             snapshot_labels,
             snapshot_weights,
+            snapshot_origins,
             random_state=42)
+    newCounter = Counter(snapshot_origins[:train_end])
+    print("\nFraction of snapshots per interface in the test set:")
+    for key in origCounter:
+        print("    {}:\t{:.3f}".format(key, newCounter[key] / origCounter[key]))
     return np.array([*snapshots[:train_end]]), \
         np.array([*snapshot_labels[:train_end]]), \
         np.array([*snapshot_weights[:train_end]]), \
@@ -39,19 +47,23 @@ def make_train_val_test_split_snapshots_from_snapshots(
         np.array([*snapshot_weights[val_end:]])
 
 
-def make_snapshots_from_paths(paths, path_labels, path_weights, const):
+def make_snapshots_from_paths(
+        paths, path_labels, path_weights, path_origins, const):
     snapshots = []
     snapshot_labels = []
     snapshot_weights = []
+    snapshot_origins = []
     for path_nr, path in enumerate(paths):
         path_label = path_labels[path_nr]
         path_weight = path_weights[path_nr]
+        path_origin = path_origins[path_nr]
         for snapshot_nr, snapshot in enumerate(path):
-            # Iterate over all indices within each path and appends
-            # accordingly the snapshot as well as label
-            # and weight.
+            # Iterate over all indices within each path and append
+            # accordingly the snapshot as well as label,
+            # weight and origin.
             snapshots.append(snapshot)
             snapshot_weights.append(path_weight)
+            snapshot_origins.append(path_origin)
             if path_label == "AA":
                 snapshot_labels.append(const.AA_label)
             if path_label == "BB":
@@ -75,7 +87,8 @@ def make_snapshots_from_paths(paths, path_labels, path_weights, const):
     print("Total sum weights: {}".format(np.sum(snapshot_weights)))
     return np.array(snapshots), \
         np.array(snapshot_labels), \
-        np.array(snapshot_weights)
+        np.array(snapshot_weights), \
+        np.array(snapshot_origins)
 
 
 def calculate_progress_label(path_len, snapshot_nr, const):
@@ -90,26 +103,28 @@ def calculate_progress_label(path_len, snapshot_nr, const):
         + const.AA_label
 
 
-def filter_paths(paths, path_labels, path_weights, const):
-    filtered_tuple_list = [(path, label, weight) for (path, label, weight)
-                           in zip(paths, path_labels, path_weights)
+def filter_paths(paths, path_labels, path_weights, path_origins, const):
+    filtered_tuple_list = [(path, label, weight, origin)
+                           for (path, label, weight, origin)
+                           in zip(paths, path_labels, path_weights, path_origins)
                            if label in const.keep_labels]
     return list(map(list, zip(*filtered_tuple_list)))
 
 
 def make_paths_from_RPE_and_TPS_data(const):
     print("Read RPE files")
-    RPE_paths, RPE_labels, RPE_weights, RPE_names = \
+    RPE_paths, RPE_labels, RPE_weights, RPE_origins = \
         make_paths_from_RPE_data(const)
     print("Read TPS files")
-    # Read in the TPS files and generate paths, labels, weights and names.
+    # Read in the TPS files and generate paths, labels, weights and origins.
     # Weights are chosen based on the minimal weight assigned to the RPE paths.
-    TPS_paths, TPS_labels, TPS_weights, TPS_names = \
+    TPS_paths, TPS_labels, TPS_weights, TPS_origins = \
         make_paths_from_TPS_data(min(RPE_weights), const)
     # Return the merges  RPE and TPS arrays
     return np.append(RPE_paths, TPS_paths, axis=0), \
         np.append(RPE_labels, TPS_labels, axis=0), \
-        np.append(RPE_weights, TPS_weights, axis=0)
+        np.append(RPE_weights, TPS_weights, axis=0), \
+        np.append(RPE_origins, TPS_origins, axis=0)
 
 
 def make_paths_from_RPE_data(const):
@@ -118,46 +133,44 @@ def make_paths_from_RPE_data(const):
     labels = []
     mc_weights = []
     reweights = []
-    names = []
+    origins = []
     for folder in listdir(foldername):
         print(folder)
-        # for each folder opens the file path_name or path_name.txt as names
-        # glob.glob assures that both file nnp.amings will be accepted
+        # for each folder opens the file path_name or path_name.txt as
+        # origin_file glob.glob assures that both file np.namings
+        # will be accepted
         with open(glob.glob("{}/{}/path_name*"
-                            .format(foldername, folder))[0], "r") as name_file:
+                  .format(foldername, folder))[0], "r") as origin_file:
             # similarly opens the corresponding path_weights file as weights
             with open(glob.glob("{}/{}/path_weight*"
-                                .format(foldername, folder))[0], "r") \
+                      .format(foldername, folder))[0], "r") \
                                     as weight_file:
                 with open(glob.glob("{}/{}/rpe_weigh*"
-                                    .format(foldername, folder))[0], "r") \
+                          .format(foldername, folder))[0], "r") \
                                     as reweight_file:
 
-                    name_lines = name_file.readlines()
+                    origin_lines = origin_file.readlines()
                     weight_lines = weight_file.readlines()
                     reweight_lines = reweight_file.readlines()
-                    name_lines, weight_lines, reweight_lines = \
+                    origin_lines, weight_lines, reweight_lines = \
                         shuffle(
-                            name_lines, weight_lines,
+                            origin_lines, weight_lines,
                             reweight_lines, random_state=42)
-                    frac_len = int(len(name_lines) * const.used_RPE_frac)
+                    frac_len = int(len(origin_lines) * const.used_RPE_frac)
                     print("Total paths: {}\t Used paths: {}"
-                          .format(len(name_lines), frac_len))
-                    path_names = list(map(
-                        lambda x: x[:-1],
-                        name_lines[:frac_len]))
+                          .format(len(origin_lines), frac_len))
+                    origin_names = list(map(
+                        lambda x: x[:-1], origin_lines[:frac_len]))
                     weight_names = list(map(
-                        lambda x: int(x[:-1]),
-                        weight_lines[:frac_len]))
+                        lambda x: int(x[:-1]), weight_lines[:frac_len]))
                     reweight_names = list(map(
-                        lambda x: float(x[:-1]),
-                        reweight_lines[:frac_len]))
+                        lambda x: float(x[:-1]), reweight_lines[:frac_len]))
                     for file_nr in range(frac_len):
                         with open(
                                 "{}/{}/light_data/{}".format(
                                     foldername,
                                     folder,
-                                    path_names[file_nr]),
+                                    origin_names[file_nr]),
                                 "r") as path:
                             path = path.readlines()
                             # iterates over all snapshots in the trajectory
@@ -173,7 +186,7 @@ def make_paths_from_RPE_data(const):
                                        + "(mcg = {}) outside of state"
                                        + " definition.")
                                       .format(
-                                        path_names[file_nr],
+                                        origin_names[file_nr],
                                         path[0][0],
                                         path[-1][0]))
                             else:
@@ -181,22 +194,19 @@ def make_paths_from_RPE_data(const):
                                 labels.append(determine_label(path, const))
                                 mc_weights.append(weight_names[file_nr])
                                 reweights.append(reweight_names[file_nr])
-                                names.append("{}_{}"
-                                             .format(
-                                                folder,
-                                                path_names[file_nr][:-4]))
+                                origins.append(str(folder))
 
     # Multiply the two weight lists.
     weights = np.array(mc_weights) * np.array(reweights)
     return np.array(paths), np.array(labels), \
-        np.array(weights), np.array(names)
+        np.array(weights), np.array(origins)
 
 
 def make_paths_from_TPS_data(TPS_weight, const):
     foldername = const.TPS_folder_name
     paths = []
     labels = []
-    names = []
+    origins = []
     precision = 2
     for file in listdir(foldername):
         with open("{}/{}".format(foldername, file), "r") as file_name:
@@ -221,14 +231,14 @@ def make_paths_from_TPS_data(TPS_weight, const):
             else:
                 paths.append(path)
                 labels.append(determine_label(path, const))
-                names.append(file[:3])
+                origins.append("TPS")
 
     frac_len = int(len(paths) * const.used_TPS_frac)
     print("Total paths: {}\t Used paths: {}".format(len(paths), frac_len))
     weights = [TPS_weight for i in range(frac_len)]
-    paths, labels, names = shuffle(paths, labels, names, random_state=42)
+    paths, labels, origins = shuffle(paths, labels, origins, random_state=42)
     return np.array(paths)[:frac_len], np.array(labels)[:frac_len], \
-        np.array(weights), np.array(names)[:frac_len]
+        np.array(weights), np.array(origins)[:frac_len]
 
 
 def path_outside_state_definition(path, const):
