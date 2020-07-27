@@ -36,6 +36,7 @@ def make_train_val_test_split_snapshots_from_snapshots(
     print("\nFraction of snapshots per interface in the test set:")
     for key in origCounter:
         print("    {}:\t{:.3f}".format(key, newCounter[key] / origCounter[key]))
+    snapshot_weights = calculate_origin_balanced_weights(snapshot_origins)
     return np.array([*snapshots[:train_end]]), \
         np.array([*snapshot_labels[:train_end]]), \
         np.array([*snapshot_weights[:train_end]]), \
@@ -45,6 +46,16 @@ def make_train_val_test_split_snapshots_from_snapshots(
         np.array([*snapshots[val_end:]]), \
         np.array([*snapshot_labels[val_end:]]), \
         np.array([*snapshot_weights[val_end:]])
+
+
+def calculate_origin_balanced_weights(snapshot_origins):
+    origin_cnt = len(set(snapshot_origins))
+    snapshot_len = len(snapshot_origins)
+    origin_counter = Counter(snapshot_origins)
+    origin_balanced_weights = [snapshot_len /
+                               (origin_counter[origin] * origin_cnt)
+                               for origin in snapshot_origins]
+    return np.array(origin_balanced_weights)
 
 
 def make_snapshots_from_paths(

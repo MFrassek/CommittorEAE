@@ -7,6 +7,7 @@ from trimmer import Trimmer
 from trimmer import HalfTrimmer
 from pB_balancer import pB_Balancer
 from hypercube_balancer import Hypercube_Balancer
+from multidim_balancer import MultiDim_Balancer
 
 import numpy as np
 
@@ -123,7 +124,7 @@ class Pipeline():
             pB_dict, pBs, pB_weights = self.rbngatn(dataset)
         pBb_weights = pB_Balancer.balance(
             pBs, self._const.balance_bins)
-        hcb_weights = Hypercube_Balancer.balance(
+        hcb_weights = MultiDim_Balancer.balance(
             snapshots, self._const.balance_bins)
         return grid_snapshots, snapshots, labels, weights, \
             pB_dict, pBs, pB_weights, pBb_weights, hcb_weights
