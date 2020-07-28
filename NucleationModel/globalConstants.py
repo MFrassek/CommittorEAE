@@ -130,7 +130,7 @@ class Const():
         # Activation function in the decoder_2
         self._decoder_2_act_func = "tanh"
         # Regularizer applied to all hidden layers
-        self._regularizer = 0.0001
+        self._regularizer = 0.00001
         # Ratio of weights for label and reconstruction loss
         self._loss_weights = [1, 1]
         # Names of input and output in the model.

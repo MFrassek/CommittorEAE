@@ -67,8 +67,7 @@ class AutoEncoder:
 
         decoder_output_2 = keras.layers.Dense(
             dimensions,
-            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
-            activation=const.decoder_2_act_func,
+            activation=None,
             name=const.output_name_2)(x2)
 
         decoder_2 = keras.Model(
