@@ -8,6 +8,7 @@ from trimmer import HalfTrimmer
 from pB_balancer import pB_Balancer
 from hypercube_balancer import Hypercube_Balancer
 from multidim_balancer import MultiDim_Balancer
+from squeezer import Squeezer
 
 import numpy as np
 
@@ -128,6 +129,33 @@ class Pipeline():
             snapshots, self._const.balance_bins)
         return grid_snapshots, snapshots, labels, weights, \
             pB_dict, pBs, pB_weights, pBb_weights, hcb_weights
+
+    def rbngas(self, dataset):
+        """Reduce, bound, normalize and gridify snapshots,
+        approximate the pBs
+        and squeeze the pBs with values 0 or 1.
+        """
+        grid_snapshots, snapshots, \
+            pB_dict, pBs, pB_weights = self.rbnga(dataset)
+        pB_dict = Squeezer.squeeze_pB_dict(pB_dict, self._const)
+        pBs = Squeezer.squeeze_pBs(pBs, self._const)
+        return grid_snapshots, snapshots, \
+            pB_dict, pBs, pB_weights
+
+    def rbngasb(self, dataset):
+        """Reduce, bound, normalize and gridify snapshots,
+        approximate the pBs,
+        squeeze the pBs with values 0 or 1
+        and generate balanced weights for the pBs and snapshots.
+        """
+        grid_snapshots, snapshots, \
+            s_pB_dict, s_pBs, pB_weights = self.rbngas(dataset)
+        s_pBb_weights = pB_Balancer.balance(
+            s_pBs, self._const.balance_bins)
+        hcb_weights = Hypercube_Balancer.balance(
+            snapshots, self._const.balance_bins)
+        return grid_snapshots, snapshots, dataset.labels, dataset.weights, \
+            s_pB_dict, s_pBs, pB_weights, s_pBb_weights, hcb_weights
 
     def importance_data(self, valDataset):
         assert valDataset.flag == "Validation", \
