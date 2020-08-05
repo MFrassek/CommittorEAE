@@ -64,15 +64,17 @@ def make_snapshots_from_paths(
     snapshot_weights = []
     snapshot_origins = []
     for path_nr, path in enumerate(paths):
+        path_len = len(path)
         path_label = path_labels[path_nr]
-        path_weight = path_weights[path_nr]
+        path_total_weight = path_weights[path_nr]
+        path_part_weight = path_total_weight / path_len
         path_origin = path_origins[path_nr]
         for snapshot_nr, snapshot in enumerate(path):
             # Iterate over all indices within each path and append
             # accordingly the snapshot as well as label,
             # weight and origin.
             snapshots.append(snapshot)
-            snapshot_weights.append(path_weight)
+            snapshot_weights.append(path_part_weight)
             snapshot_origins.append(path_origin)
             if path_label == "AA":
                 snapshot_labels.append(const.AA_label)
