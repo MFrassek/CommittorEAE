@@ -89,3 +89,21 @@ def plot_loss_history(history, file_name):
     plt.legend(loc="lower right")
     plt.savefig(file_name)
     plt.show()
+
+
+def print_coverage(list_var_names, dataset):
+    AAs = [snapshot for i, snapshot in enumerate(dataset.snapshots)
+           if dataset.labels[i] == 0]
+    ABs = [snapshot for i, snapshot in enumerate(dataset.snapshots)
+           if dataset.labels[i] == 1]
+    AACoverageOfABRange = np.amax(AAs, axis=0) / np.amax(ABs, axis=0) * 100
+    plt.bar(range(len(list_var_names)), AACoverageOfABRange)
+    plt.ylim(0,)
+    plt.xticks(range(len(list_var_names)), list_var_names, rotation=60)
+    plt.ylabel("AA/AB path range coverage [%]")
+    plt.title("Fraction of AB path range also covered by AA paths ")
+    plt.tight_layout()
+    plt.savefig("results/AA-AB_coverage.png")
+    plt.show()
+    for i, _ in enumerate(AACoverageOfABRange):
+        print("{}: {}".format(list_var_names[i], AACoverageOfABRange[i]))
