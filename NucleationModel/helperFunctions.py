@@ -5,6 +5,7 @@ from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from scipy import stats
 
 
 def get_size(obj, seen=None):
@@ -100,7 +101,11 @@ def get_means_from_tuples(tuples):
     return np.mean(list(zip(*tuples)), axis=1)
 
 
-def get_1D_correlated_mean(grid_snapshots, x_int):
+def get_modes_from_tuples(tuples):
+    return stats.mode(tuples)[0]
+
+
+def get_1D_correlated_representation(grid_snapshots, x_int, function):
     snapshots_per_x = {}
     for snapshot in grid_snapshots:
         # Append to key associated with this snapshots value for x
@@ -110,11 +115,11 @@ def get_1D_correlated_mean(grid_snapshots, x_int):
             snapshots_per_x[snapshot[x_int]] = [tuple(snapshot)]
     means_per_x = {}
     for x in snapshots_per_x:
-        means_per_x[x] = get_means_from_tuples(snapshots_per_x[x])
+        means_per_x[x] = function(snapshots_per_x[x])
     return means_per_x
 
 
-def get_2D_correlated_mean(grid_snapshots, x_int, y_int):
+def get_2D_correlated_representation(grid_snapshots, x_int, y_int, function):
     snapshots_per_xy = {}
     for snapshot in grid_snapshots:
         # Append to key associated with this snapshots values for x and y
@@ -126,5 +131,5 @@ def get_2D_correlated_mean(grid_snapshots, x_int, y_int):
                 = [tuple(snapshot)]
     means_per_xy = {}
     for xy in snapshots_per_xy:
-        means_per_xy[xy] = get_means_from_tuples(snapshots_per_xy[xy])
+        means_per_xy[xy] = function(snapshots_per_xy[xy])
     return means_per_xy
