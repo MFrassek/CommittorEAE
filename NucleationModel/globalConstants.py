@@ -100,7 +100,7 @@ class Const():
         self._val_ratio = 0.1
         # Fraction of most extreme values that are considered
         # outliers to both sides
-        self._outlier_cutoff = 0.005
+        self._outlier_cutoff = 0.02
         # Number of bins to balance the pBs
         self._balance_bins = 10
 
@@ -452,6 +452,10 @@ class Const():
     def loss_weights(self, x):
         assert isinstance(x, list), "Can only be set to type list"
         self._loss_weights = x
+
+    @outlier_cutoff.setter
+    def outlier_cutoff(self, x):
+        self._outlier_cutoff = x
 
     @epochs.setter
     def epochs(self, x):
