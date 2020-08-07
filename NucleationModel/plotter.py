@@ -371,11 +371,11 @@ class Plotter():
             upper_bound,
             const,
             pre_stamp,
-            model,
+            method,
             minima,
             maxima,
-            fill_val=0,
-            max_row_len=6):
+            max_row_len=6,
+            **kwargs):
         """Generates a superfigure of scater plots.
         Iterates over the different dimensions and based on
         different input values for one dimensions
@@ -399,13 +399,12 @@ class Plotter():
         fig.align_labels()
 
         for i, var_name in enumerate(used_variable_names):
-            xs, ys = Plotter.calc_scatter_generated(
-                model=model,
-                minima=minima,
-                maxima=maxima,
+            xs, ys = method(
                 x_pos=name_to_list_position[var_name],
                 resolution=const.resolution,
-                fill_val=fill_val)
+                minima=minima,
+                maxima=maxima,
+                **kwargs)
             if row_cnt > 1:
                 new_axs = axs[i//max_row_len]
             else:
@@ -450,23 +449,22 @@ class Plotter():
                            % max_row_len, max_row_len):
                 new_axs[i].axis("off")
         plt.tight_layout(rect=[0, 0, 1, 0.8])
-        plt.savefig("results/{}_{}_{}_fv{}_r{}_scat.png"
+        plt.savefig("results/{}_{}_{}_r{}_scat.png"
                     .format(
                         pre_stamp,
                         const.data_stamp,
                         const.model_stamp,
-                        fill_val,
                         const.resolution))
         plt.show()
         return
 
     @staticmethod
     def calc_scatter_generated(
+            x_pos,
+            resolution,
             model,
             minima,
             maxima,
-            x_pos,
-            resolution,
             fill_val=0):
         in_size = model.layers[0].output_shape[0][1]
         xs = np.linspace(minima[x_pos], maxima[x_pos], resolution)
@@ -476,3 +474,23 @@ class Plotter():
                                         for pos_nr in range(in_size)]])[0]
             ys.append(prediction[x_pos])
         return xs, ys
+
+    @staticmethod
+    def calc_represented_scatter_generated(
+            x_pos,
+            resolution,
+            model,
+            minima,
+            maxima,
+            representations):
+        in_size = model.layers[0].output_shape[0][1]
+        x_representations = representations[x_pos]
+        xs = np.linspace(minima[x_pos], maxima[x_pos], resolution)
+        ys = [float("NaN") for i in range(resolution)]
+        span_inv_resolution = (maxima - minima) / (resolution - 1)
+        norm_x_representations = \
+            (x_representations * span_inv_resolution) + minima
+        for i, norm_representation in enumerate(norm_x_representations):
+            prediction = model.predict([[norm_representation]])[0]
+            ys[int(x_representations[i][x_pos])] = prediction[x_pos]
+        return np.array(xs), np.array(ys)
