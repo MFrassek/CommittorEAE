@@ -191,7 +191,7 @@ def make_paths_from_RPE_data(const):
                             # drops the first column (snapshot_index)
                             # transforms the strings into floats
                             path = np.array([list(map(float, snap[:-1]
-                                            .split(" ")[1:]))[:17]
+                                            .split(" ")[1:]))
                                             for snap in path])
                             if path_outside_state_definition(path, const):
                                 print(("Path in {} begins (mcg = {}) or ends"
@@ -232,7 +232,7 @@ def make_paths_from_TPS_data(TPS_weight, const):
             # and round to the given precision.
             path = np.array(
                 [list(map(lambda x: round(float(x), precision),
-                 snap[:-1].split(" ")[1:]))[:17] for snap in path])
+                 snap[:-1].split(" ")[1:])) for snap in path])
             if path_outside_state_definition(path, const):
                 print(("Path in {} begins (mcg = {}) or ends"
                        + "(mcg = {}) outside of state definition.")
