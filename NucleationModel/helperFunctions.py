@@ -97,12 +97,18 @@ def print_coverage(list_var_names, dataset):
         print("{}: {}".format(list_var_names[i], AACoverageOfABRange[i]))
 
 
-def get_means_from_tuples(tuples):
-    return np.mean(list(zip(*tuples)), axis=1)
-
-
-def get_modes_from_tuples(tuples):
-    return stats.mode(tuples)[0]
+def get_all_1D_correlated_representations(grid_snapshots, function):
+    all_representations = {}
+    for x in range(len(grid_snapshots[0])):
+        print(x)
+        x_representation = get_1D_correlated_representation(
+            grid_snapshots=grid_snapshots,
+            x_int=x,
+            function=function)
+        x_representation = np.array(
+            [value for value in x_representation.values()])
+        all_representations[x] = x_representation
+    return all_representations
 
 
 def get_1D_correlated_representation(grid_snapshots, x_int, function):
@@ -119,6 +125,22 @@ def get_1D_correlated_representation(grid_snapshots, x_int, function):
     return means_per_x
 
 
+def get_all_2D_correlated_representations(grid_snapshots, function):
+    all_representations = {}
+    for x in range(len(grid_snapshots[0])):
+        for y in range(0, x):
+            print(x, y)
+            xy_representation = get_2D_correlated_representation(
+                grid_snapshots=grid_snapshots,
+                x_int=x,
+                y_int=y,
+                function=function)
+            xy_representation = np.array(
+                [value for value in xy_representation.values()])
+            all_representations[(x, y)] = xy_representation
+    return all_representations
+
+
 def get_2D_correlated_representation(grid_snapshots, x_int, y_int, function):
     snapshots_per_xy = {}
     for snapshot in grid_snapshots:
@@ -133,3 +155,11 @@ def get_2D_correlated_representation(grid_snapshots, x_int, y_int, function):
     for xy in snapshots_per_xy:
         means_per_xy[xy] = function(snapshots_per_xy[xy])
     return means_per_xy
+
+
+def get_means_from_tuples(tuples):
+    return np.mean(list(zip(*tuples)), axis=1)
+
+
+def get_modes_from_tuples(tuples):
+    return stats.mode(tuples)[0][0]
