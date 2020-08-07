@@ -336,6 +336,34 @@ class Plotter():
                               for pos_nr in range(in_size)]])[0]
 
     @staticmethod
+    def calc_represented_map_generated(
+            x_pos,
+            y_pos,
+            resolution,
+            minima,
+            maxima,
+            model,
+            representations):
+        assert x_pos != y_pos, "x_pos and y_pos need to differ"
+        in_size = model.layers[0].output_shape[0][1]
+        out_size = model.layers[-1].output_shape[1]
+        xy_representations = representations[(x_pos, y_pos)]
+        out_map = [[[float("NaN") for i in range(resolution)]
+                   for j in range(resolution)]
+                   for k in range(out_size)]
+        span_inv_resolution = (maxima - minima) / (resolution - 1)
+        norm_xy_representations = \
+            (xy_representations * span_inv_resolution) + minima
+        for i, norm_representation in enumerate(norm_xy_representations):
+            prediction = model.predict([[norm_representation]])[0]
+            for j in range(out_size):
+                # Take x and y positions from the original xy_representation
+                # to assort the prediction to the right grid point
+                out_map[j][int(xy_representations[i][x_pos])]\
+                    [int(xy_representations[i][y_pos])] = prediction[j]
+        return np.array(out_map)
+
+    @staticmethod
     def plot_super_scatter(
             used_variable_names: list,
             name_to_list_position: dict,
