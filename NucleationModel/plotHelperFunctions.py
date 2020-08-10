@@ -199,3 +199,36 @@ def plot_decoder(
     plt.tight_layout()
     plt.savefig("results/Decoder_{}.png".format(const.model_stamp))
     plt.show()
+
+def map_path_on_2D_latent_space(
+        pipeline, path, encoder, skip, pre_stamp, const):
+    processed_path = pipeline.rbn(path)
+    predictions = []
+    inv_path_len = 1/len(path)
+    for i, snapshot in enumerate(processed_path[::skip]):
+        predictions.append([*encoder.predict([[snapshot]])[0],
+                      (i*inv_path_len*skip)])
+    for prediction in predictions:
+        plt.scatter(
+            *prediction[:2],
+            c=[
+                [1-prediction[2],
+                0,
+                prediction[2]]],
+            s=10)
+    plt.xlabel("$BN_1$")
+    plt.ylabel("$BN_2$")
+    plt.title("Path mapping onto the latent space")
+    plt.savefig("results/LatentSpacePath_scat_{}_{}".format(
+        pre_stamp, const.model_stamp))
+    plt.show()
+    plt.plot(*np.transpose(predictions)[:2], c="b")
+    plt.xlabel("$BN_1$")
+    plt.ylabel("$BN_2$")
+    plt.title("Path mapping onto the latent space")
+    plt.savefig("results/LatentSpacePath_plot_{}_{}".format(
+        pre_stamp, const.model_stamp))
+    plt.show()
+
+    #c_map.set_under([0.2, 0.9, 0.5, 0.9])
+    #c_map.set_over([1, 0.7, 0.1, 0.9])
