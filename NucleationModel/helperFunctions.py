@@ -163,3 +163,18 @@ def get_means_from_tuples(tuples):
 
 def get_modes_from_tuples(tuples):
     return stats.mode(tuples)[0][0]
+
+
+def get_encoder_formula(encoder, reduced_list_var_names):
+    """Calculates the linear formula represented by the encoder."""
+    bn_size = encoder.layers[-1].output_shape[1]
+    formula_components = [[] for _ in range(bn_size)]
+    in_size = encoder.layers[0].output_shape[0][1]
+    base_predictions = encoder.predict([[np.zeros(in_size)]])[0]
+    for dimension in range(in_size):
+        mod_list = np.zeros(in_size)
+        mod_list[dimension] = 1
+        mod_predictions = encoder.predict([[mod_list]])[0]
+        for i, _ in enumerate(mod_predictions):
+            formula_components[i].append(mod_predictions[i] - base_predictions[i])
+    return list(zip(reduced_list_var_names, *formula_components))
