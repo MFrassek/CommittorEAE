@@ -43,7 +43,7 @@ def plot_with_different_settings(
         train_ds, val_ds, loss_function,
         pipeline, pre_stamp, minima, maxima):
     autoencoder, autoencoder_1, autoencoder_2, \
-        enocoder, decoder_1, decoder_2 = \
+        encoder, decoder_1, decoder_2 = \
         AutoEncoder.model(len(reduced_list_var_names), loss_function, const)
     history = autoencoder.fit(
         x=train_ds,
