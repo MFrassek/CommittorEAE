@@ -67,10 +67,10 @@ class Const():
                                 for i in self._all_var_order]
 
         """Pre-Dataset parameters"""
-        # Name of the folder in which the complete RPE data is found
-        self._RPE_folder_name = "RPE_org"
-        #self._RPE_folder_name = "RPE_low"
-        #self._RPE_folder_name = "RPE_high"
+        # Name of the folder in which the complete TIS data is found
+        self._TIS_folder_name = "RPE_org"
+        #self._TIS_folder_name = "RPE_low"
+        #self._TIS_folder_name = "RPE_high"
         # Name of the folder in which the TPS paths are found
         self._TPS_folder_name = "TPS"
         # MCG threshold below which a snapshot belongs to state A
@@ -80,7 +80,7 @@ class Const():
         # big cage threshold under which a snapshot belongs to amorphous
         self._big_C = 8
         # Fraction of paths used from the read files
-        self._used_RPE_frac = 0.1
+        self._used_TIS_frac = 0.1
         self._used_TPS_frac = 0.1
         # Labels assigned to the four types of paths
         self._AA_label = 0.0
@@ -191,8 +191,8 @@ class Const():
         return self._var_order
 
     @property
-    def RPE_folder_name(self):
-        return self._RPE_folder_name
+    def TIS_folder_name(self):
+        return self._TIS_folder_name
 
     @property
     def TPS_folder_name(self):
@@ -211,8 +211,8 @@ class Const():
         return self._big_C
 
     @property
-    def used_RPE_frac(self):
-        return self._used_RPE_frac
+    def used_TIS_frac(self):
+        return self._used_TIS_frac
 
     @property
     def used_TPS_frac(self):
@@ -418,10 +418,10 @@ class Const():
                 self._epochs)
 
     # Define setter methods for all variables that can be changed.
-    @RPE_folder_name.setter
-    def RPE_folder_name(self, x):
+    @TIS_folder_name.setter
+    def TIS_folder_name(self, x):
         assert isinstance(x, str), "Can only be set to type str"
-        self._RPE_folder_name = x
+        self._TIS_folder_name = x
 
     @TPS_folder_name.setter
     def TPS_folder_name(self, x):

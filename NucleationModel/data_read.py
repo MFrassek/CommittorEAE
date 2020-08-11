@@ -5,11 +5,11 @@ from sklearn.utils import shuffle
 from collections import Counter
 
 
-def make_train_val_test_from_RPE_and_TPS(const):
+def make_train_val_test_from_TIS_and_TPS(const):
     return make_train_val_test_split_snapshots_from_snapshots(
         *make_snapshots_from_paths(
             *filter_paths(
-                *make_paths_from_RPE_and_TPS_data(
+                *make_paths_from_TIS_and_TPS_data(
                     const),
                 const),
             const),
@@ -123,43 +123,44 @@ def filter_paths(paths, path_labels, path_weights, path_origins, const):
     return list(map(list, zip(*filtered_tuple_list)))
 
 
-def make_paths_from_RPE_and_TPS_data(const):
-    print("Read RPE files")
-    RPE_paths, RPE_labels, RPE_weights, RPE_origins = \
-        make_paths_from_RPE_data(const)
+def make_paths_from_TIS_and_TPS_data(const):
+    print("Read TIS files")
+    TIS_paths, TIS_labels, TIS_weights, TIS_origins = \
+        make_paths_from_TIS_data(const)
     print("Read TPS files")
     # Read in the TPS files and generate paths, labels, weights and origins.
-    # Weights are chosen based on the minimal weight assigned to the RPE paths.
+    # Weights are chosen based on the minimal weight assigned to the TIS paths.
     TPS_paths, TPS_labels, TPS_weights, TPS_origins = \
-        make_paths_from_TPS_data(min(RPE_weights), const)
-    # Return the merges  RPE and TPS arrays
-    return np.append(RPE_paths, TPS_paths, axis=0), \
-        np.append(RPE_labels, TPS_labels, axis=0), \
-        np.append(RPE_weights, TPS_weights, axis=0), \
-        np.append(RPE_origins, TPS_origins, axis=0)
+        make_paths_from_TPS_data(min(TIS_weights), const)
+    # Return the merges  TIS and TPS arrays
+    return np.append(TIS_paths, TPS_paths, axis=0), \
+        np.append(TIS_labels, TPS_labels, axis=0), \
+        np.append(TIS_weights, TPS_weights, axis=0), \
+        np.append(TIS_origins, TPS_origins, axis=0)
 
 
-def make_paths_from_RPE_data(const):
-    foldername = const.RPE_folder_name
+def make_paths_from_TIS_data(const):
+    folder_name = const.TIS_folder_name
     paths = []
     labels = []
     mc_weights = []
     reweights = []
     origins = []
-    for folder in listdir(foldername):
-        print(folder)
+    for interface_name in listdir(folder_name):
+        print(interface_name)
         # for each folder opens the file path_name or path_name.txt as
         # origin_file glob.glob assures that both file np.namings
         # will be accepted
         with open(glob.glob("{}/{}/path_name*"
-                  .format(foldername, folder))[0], "r") as origin_file:
+                  .format(folder_name, interface_name))[0], "r") \
+                    as origin_file:
             # similarly opens the corresponding path_weights file as weights
             with open(glob.glob("{}/{}/path_weight*"
-                      .format(foldername, folder))[0], "r") \
-                                    as weight_file:
+                      .format(folder_name, interface_name))[0], "r") \
+                        as weight_file:
                 with open(glob.glob("{}/{}/rpe_weigh*"
-                          .format(foldername, folder))[0], "r") \
-                                    as reweight_file:
+                          .format(folder_name, interface_name))[0], "r") \
+                            as reweight_file:
 
                     origin_lines = origin_file.readlines()
                     weight_lines = weight_file.readlines()
@@ -168,7 +169,7 @@ def make_paths_from_RPE_data(const):
                         shuffle(
                             origin_lines, weight_lines,
                             reweight_lines, random_state=42)
-                    frac_len = int(len(origin_lines) * const.used_RPE_frac)
+                    frac_len = int(len(origin_lines) * const.used_TIS_frac)
                     print("Total paths: {}\t Used paths: {}"
                           .format(len(origin_lines), frac_len))
                     origin_names = list(map(
@@ -178,35 +179,20 @@ def make_paths_from_RPE_data(const):
                     reweight_names = list(map(
                         lambda x: float(x[:-1]), reweight_lines[:frac_len]))
                     for file_nr in range(frac_len):
-                        with open(
-                                "{}/{}/light_data/{}".format(
-                                    foldername,
-                                    folder,
-                                    origin_names[file_nr]),
-                                "r") as path:
-                            path = path.readlines()
-                            # iterates over all snapshots in the trajectory
-                            # removes the linebreak character at the end ("\n")
-                            # splits them along all occurences of " "
-                            # drops the first column (snapshot_index)
-                            # transforms the strings into floats
-                            path = np.array([list(map(float, snap[:-1]
-                                            .split(" ")[1:]))
-                                            for snap in path])
-                            if path_outside_state_definition(path, const):
-                                print(("Path in {} begins (mcg = {}) or ends"
-                                       + "(mcg = {}) outside of state"
-                                       + " definition.")
-                                      .format(
-                                        origin_names[file_nr],
-                                        path[0][0],
-                                        path[-1][0]))
-                            else:
-                                paths.append(path)
-                                labels.append(determine_label(path, const))
-                                mc_weights.append(weight_names[file_nr])
-                                reweights.append(reweight_names[file_nr])
-                                origins.append(str(folder))
+                        path = read_path_from_file(
+                            "{}/{}/light_data/{}".format(
+                                folder_name,
+                                interface_name,
+                                origin_names[file_nr]), 2)
+                        if path_outside_state_definition(path, const):
+                            handle_path_outside_state_definition(
+                                origin_names[file_nr])
+                        else:
+                            paths.append(path)
+                            labels.append(determine_label(path, const))
+                            mc_weights.append(weight_names[file_nr])
+                            reweights.append(reweight_names[file_nr])
+                            origins.append(str(interface_name))
 
     # Multiply the two weight lists.
     weights = np.array(mc_weights) * np.array(reweights)
@@ -215,35 +201,19 @@ def make_paths_from_RPE_data(const):
 
 
 def make_paths_from_TPS_data(TPS_weight, const):
-    foldername = const.TPS_folder_name
+    folder_name = const.TPS_folder_name
     paths = []
     labels = []
     origins = []
     precision = 2
-    for file in listdir(foldername):
-        with open("{}/{}".format(foldername, file), "r") as file_name:
-            file_name.readline()
-            path = file_name.readlines()
-            # Iterate over all snapshots in the trajectory
-            # remove the linebreak character at the end ("\n")
-            # split them along all occurences of " "
-            # drop the first column (snapshot_index)
-            # transform the strings into floats
-            # and round to the given precision.
-            path = np.array(
-                [list(map(lambda x: round(float(x), precision),
-                 snap[:-1].split(" ")[1:])) for snap in path])
-            if path_outside_state_definition(path, const):
-                print(("Path in {} begins (mcg = {}) or ends"
-                       + "(mcg = {}) outside of state definition.")
-                      .format(
-                        file,
-                        path[0][0],
-                        path[-1][0]))
-            else:
-                paths.append(path)
-                labels.append(determine_label(path, const))
-                origins.append("TPS")
+    for file_name in listdir(folder_name):
+        path = read_path_from_file("{}/{}".format(folder_name, file_name), 2)
+        if path_outside_state_definition(path, const):
+            handle_path_outside_state_definition(file_name)
+        else:
+            paths.append(path)
+            labels.append(determine_label(path, const))
+            origins.append("TPS")
 
     frac_len = int(len(paths) * const.used_TPS_frac)
     print("Total paths: {}\t Used paths: {}".format(len(paths), frac_len))
@@ -253,6 +223,23 @@ def make_paths_from_TPS_data(TPS_weight, const):
         np.array(weights), np.array(origins)[:frac_len]
 
 
+def read_path_from_file(file_path, precision):
+    # Iterate over all snapshots in the trajectory
+    # remove the linebreak character at the end ("\n")
+    # split them along all occurences of " "
+    # drop the first column (snapshot_index)
+    # transform the strings into floats
+    # and round to the given precision.
+    with open(file_path, "r") as file:
+        path = file.readlines()
+        if path[0].startswith("#"):
+            path = path[1:]
+        path = np.array(
+            [list(map(lambda x: round(float(x), precision),
+             snap[:-1].split(" ")[1:])) for snap in path])
+        return path
+
+
 def path_outside_state_definition(path, const):
     return (snapshots_outside_state_definition(path[0], const)
             or snapshots_outside_state_definition(path[-1], const))
@@ -260,6 +247,12 @@ def path_outside_state_definition(path, const):
 
 def snapshots_outside_state_definition(snapshot, const):
     return snapshot[0] > const.mcg_A and snapshot[0] < const.mcg_B
+
+
+def handle_path_outside_state_definition(file_name):
+    print(("Path in {} begins (mcg = {}) or ends"
+           + "(mcg = {}) outside of state definition.")
+          .format(file_name, path[0][0], path[-1][0]))
 
 
 def determine_label(path, const):
