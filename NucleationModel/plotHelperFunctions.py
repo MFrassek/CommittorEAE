@@ -44,7 +44,7 @@ def plot_with_different_settings(
         pipeline, pre_stamp, minima, maxima):
     autoencoder, autoencoder_1, autoencoder_2, \
         encoder, decoder_1, decoder_2 = \
-        AutoEncoder.model(len(reduced_list_var_names), loss_function, const)
+        AutoEncoder.make_models(len(reduced_list_var_names), loss_function, const)
     history = autoencoder.fit(
         x=train_ds,
         epochs=const.epochs,
@@ -109,7 +109,7 @@ def plot_encoder_decoder(
         pipeline):
     autoencoder, autoencoder_1, autoencoder_2, \
         encoder, decoder_1, decoder_2 = \
-        AutoEncoder.model(len(reduced_list_var_names), loss_function, const)
+        AutoEncoder.make_models(len(reduced_list_var_names), loss_function, const)
     history = autoencoder.fit(
         x=train_ds,
         epochs=const.epochs,

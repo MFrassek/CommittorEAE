@@ -5,96 +5,48 @@ import keras.backend as K
 
 class AutoEncoder:
     @staticmethod
-    def model(dimensions, loss_function, const):
-        encoder_input = keras.Input(
-            shape=(dimensions,),
-            name=const.input_name)
-        x = keras.layers.Dense(
-            dimensions * const.node_mult,
-            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
-            activation=const.encoder_act_func)(encoder_input)
-        for i in range(const.encoder_hidden - 1):
-            x = keras.layers.Dense(
-                dimensions * const.node_mult,
-                kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
-                activation=const.encoder_act_func)(x)
+    def make_models(dimensions, loss_function, const):
+        encoder = AutoEncoder.make_encoder(
+            const=const,
+            dimensions=dimensions)
 
-        encoder_output = keras.layers.Dense(
-            const.bottleneck_size,
-            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
-            activation=const.encoder_act_func,
-            name="bottleneck")(x)
+        decoder_1 = AutoEncoder.make_decoder(
+            const=const,
+            dimensions=dimensions,
+            hidden_activation_function=const.decoder_1_act_func,
+            hidden_layer_cnt=const.decoder_1_hidden,
+            output_units=1,
+            output_activation_function=const.decoder_1_act_func,
+            output_name=const.output_name_1)
 
-        encoder = keras.Model(
-            encoder_input,
-            encoder_output,
-            name="Encoder")
+        decoder_2 = AutoEncoder.make_decoder(
+            const=const,
+            dimensions=dimensions,
+            hidden_activation_function=const.decoder_2_act_func,
+            hidden_layer_cnt=const.decoder_2_hidden,
+            output_units=dimensions,
+            output_activation_function=None,
+            output_name=const.output_name_2)
 
-        decoder_input = keras.Input(
-            shape=(const.bottleneck_size,),
-            name="encoded_snapshots")
-
-        x1 = keras.layers.Dense(
-            dimensions * const.node_mult,
-            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
-            activation=const.decoder_1_act_func)(decoder_input)
-        for i in range(const.decoder_1_hidden):
-            x1 = keras.layers.Dense(
-                dimensions * const.node_mult,
-                kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
-                activation=const.decoder_1_act_func)(x1)
-
-        decoder_output_1 = keras.layers.Dense(
-            1,
-            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
-            activation=const.decoder_1_act_func,
-            name=const.output_name_1)(x1)
-
-        decoder_1 = keras.Model(
-            decoder_input,
-            decoder_output_1,
-            name=const.output_name_1)
-
-        x2 = keras.layers.Dense(
-            dimensions * const.node_mult,
-            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
-            activation=const.decoder_2_act_func)(decoder_input)
-        for i in range(const.decoder_2_hidden):
-            x2 = keras.layers.Dense(
-                dimensions * const.node_mult,
-                kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
-                activation=const.decoder_2_act_func)(x2)
-
-        decoder_output_2 = keras.layers.Dense(
-            dimensions,
-            activation=None,
-            name=const.output_name_2)(x2)
-
-        decoder_2 = keras.Model(
-            decoder_input,
-            decoder_output_2,
-            name=const.output_name_2)
-
-        autoencoder_input = keras.Input(
-            shape=(dimensions,),
-            name=const.input_name)
-        encoded_snaphot = encoder(autoencoder_input)
-        label_snapshot = decoder_1(encoded_snaphot)
-        reconstructed_snapshot = decoder_2(encoded_snaphot)
-
-        autoencoder = keras.Model(
-            inputs=autoencoder_input,
-            outputs=[label_snapshot, reconstructed_snapshot],
+        autoencoder = AutoEncoder.make_autoencoder(
+            const=const,
+            dimensions=dimensions,
+            encoder=encoder,
+            decoders=[decoder_1, decoder_2],
             name="Autoencoder")
 
-        autoencoder_1 = keras.Model(
-            inputs=autoencoder_input,
-            outputs=label_snapshot,
+        autoencoder_1 = AutoEncoder.make_autoencoder(
+            const=const,
+            dimensions=dimensions,
+            encoder=encoder,
+            decoders=[decoder_1],
             name="Autoencoder_1")
 
-        autoencoder_2 = keras.Model(
-            inputs=autoencoder_input,
-            outputs=reconstructed_snapshot,
+        autoencoder_2 = AutoEncoder.make_autoencoder(
+            const=const,
+            dimensions=dimensions,
+            encoder=encoder,
+            decoders=[decoder_2],
             name="Autoencoder_2")
 
         autoencoder.compile(
@@ -115,8 +67,10 @@ class AutoEncoder:
             optimizer=keras.optimizers.RMSprop(1e-3),
             loss={const.output_name_2: keras.losses.MeanAbsoluteError()},
             loss_weights=[const.reconstruction_loss_weight])
+
         return autoencoder, autoencoder_1, autoencoder_2, \
             encoder, decoder_1, decoder_2
+
 
     @staticmethod
     def visualize(model, file_name: str):
@@ -124,3 +78,74 @@ class AutoEncoder:
             model,
             file_name,
             show_shapes=True)
+
+    @staticmethod
+    def make_encoder(
+            const,
+            dimensions):
+        encoder_input = keras.Input(
+            shape=(dimensions,),
+            name=const.input_name)
+        x = encoder_input
+        for i in range(const.encoder_hidden):
+            x = keras.layers.Dense(
+                units=dimensions * const.node_mult,
+                kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
+                activation=const.encoder_act_func)(x)
+        encoder_output = keras.layers.Dense(
+            units=const.bottleneck_size,
+            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
+            activation=const.encoder_act_func,
+            name="bottleneck")(x)
+        encoder = keras.Model(
+            encoder_input,
+            encoder_output,
+            name="Encoder")
+        return encoder
+
+    @staticmethod
+    def make_decoder(
+            const,
+            dimensions,
+            hidden_layer_cnt,
+            hidden_activation_function,
+            output_units,
+            output_activation_function,
+            output_name):
+        decoder_input = keras.Input(
+            shape=(const.bottleneck_size,),
+            name="encoded_snapshots")
+        x = decoder_input
+        for i in range(hidden_layer_cnt):
+            x = keras.layers.Dense(
+                units=dimensions * const.node_mult,
+                kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
+                activation=hidden_activation_function)(x)
+        decoder_output = keras.layers.Dense(
+            units=output_units,
+            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
+            activation=output_activation_function,
+            name=output_name)(x)
+        decoder = keras.Model(
+            decoder_input,
+            decoder_output,
+            name=output_name)
+        return decoder
+
+    @staticmethod
+    def make_autoencoder(
+            const,
+            dimensions,
+            encoder,
+            decoders,
+            name):
+        autoencoder_input = keras.Input(
+            shape=(dimensions,),
+            name=const.input_name)
+        encoded_snaphot = encoder(autoencoder_input)
+        autoencoder_outputs = [decoder(encoded_snaphot) for decoder in decoders]
+        autoencoder = keras.Model(
+            inputs=autoencoder_input,
+            outputs=autoencoder_outputs,
+            name=name)
+        return autoencoder
