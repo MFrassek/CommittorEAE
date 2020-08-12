@@ -3,6 +3,7 @@ import glob
 import numpy as np
 from sklearn.utils import shuffle
 from collections import Counter
+import random
 
 
 def make_train_val_test_from_TIS_and_TPS(const):
@@ -287,3 +288,23 @@ def read_shooting_points(filename):
         shooting_points = np.array([point[1:] for point in shooting_points])
         print("{} shooting points read".format(len(labels)))
         return shooting_points, labels
+
+
+def get_one_TIS_path(folder_name, interface, const):
+    random.seed(42)
+    file_names = listdir("{}/{}/light_data".format(folder_name, interface))
+    file_name = random.choice(file_names)
+    path = read_path_from_file(
+        "{}/{}/light_data/{}".format(folder_name, interface, file_name), 2)
+    print("Label: {}".format(determine_label(path, const)))
+    return path
+
+
+def get_one_TPS_path(folder_name, const):
+    random.seed(42)
+    file_names = listdir(folder_name)
+    file_name = random.choice(file_names)
+    path = read_path_from_file(
+        "{}/{}".format(folder_name, file_name), 2)
+    print("Label: {}".format(determine_label(path, const)))
+    return path
