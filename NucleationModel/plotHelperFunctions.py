@@ -216,7 +216,9 @@ def map_path_on_2D_latent_space(
                 0,
                 prediction[2]]],
             s=10)
+    plt.xlim(-10, 10)
     plt.xlabel("$BN_1$")
+    plt.ylim(-10, 10)
     plt.ylabel("$BN_2$")
     plt.title("Path mapping onto the latent space")
     plt.savefig("results/LatentSpacePath_scat_{}_{}".format(
@@ -246,6 +248,7 @@ def map_path_on_1D_latent_space(
                 0,
                 prediction[1]]],
             s=10)
+    plt.xlim(-10, 10)
     plt.xlabel("$BN_1$")
     plt.yticks([])
     plt.title("Path mapping onto the latent space")
@@ -257,18 +260,14 @@ def map_path_on_timed_1D_latent_space(
         pipeline, path, encoder, skip, pre_stamp, const):
     processed_path = pipeline.rbn(path)
     predictions = []
-    inv_path_len = 1/len(path)
     for i, snapshot in enumerate(processed_path[::skip]):
         predictions.append([*encoder.predict([[snapshot]])[0],
                       i])
-    for prediction in predictions:
-        plt.scatter(
-            *prediction,
-            c = "b",
-            s=10)
+    plt.plot(*np.transpose(predictions), c = "b")
+    plt.xlim(-10, 10)
     plt.xlabel("$BN_1$")
     plt.ylabel("Time [x{} snapshots]".format(skip))
     plt.title("Path mapping onto the latent space")
-    plt.savefig("results/1DTimedLatentSpacePath_scat_{}_{}".format(
+    plt.savefig("results/1DTimedLatentSpacePath_plot_{}_{}".format(
         pre_stamp, const.model_stamp))
     plt.show()
