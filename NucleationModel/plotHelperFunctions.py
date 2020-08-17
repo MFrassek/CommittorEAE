@@ -271,3 +271,12 @@ def map_path_on_timed_1D_latent_space(
     plt.savefig("results/1DTimedLatentSpacePath_plot_{}_{}".format(
         pre_stamp, const.model_stamp))
     plt.show()
+
+
+def plot_relative_importances(names, values):
+    dollar_names = ["$"+name+"$" for name in names]
+    plt.bar(dollar_names, values)
+    plt.ylabel("Relatve importance")
+    plt.ylim(0,0.6)
+    plt.savefig("results/LinearComponents.png")
+    plt.show()
