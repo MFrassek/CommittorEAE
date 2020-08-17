@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib as mpl
 from helperFunctions import function_to_str
-
+from data_read import get_one_TPS_path, get_one_TIS_path
 
 def plot_loss_history(history, file_name):
     plt.figure(figsize=(8, 8))
@@ -200,6 +200,39 @@ def plot_decoder(
     plt.savefig("results/Decoder_{}.png".format(const.model_stamp))
     plt.show()
 
+
+def plot_example_TPS_and_TIS_paths_on_latent_space(
+        function,
+        const,
+        pipeline,
+        encoder,
+        skip):
+    TPS_path = get_one_TPS_path(
+        folder_name=const.TPS_folder_name, const=const)
+    function(
+        pipeline=pipeline,
+        path=TPS_path,
+        encoder=encoder,
+        skip=skip,
+        pre_stamp="TPS",
+        const=const)
+
+    for interface in [
+            "mcg30", "mcg35", "mcg40",
+            "mcg45", "mcg50", "mcg60",
+            "mcg70", "mcg80", "mcg90",
+            "mcg100"]:
+        TIS_path = get_one_TIS_path(
+            folder_name=const.TIS_folder_name, interface=interface, const=const)
+        function(
+            pipeline=pipeline,
+            path=TIS_path,
+            encoder=encoder,
+            skip=skip,
+            pre_stamp="TIS_{}".format(interface),
+            const=const)
+
+
 def map_path_on_2D_latent_space(
         pipeline, path, encoder, skip, pre_stamp, const):
     processed_path = pipeline.rbn(path)
@@ -232,6 +265,7 @@ def map_path_on_2D_latent_space(
         pre_stamp, const.model_stamp))
     plt.show()
 
+
 def map_path_on_1D_latent_space(
         pipeline, path, encoder, skip, pre_stamp, const):
     processed_path = pipeline.rbn(path)
@@ -255,6 +289,7 @@ def map_path_on_1D_latent_space(
     plt.savefig("results/1DLatentSpacePath_scat_{}_{}".format(
         pre_stamp, const.model_stamp))
     plt.show()
+
 
 def map_path_on_timed_1D_latent_space(
         pipeline, path, encoder, skip, pre_stamp, const):
