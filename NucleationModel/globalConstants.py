@@ -71,6 +71,7 @@ class Const():
         self._TIS_folder_name = "RPE_org"
         #self._TIS_folder_name = "RPE_low"
         #self._TIS_folder_name = "RPE_high"
+        self._TIS_highest_interface_name = "mcg100"
         # Name of the folder in which the TPS paths are found
         self._TPS_folder_name = "TPS"
         # MCG threshold below which a snapshot belongs to state A
@@ -193,6 +194,10 @@ class Const():
     @property
     def TIS_folder_name(self):
         return self._TIS_folder_name
+
+    @property
+    def TIS_highest_interface_name(self):
+        return self._TIS_highest_interface_name
 
     @property
     def TPS_folder_name(self):

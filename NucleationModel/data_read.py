@@ -133,6 +133,12 @@ def make_paths_from_TIS_and_TPS_data(const):
     # Weights are chosen based on the minimal weight assigned to the TIS paths.
     TPS_paths, TPS_labels, TPS_weights, TPS_origins = \
         make_paths_from_TPS_data(min(TIS_weights), const)
+    # Update the weight of paths at the highest interface and of the TPS paths
+    # to correct for the additional paths available.
+    TIS_weights, TPS_weights = \
+        correct_highest_interface(
+            const.TIS_highest_interface_name, TIS_origins,
+            TIS_weights, TPS_weights)
     # Return the merges  TIS and TPS arrays
     return np.append(TIS_paths, TPS_paths, axis=0), \
         np.append(TIS_labels, TPS_labels, axis=0), \
@@ -273,6 +279,39 @@ def determine_label(path, const):
             return "BB"
     else:
         return "NN"
+
+
+def correct_highest_interface(
+        highest_interface,
+        TIS_origins,
+        TIS_weights,
+        TPS_weights):
+    TIS_highest_interface_cnt = len([1 for origin in TIS_origins \
+                                     if origin == highest_interface])
+    TPS_highest_interface_cnt = len(TPS_weights)
+    # Determine by which factor the weights at the highest interface
+    # need to be corrected.
+    update_factor = TIS_highest_interface_cnt \
+                    / (TIS_highest_interface_cnt + TPS_highest_interface_cnt)
+    # Make an array for broadcasting where the positions of the
+    # highest interface are indicated with True.
+    TIS_highest_interface_mask = TIS_origins == highest_interface
+    # Make an array for broadcasting where the positions of the
+    # highest interface are indicated with False.
+    TIS_highest_interface_antimask = TIS_highest_interface_mask == False
+    # Make an array with the update_factor at all positions of the
+    # the highest interface and 0 everywhere else.
+    TIS_update_mask = TIS_highest_interface_mask * update_factor
+    # Make an array with the update_factor at all positions of the
+    # the highest interface and 0 everywhere else.
+    TIS_not_update_mask = TIS_highest_interface_antimask * 1
+    # Make a full mask for updating the weights of the highest interface
+    # without losing the other weights.
+    TIS_full_mask = TIS_update_mask + TIS_not_update_mask
+    # Update the TIS and TPS weights.
+    TIS_weights = TIS_weights * TIS_full_mask
+    TPS_weights = TPS_weights * update_factor
+    return TIS_weights, TPS_weights
 
 
 def read_shooting_points(filename):
