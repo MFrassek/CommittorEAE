@@ -9,6 +9,8 @@ from pB_balancer import pB_Balancer
 from hypercube_balancer import Hypercube_Balancer
 from multidim_balancer import MultiDim_Balancer
 from squeezer import Squeezer
+from corrector import Corrector
+
 
 import numpy as np
 import tensorflow as tf
@@ -114,6 +116,14 @@ class Pipeline():
                 snapshots, self._const.balance_bins)
         return mdb_weights
 
+    def correct_1D(self, snapshots):
+        corrected_1D = Corrector.correct_1D_row(snapshots)
+        return corrected_1D
+
+    def correct_2D(self, snapshots):
+        corrected_2D = Corrector.correct_2D_grid(snapshots)
+        return corrected_2D
+
     def pack_tf_dataset(
             self,
             snapshots,
@@ -189,7 +199,9 @@ class Pipeline():
         ds, snapshots, g_snapshots = \
             self.prepare_dataset_from_bn(
                 reduced_list_var_names, bn_snapshots, dataset)
-        return ds, snapshots, g_snapshots
+        corrected_1D = self.correct_1D(g_snapshots)
+        corrected_2D = self.correct_2D(g_snapshots)
+        return ds, snapshots, corrected_1D, corrected_2D
 
     def prepare_stepper(
             self,
