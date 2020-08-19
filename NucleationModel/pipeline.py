@@ -11,24 +11,18 @@ from multidim_balancer import MultiDim_Balancer
 from squeezer import Squeezer
 
 import numpy as np
-
+import tensorflow as tf
 
 class Pipeline():
-    def __init__(self, const, reduced_list_var_names, base_snapshots):
+    def __init__(self, const, base_snapshots):
         self._const = const
-        self._reduced_list_var_names = reduced_list_var_names
-        self._dimensions = len(reduced_list_var_names)
         self._snapshot_cnt = len(base_snapshots)
-        self._reducer = Reducer(
-            self._reduced_list_var_names,
-            self._const.name_to_list_position)
-        base_snapshots = self._reducer.reduce_snapshots(base_snapshots)
         self._bounder = Bounder(base_snapshots, self._const.outlier_cutoff)
         base_snapshots = self._bounder.bound_snapshots(base_snapshots)
         self._normalizer = Normalizer(base_snapshots)
         base_snapshots = self._normalizer.normalize_snapshots(base_snapshots)
-        self._gridifier = Gridifier(base_snapshots, self._const.resolution)
-        # base_snapshots = self._gridifier.gridify_snapshots(base_snapshots)
+        self._minima = np.amin(base_snapshots, axis=0)
+        self._maxima = np.amax(base_snapshots, axis=0)
 
     @property
     def lower_bound(self):
@@ -48,130 +42,161 @@ class Pipeline():
 
     @property
     def minima(self):
-        return self._gridifier.minima
+        return self._minima
 
     @property
     def maxima(self):
-        return self._gridifier.maxima
+        return self._maxima
 
     @property
     def snapshot_cnt(self):
         return self._snapshot_cnt
 
-    def rbn(self, snapshots):
-        """Reduce, bound and normalize snapshots."""
-        snapshots = self._reducer.reduce_snapshots(snapshots)
+    def bound_normalize(self, snapshots):
+        """Bound and normalize snapshots."""
         snapshots = self._bounder.bound_snapshots(snapshots)
         snapshots = self._normalizer.normalize_snapshots(snapshots)
         return snapshots
 
-    def rbng(self, snapshots):
-        """Reduce, bound, normalize and gridify snapshots."""
-        snapshots = self.rbn(snapshots)
-        grid_snapshots = self._gridifier.gridify_snapshots(snapshots)
-        return grid_snapshots, snapshots
+    def reduce(self, snapshots, reduced_list_var_names):
+        """Reduce snapshots."""
+        reducer = Reducer(
+            reduced_list_var_names,
+            self._const.name_to_list_position)
+        snapshots = reducer.reduce_snapshots(snapshots)
+        return snapshots
 
-    def rbnga(self, dataset):
-        """Reduce, bound, normalize and gridify snapshots
-        and approximate the pBs.
-        """
-        grid_snapshots, snapshots = self.rbng(dataset.snapshots)
+    def gridify(self, snapshots):
+        """Gridify snapshots."""
+        gridifier = Gridifier(snapshots, self._const.resolution)
+        snapshots = gridifier.gridify_snapshots(snapshots)
+        return snapshots
+
+    def approximate(self, snapshots, dataset):
+        """Approximate pBs."""
         pB_dict, pBs, pB_weights = pB_Approximator.approximate_pBs(
-            grid_snapshots,
+            snapshots,
             dataset.labels,
             dataset.weights)
-        return grid_snapshots, snapshots, pB_dict, pBs, pB_weights
+        return pB_dict, pBs, pB_weights
 
-    def rbngat(self, dataset):
-        """Reduce, bound, normalize and gridify snapshots,
-        approximate the pBs
-        and trimm the snapshots, labels and weights.
-        """
-        grid_snapshots, snapshots, \
-            pB_dict, pBs, pB_weights = self.rbnga(dataset)
+    def trim(self, pBs, *args):
+        """Trim inputs based on pBs."""
         trimmer = Trimmer(pBs)
-        grid_snapshots = trimmer.trim_snapshots(grid_snapshots)
-        snapshots = trimmer.trim_snapshots(snapshots)
-        labels = trimmer.trim_snapshots(dataset.labels)
-        weights = trimmer.trim_snapshots(dataset.weights)
-        pB_dict = trimmer.trim_dict(pB_dict)
-        pBs = trimmer.trim_snapshots(pBs)
-        pB_weights = trimmer.trim_snapshots(pB_weights)
-        return grid_snapshots, snapshots, labels, weights, \
-            pB_dict, pBs, pB_weights
+        trimmed = [trimmer.trim_snapshots(arg) for arg in args]
+        return trimmed
 
-    def rbngatn(self, dataset):
-        """Reduce, bound, normalize and gridify snapshots,
-        approximate the pBs
-        trimm the snapshots, labels and weights
-        and renormalize the snapshots after trimming.
-        """
-        grid_snapshots, snapshots, labels, weights, \
-            pB_dict, pBs, pB_weights = self.rbngat(dataset)
-        new_mean = np.mean(snapshots, axis=0)
-        new_inv_std = 1 / np.std(snapshots, axis=0)
-        snapshots = (snapshots - new_mean) * new_inv_std
-        return grid_snapshots, snapshots, labels, weights, \
-            pB_dict, pBs, pB_weights
-
-    def rbngatnb(self, dataset):
-        """Reduce, bound, normalize and gridify snapshots,
-        approximate the pBs,
-        trimm the snapshots, labels and weights
-        normalize the snapshots again after trimming
-        and generate balanced weights for the pBs and snapshots.
-        """
-        grid_snapshots, snapshots, labels, weights, \
-            pB_dict, pBs, pB_weights = self.rbngatn(dataset)
-        pBb_weights = pB_Balancer.balance(
-            pBs, self._const.balance_bins)
-        hcb_weights = Hypercube_Balancer.balance(
-            snapshots, self._const.balance_bins)
-        return grid_snapshots, snapshots, labels, weights, \
-            pB_dict, pBs, pB_weights, pBb_weights, hcb_weights
-
-    def rbngas(self, dataset):
-        """Reduce, bound, normalize and gridify snapshots,
-        approximate the pBs
-        and squeeze the pBs with values 0 or 1.
-        """
-        grid_snapshots, snapshots, \
-            pB_dict, pBs, pB_weights = self.rbnga(dataset)
-        pB_dict = Squeezer.squeeze_pB_dict(pB_dict, self._const)
+    def squeeze(self, pBs):
+        """Squeeze, i.e. replace pB = 1 with lower value."""
         pBs = Squeezer.squeeze_pBs(pBs, self._const)
-        return grid_snapshots, snapshots, \
-            pB_dict, pBs, pB_weights
+        return pBs
 
-    def rbngasb(self, dataset):
-        """Reduce, bound, normalize and gridify snapshots,
-        approximate the pBs,
-        squeeze the pBs with values 0 or 1
-        and generate balanced weights for the pBs and snapshots.
-        """
-        grid_snapshots, snapshots, \
-            s_pB_dict, s_pBs, pB_weights = self.rbngas(dataset)
-        s_pBb_weights = pB_Balancer.balance(
-            s_pBs, self._const.balance_bins)
-        hcb_weights = Hypercube_Balancer.balance(
+    def normalize(self, snapshots):
+        """Normalize snapshots."""
+        normalizer = Normalizer(snapshots)
+        snapshots = normalizer.normalize_snapshots(snapshots)
+        return snapshots
+
+    def pB_balance(self, pBs):
+        pBb_weights = \
+            pB_Balancer.balance(pBs, self._const.balance_bins)
+        return pBb_weights
+
+    def hypercube_balance(self, snapshots):
+        hcb_weights = \
+            Hypercube_Balancer.balance(
             snapshots, self._const.balance_bins)
-        return grid_snapshots, snapshots, dataset.labels, dataset.weights, \
-            s_pB_dict, s_pBs, pB_weights, s_pBb_weights, hcb_weights
+        return hcb_weights
 
-    def importance_data(self, valDataset):
-        assert valDataset.flag == "Validation", \
-            "valDataset needs to be a validation set."
-        return self.rbn(valDataset.snapshots), \
-            valDataset.labels, \
-            valDataset.weights
+    def multidim_balance(self, snapshots):
+        mdb_weights = \
+            MultiDim_Balancer.balance(
+                snapshots, self._const.balance_bins)
+        return mdb_weights
 
-    def stepwise_data(self, trainDataset, valDataset):
-        assert trainDataset.flag == "Training", \
-            "trainDataset needs to be a training set."
-        assert valDataset.flag == "Validation", \
-            "valDataset needs to be a validation set."
-        return self.rbn(trainDataset.snapshots), \
-            trainDataset.labels, \
-            trainDataset.weights, \
-            self.rbn(valDataset.snapshots), \
-            valDataset.labels, \
-            valDataset.weights
+    def pack_tf_dataset(
+            self,
+            snapshots,
+            labels,
+            prediction_weights,
+            reconstruction_weights):
+        """Pack tensorflow dataset."""
+        return tf.data.Dataset.from_tensor_slices(
+            ({self._const.input_name: snapshots},
+            {self._const.output_name_1: labels,
+            self._const.output_name_2: snapshots},
+            {self._const.output_name_1: prediction_weights,
+            self._const.output_name_2: reconstruction_weights})) \
+                .shuffle(self.snapshot_cnt) \
+                .batch(self._const.batch_size)
+
+    def prepare_groundTruth(
+            self,
+            reduced_list_var_names,
+            dataset):
+        # Get bn_snapshots
+        snapshots = self.bound_normalize(dataset.snapshots)
+        # Get bnr_snapshots
+        snapshots = self.reduce(snapshots, reduced_list_var_names)
+        # Get bnrg_snapshots
+        g_snapshots = self.gridify(snapshots)
+        return g_snapshots, dataset.labels, dataset.weights
+
+    def prepare_trimmedGroundTruth(
+            self,
+            reduced_list_var_names,
+            dataset):
+        # Get bnrg_snapshots
+        g_snapshots, _, _ = \
+            self.prepare_groundTruth(reduced_list_var_names, dataset)
+        _, pBs, _ = \
+            self.approximate(g_snapshots, dataset)
+        # Get bnrgt_snapshots, t_labels and t_weights
+        g_snapshots, labels, weights = \
+            self.trim(pBs, g_snapshots, dataset.labels, dataset.weights)
+        return g_snapshots, labels, weights
+
+    def prepare_dataset_from_bn(
+            self,
+            reduced_list_var_names,
+            bn_snapshots,
+            dataset):
+        # Get bnr_snapshots
+        snapshots = self.reduce(bn_snapshots, reduced_list_var_names)
+        # Get bnrg_snapshots
+        g_snapshots = self.gridify(snapshots)
+        _, pBs, _ = self.approximate(g_snapshots, dataset)
+        # Get bnrt_snapshots
+        snapshots, pBs = self.trim(pBs, snapshots, pBs)
+#        # Get s_pBs
+#        pBs = self.squeeze(pBs)
+        # Get bnr(t)n_snapshots
+        snapshots = self.normalize(snapshots)
+        pBb_weights = self.pB_balance(pBs)
+        hcb_weights = self.hypercube_balance(snapshots)
+        ds = self.pack_tf_dataset(
+            snapshots=snapshots,
+            labels=pBs,
+            prediction_weights=pBb_weights,
+            reconstruction_weights=hcb_weights)
+        return ds, snapshots, g_snapshots
+
+    def prepare_prediction_plotter(
+            self,
+            reduced_list_var_names,
+            dataset):
+        bn_snapshots = self.bound_normalize(dataset.snapshots)
+        ds, snapshots, g_snapshots = \
+            self.prepare_dataset_from_bn(
+                reduced_list_var_names, bn_snapshots, dataset)
+        return ds, snapshots, g_snapshots
+
+    def prepare_stepper(
+            self,
+            reduced_list_var_names,
+            bn_snapshots,
+            dataset):
+        ds, _, _ = \
+            self.prepare_dataset_from_bn(
+                reduced_list_var_names, bn_snapshots, dataset)
+        return ds

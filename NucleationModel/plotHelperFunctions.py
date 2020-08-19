@@ -205,6 +205,7 @@ def plot_example_TPS_and_TIS_paths_on_latent_space(
         function,
         const,
         pipeline,
+        reduced_list_var_names,
         encoder,
         skip):
     TPS_path = get_one_TPS_path(
@@ -212,6 +213,7 @@ def plot_example_TPS_and_TIS_paths_on_latent_space(
     function(
         pipeline=pipeline,
         path=TPS_path,
+        reduced_list_var_names=reduced_list_var_names,
         encoder=encoder,
         skip=skip,
         pre_stamp="TPS",
@@ -227,6 +229,7 @@ def plot_example_TPS_and_TIS_paths_on_latent_space(
         function(
             pipeline=pipeline,
             path=TIS_path,
+            reduced_list_var_names=reduced_list_var_names,
             encoder=encoder,
             skip=skip,
             pre_stamp="TIS_{}".format(interface),
@@ -234,11 +237,13 @@ def plot_example_TPS_and_TIS_paths_on_latent_space(
 
 
 def map_path_on_2D_latent_space(
-        pipeline, path, encoder, skip, pre_stamp, const):
-    processed_path = pipeline.rbn(path)
+        pipeline, path, reduced_list_var_names,
+        encoder, skip, pre_stamp, const):
+    bn_path = pipeline.bound_normalize(path)
+    bnr_path = pipeline.reduce(bn_path, reduced_list_var_names)
     predictions = []
     inv_path_len = 1/len(path)
-    for i, snapshot in enumerate(processed_path[::skip]):
+    for i, snapshot in enumerate(bnr_path[::skip]):
         predictions.append([*encoder.predict([[snapshot]])[0],
                       (i*inv_path_len*skip)])
     for prediction in predictions:
@@ -267,11 +272,13 @@ def map_path_on_2D_latent_space(
 
 
 def map_path_on_1D_latent_space(
-        pipeline, path, encoder, skip, pre_stamp, const):
-    processed_path = pipeline.rbn(path)
+        pipeline, path, reduced_list_var_names,
+        encoder, skip, pre_stamp, const):
+    bn_path = pipeline.bound_normalize(path)
+    bnr_path = pipeline.reduce(bn_path, reduced_list_var_names)
     predictions = []
     inv_path_len = 1/len(path)
-    for i, snapshot in enumerate(processed_path[::skip]):
+    for i, snapshot in enumerate(bnr_path[::skip]):
         predictions.append([*encoder.predict([[snapshot]])[0],
                       (i*inv_path_len*skip)])
     for prediction in predictions:
@@ -292,10 +299,12 @@ def map_path_on_1D_latent_space(
 
 
 def map_path_on_timed_1D_latent_space(
-        pipeline, path, encoder, skip, pre_stamp, const):
-    processed_path = pipeline.rbn(path)
+        pipeline, path, reduced_list_var_names,
+        encoder, skip, pre_stamp, const):
+    bn_path = pipeline.bound_normalize(path)
+    bnr_path = pipeline.reduce(bn_path, reduced_list_var_names)
     predictions = []
-    for i, snapshot in enumerate(processed_path[::skip]):
+    for i, snapshot in enumerate(bnr_path[::skip]):
         predictions.append([*encoder.predict([[snapshot]])[0],
                       i])
     plt.plot(*np.transpose(predictions), c = "b")
