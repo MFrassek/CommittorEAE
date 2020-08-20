@@ -366,3 +366,12 @@ def get_one_TPS_path(folder_name, const):
         "{}/{}".format(folder_name, file_name), 2)
     print("Label: {}".format(determine_label(path, const)))
     return path
+
+
+def get_one_DW_path(const, label):
+    paths = np.array(pickle.load(open(const.DW_paths_location, "rb")))
+    labels = np.array(pickle.load(open(const.DW_labels_location, "rb")))
+    random.seed(42)
+    chosen_index = random.choice(np.where(labels == label)[0])
+    path = paths[chosen_index]
+    return path

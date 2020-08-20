@@ -53,6 +53,19 @@ class Const():
             "4^{1}5^{10}6^{3}": 20,
             "4^{1}5^{10}6^{4}": 21
             }
+
+        self._name_to_list_position = {
+            "x_1": 0,
+            "x_2": 1,
+            "x_3": 2,
+            "x_4": 3,
+            "x_5": 4,
+            "x_6": 5,
+            "x_7": 6,
+            "x_8": 7,
+            "x_9": 8,
+            "x_10": 9,
+            }
         # Ordering of the variables in _all_var_names
         self._all_var_order = [
             0, 11, 12, 15, 13, 14, 16,

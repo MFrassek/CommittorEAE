@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib as mpl
 from helperFunctions import function_to_str
-from data_read import get_one_TPS_path, get_one_TIS_path
+from data_read import get_one_TPS_path, get_one_TIS_path, get_one_DW_path
 
 def plot_loss_history(history, file_name):
     plt.figure(figsize=(8, 8))
@@ -235,6 +235,23 @@ def plot_example_TPS_and_TIS_paths_on_latent_space(
             pre_stamp="TIS_{}".format(interface),
             const=const)
 
+def plot_example_DW_paths_on_latent_space(
+        function,
+        const,
+        pipeline,
+        reduced_list_var_names,
+        encoder,
+        skip):
+    for label in const.keep_labels:
+        DW_path = get_one_DW_path(const, label)
+        function(
+            pipeline=pipeline,
+            path=DW_path,
+            reduced_list_var_names=reduced_list_var_names,
+            encoder=encoder,
+            skip=skip,
+            pre_stamp="DW_{}".format(label),
+            const=const)
 
 def map_path_on_2D_latent_space(
         pipeline, path, reduced_list_var_names,
