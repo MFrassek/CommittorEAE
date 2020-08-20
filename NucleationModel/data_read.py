@@ -4,6 +4,17 @@ import numpy as np
 from sklearn.utils import shuffle
 from collections import Counter
 import random
+import pickle
+
+def make_train_val_test_from_DW(const):
+    return make_train_val_test_split_snapshots_from_snapshots(
+        *make_snapshots_from_paths(
+            *filter_paths(
+                *make_paths_from_DW_data(
+                    const),
+                const),
+            const),
+        const)
 
 
 def make_train_val_test_from_TIS_and_TPS(const):
@@ -122,6 +133,14 @@ def filter_paths(paths, path_labels, path_weights, path_origins, const):
                            in zip(paths, path_labels, path_weights, path_origins)
                            if label in const.keep_labels]
     return list(map(list, zip(*filtered_tuple_list)))
+
+
+def make_paths_from_DW_data(const):
+    paths = np.array(pickle.load(open(const.DW_paths_location, "rb")))
+    labels = np.array(pickle.load(open(const.DW_labels_location, "rb")))
+    weights = np.ones(len(labels))
+    origins = np.ones(len(labels))
+    return paths, labels, weights, origins
 
 
 def make_paths_from_TIS_and_TPS_data(const):

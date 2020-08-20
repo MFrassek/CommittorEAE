@@ -67,7 +67,11 @@ class Const():
                                 for i in self._all_var_order]
 
         """Pre-Dataset parameters"""
-        # Name of the folder in which the complete TIS data is found
+        # Name and location of the doublewell paths
+        self._DW_paths_location = "DW/paths.p"
+        # Name and location of the doublewell labels
+        self._DW_labels_location = "DW/labels.p"
+        # Name of the folder in which the TIS data is found
         self._TIS_folder_name = "RPE_org"
         #self._TIS_folder_name = "RPE_low"
         #self._TIS_folder_name = "RPE_high"
@@ -190,6 +194,14 @@ class Const():
     @property
     def var_order(self):
         return self._var_order
+
+    @property
+    def DW_paths_location(self):
+        return self._DW_paths_location
+
+    @property
+    def DW_labels_location(self):
+        return self._DW_labels_location
 
     @property
     def TIS_folder_name(self):
