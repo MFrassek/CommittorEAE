@@ -321,6 +321,6 @@ def plot_relative_importances(names, values):
     dollar_names = ["$"+name+"$" for name in names]
     plt.bar(dollar_names, values)
     plt.ylabel("Relatve importance")
-    plt.ylim(0,0.6)
+    plt.ylim(0,1)
     plt.savefig("results/LinearComponents.png")
     plt.show()
