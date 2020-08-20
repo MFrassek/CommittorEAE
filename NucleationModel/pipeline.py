@@ -206,9 +206,14 @@ class Pipeline():
     def prepare_stepper(
             self,
             reduced_list_var_names,
-            bn_snapshots,
-            dataset):
-        ds, _, _ = \
+            train_bn_snapshots,
+            train_dataset,
+            val_bn_snapshots,
+            val_dataset):
+        train_ds, _, _ = \
             self.prepare_dataset_from_bn(
-                reduced_list_var_names, bn_snapshots, dataset)
-        return ds
+                reduced_list_var_names, train_bn_snapshots, train_dataset)
+        val_ds, _, _ = \
+            self.prepare_dataset_from_bn(
+                reduced_list_var_names, val_bn_snapshots, val_dataset)
+        return train_ds, val_ds
