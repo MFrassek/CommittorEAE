@@ -176,10 +176,10 @@ class Pipeline():
         # Get bnrg_snapshots
         g_snapshots = self.gridify(snapshots)
         _, pBs, _ = self.approximate(g_snapshots, dataset)
-        # Get bnrt_snapshots
-        snapshots, pBs = self.trim(pBs, snapshots, pBs)
-#        # Get s_pBs
-#        pBs = self.squeeze(pBs)
+#        # Get bnrt_snapshots
+#        snapshots, pBs = self.trim(pBs, snapshots, pBs)
+        # Get s_pBs
+        pBs = self.squeeze(pBs)
         # Get bnr(t)n_snapshots
         snapshots = self.normalize(snapshots)
         pBb_weights = self.pB_balance(pBs)
