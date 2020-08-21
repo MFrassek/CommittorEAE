@@ -80,10 +80,10 @@ class Const():
                                 for i in self._all_var_order]
 
         """Pre-Dataset parameters"""
-        # Name and location of the doublewell paths
-        self._DW_paths_location = "DW/paths.p"
-        # Name and location of the doublewell labels
-        self._DW_labels_location = "DW/labels.p"
+        # Name of the folder in which the DW data is found
+        self._DW_folder_name = "DW"
+        # Name of the folder in which the ZP data is found
+        self._ZP_folder_name = "ZP"
         # Name of the folder in which the TIS data is found
         self._TIS_folder_name = "RPE_org"
         #self._TIS_folder_name = "RPE_low"
@@ -98,6 +98,7 @@ class Const():
         # big cage threshold under which a snapshot belongs to amorphous
         self._big_C = 8
         # Fraction of paths used from the read files
+        self._used_toy_frac = 0.1
         self._used_TIS_frac = 0.1
         self._used_TPS_frac = 0.1
         # Labels assigned to the four types of paths
@@ -209,12 +210,12 @@ class Const():
         return self._var_order
 
     @property
-    def DW_paths_location(self):
-        return self._DW_paths_location
+    def DW_folder_name(self):
+        return self._DW_folder_name
 
     @property
-    def DW_labels_location(self):
-        return self._DW_labels_location
+    def ZP_folder_name(self):
+        return self._ZP_folder_name
 
     @property
     def TIS_folder_name(self):
@@ -240,6 +241,9 @@ class Const():
     def big_C(self):
         return self._big_C
 
+    @property
+    def used_toy_frac(self):
+        return self._used_toy_frac
     @property
     def used_TIS_frac(self):
         return self._used_TIS_frac

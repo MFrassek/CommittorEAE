@@ -10,8 +10,21 @@ def make_train_val_test_from_DW(const):
     return make_train_val_test_split_snapshots_from_snapshots(
         *make_snapshots_from_paths(
             *filter_paths(
-                *make_paths_from_DW_data(
-                    const),
+                *make_paths_from_toy_data(
+                    const,
+                    const.DW_folder_name),
+                const),
+            const),
+        const)
+
+
+def make_train_val_test_from_ZP(const):
+    return make_train_val_test_split_snapshots_from_snapshots(
+        *make_snapshots_from_paths(
+            *filter_paths(
+                *make_paths_from_toy_data(
+                    const,
+                    const.ZP_folder_name),
                 const),
             const),
         const)
@@ -135,12 +148,20 @@ def filter_paths(paths, path_labels, path_weights, path_origins, const):
     return list(map(list, zip(*filtered_tuple_list)))
 
 
-def make_paths_from_DW_data(const):
-    paths = np.array(pickle.load(open(const.DW_paths_location, "rb")))
-    labels = np.array(pickle.load(open(const.DW_labels_location, "rb")))
+def make_paths_from_toy_data(const, folder_name):
+    paths = np.array(
+        pickle.load(open("{}/paths.p".format(folder_name), "rb")))
+    labels = np.array(
+        pickle.load(open("{}/labels.p".format(folder_name), "rb")))
     weights = np.ones(len(labels))
     origins = np.ones(len(labels))
-    return paths, labels, weights, origins
+    paths, labels = \
+        shuffle(paths, labels, random_state=42)
+    frac_len = int(len(origins) * const.used_toy_frac)
+    return paths[:frac_len],\
+        labels[:frac_len],\
+        weights[:frac_len],\
+        origins[:frac_len]
 
 
 def make_paths_from_TIS_and_TPS_data(const):
@@ -368,9 +389,11 @@ def get_one_TPS_path(folder_name, const):
     return path
 
 
-def get_one_DW_path(const, label):
-    paths = np.array(pickle.load(open(const.DW_paths_location, "rb")))
-    labels = np.array(pickle.load(open(const.DW_labels_location, "rb")))
+def get_one_toy_path(folder_name, label):
+    paths = np.array(
+        pickle.load(open("{}/paths.p".format(folder_name), "rb")))
+    labels = np.array(
+        pickle.load(open("{}/labels.p".format(folder_name), "rb")))
     random.seed(42)
     chosen_index = random.choice(np.where(labels == label)[0])
     path = paths[chosen_index]
