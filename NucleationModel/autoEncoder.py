@@ -90,11 +90,11 @@ class AutoEncoder:
         for i in range(const.encoder_hidden):
             x = keras.layers.Dense(
                 units=dimensions * const.node_mult,
-                kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
+                activity_regularizer=tf.keras.regularizers.l1(const.regularizer),
                 activation=const.encoder_act_func)(x)
         encoder_output = keras.layers.Dense(
             units=const.bottleneck_size,
-            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
+            activity_regularizer=tf.keras.regularizers.l1(const.regularizer),
             activation=const.encoder_act_func,
             name="bottleneck")(x)
         encoder = keras.Model(
