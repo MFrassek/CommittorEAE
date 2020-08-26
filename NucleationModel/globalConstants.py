@@ -144,7 +144,7 @@ class Const():
         # Number ob hidden layers in the decoder_2
         self._decoder_2_hidden = 4
         # Activation function in the encoder
-        self._encoder_act_func = None
+        self._encoder_act_func = "linear"
         # Activation function in the decoder_1
         self._decoder_1_act_func = "sigmoid"
         # Activation function in the decoder_2
