@@ -112,6 +112,8 @@ class Const():
         # If True snapshots of transition paths are assigned labels
         # according to their position within the path
         self._progress = False
+        # Precision to which data is rounded
+        self._precision = 2
         # List of labels to keep
         self._keep_labels = ["AA", "AB", "BA", "BB"]
         # Ratio of training set compared to the whole dataset
@@ -296,6 +298,10 @@ class Const():
     @property
     def progress(self):
         return self._progress
+
+    @property
+    def precision(self):
+        return self._precision
 
     @property
     def keep_labels(self):

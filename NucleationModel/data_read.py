@@ -6,6 +6,7 @@ from collections import Counter
 import random
 import pickle
 
+
 def make_train_val_test_from_DW(const):
     return make_train_val_test_split_snapshots_from_snapshots(
         *make_snapshots_from_paths(
@@ -52,15 +53,13 @@ def make_train_val_test_split_snapshots_from_snapshots(
     origCounter = Counter(snapshot_origins)
     snapshots, snapshot_labels, snapshot_weights, snapshot_origins = \
         shuffle(
-            snapshots,
-            snapshot_labels,
-            snapshot_weights,
-            snapshot_origins,
+            snapshots, snapshot_labels, snapshot_weights, snapshot_origins,
             random_state=42)
     newCounter = Counter(snapshot_origins[:train_end])
     print("\nFraction of snapshots per interface in the test set:")
     for key in origCounter:
-        print("    {}:\t{:.3f}".format(key, newCounter[key] / origCounter[key]))
+        print("    {}:\t{:.3f}".format(
+            key, newCounter[key] / origCounter[key]))
     return np.array([*snapshots[:train_end]]), \
         np.array([*snapshot_labels[:train_end]]), \
         np.array([*snapshot_weights[:train_end]]), \
@@ -88,12 +87,9 @@ def make_snapshots_from_paths(
     snapshot_labels = []
     snapshot_weights = []
     snapshot_origins = []
-    for path_nr, path in enumerate(paths):
-        path_len = len(path)
-        path_label = path_labels[path_nr]
-        path_total_weight = path_weights[path_nr]
-        path_part_weight = path_total_weight / path_len
-        path_origin = path_origins[path_nr]
+    for path, path_label, path_weight, path_origin in zip(
+            paths, path_labels, path_weights, path_origins):
+        path_part_weight = path_weight / len(path)
         for snapshot_nr, snapshot in enumerate(path):
             # Iterate over all indices within each path and append
             # accordingly the snapshot as well as label,
@@ -119,7 +115,7 @@ def make_snapshots_from_paths(
                             len(path), snapshot_nr, const))
                 else:
                     snapshot_labels.append(const.BA_label)
-    snapshot_weights = np.array(snapshot_weights)/np.mean(snapshot_weights)
+    snapshot_weights = np.array(snapshot_weights) / np.mean(snapshot_weights)
     print("Total mean weights: {}".format(np.mean(snapshot_weights)))
     print("Total sum weights: {}".format(np.sum(snapshot_weights)))
     return np.array(snapshots), \
@@ -143,7 +139,8 @@ def calculate_progress_label(path_len, snapshot_nr, const):
 def filter_paths(paths, path_labels, path_weights, path_origins, const):
     filtered_tuple_list = [(path, label, weight, origin)
                            for (path, label, weight, origin)
-                           in zip(paths, path_labels, path_weights, path_origins)
+                           in zip(
+                                paths, path_labels, path_weights, path_origins)
                            if label in const.keep_labels]
     return list(map(list, zip(*filtered_tuple_list)))
 
@@ -195,51 +192,35 @@ def make_paths_from_TIS_data(const):
     origins = []
     for interface_name in listdir(folder_name):
         print(interface_name)
-        # for each folder opens the file path_name or path_name.txt as
-        # origin_file glob.glob assures that both file np.namings
-        # will be accepted
-        with open(glob.glob("{}/{}/path_name*"
-                  .format(folder_name, interface_name))[0], "r") \
-                    as origin_file:
-            # similarly opens the corresponding path_weights file as weights
-            with open(glob.glob("{}/{}/path_weight*"
-                      .format(folder_name, interface_name))[0], "r") \
-                        as weight_file:
-                with open(glob.glob("{}/{}/rpe_weigh*"
-                          .format(folder_name, interface_name))[0], "r") \
-                            as reweight_file:
-
-                    origin_lines = origin_file.readlines()
-                    weight_lines = weight_file.readlines()
-                    reweight_lines = reweight_file.readlines()
-                    origin_lines, weight_lines, reweight_lines = \
-                        shuffle(
-                            origin_lines, weight_lines,
-                            reweight_lines, random_state=42)
-                    frac_len = int(len(origin_lines) * const.used_TIS_frac)
-                    print("Total paths: {}\t Used paths: {}"
-                          .format(len(origin_lines), frac_len))
-                    origin_names = list(map(
-                        lambda x: x[:-1], origin_lines[:frac_len]))
-                    weight_names = list(map(
-                        lambda x: int(x[:-1]), weight_lines[:frac_len]))
-                    reweight_names = list(map(
-                        lambda x: float(x[:-1]), reweight_lines[:frac_len]))
-                    for file_nr in range(frac_len):
-                        path = read_path_from_file(
-                            "{}/{}/light_data/{}".format(
-                                folder_name,
-                                interface_name,
-                                origin_names[file_nr]), 2)
-                        if path_outside_state_definition(path, const):
-                            handle_path_outside_state_definition(
-                                origin_names[file_nr])
-                        else:
-                            paths.append(path)
-                            labels.append(determine_label(path, const))
-                            mc_weights.append(weight_names[file_nr])
-                            reweights.append(reweight_names[file_nr])
-                            origins.append(str(interface_name))
+        origin_lines = get_lines_from_file(
+            folder_name, interface_name, "path_name*")
+        weight_lines = get_lines_from_file(
+            folder_name, interface_name, "path_weight*")
+        reweight_lines = get_lines_from_file(
+            folder_name, interface_name, "rpe_weigh*")
+        origin_lines, weight_lines, reweight_lines = \
+            shuffle(
+                origin_lines, weight_lines, reweight_lines, random_state=42)
+        frac_len = int(len(origin_lines) * const.used_TIS_frac)
+        print("Total paths: {}\t Used paths: {}"
+              .format(len(origin_lines), frac_len))
+        origin_names = get_names_from_lines(origin_lines, frac_len, str)
+        weight_names = get_names_from_lines(weight_lines, frac_len, int)
+        reweight_names = get_names_from_lines(reweight_lines, frac_len, float)
+        for file_nr in range(frac_len):
+            path = read_path_from_file(
+                "{}/{}/light_data/{}".format(
+                    folder_name, interface_name, origin_names[file_nr]),
+                const.precision)
+            if path_outside_state_definition(path, const):
+                handle_path_outside_state_definition(
+                    origin_names[file_nr])
+            else:
+                paths.append(path)
+                labels.append(determine_label(path, const))
+                mc_weights.append(weight_names[file_nr])
+                reweights.append(reweight_names[file_nr])
+                origins.append(str(interface_name))
 
     # Multiply the two weight lists.
     weights = np.array(mc_weights) * np.array(reweights)
@@ -247,16 +228,36 @@ def make_paths_from_TIS_data(const):
         np.array(weights), np.array(origins)
 
 
+def get_lines_from_file(folder_name, interface_name, file_string):
+    """Open file with the path "folder_name/interface_name/filestring"
+    and return its contents.
+    """
+    with open(glob.glob("{}/{}/{}".format(
+            folder_name, interface_name, file_string))[0], "r") as file:
+        lines = file.readlines()
+        return lines
+
+
+def get_names_from_lines(lines, frac_len, function):
+    """Take list of lines read from a file, keep the first fract_len
+    elements, remove the end of line character at the end of each
+    element and convert it to the type definded by function.
+    """
+    names = list(map(lambda x: function(x[:-1]), lines[:frac_len]))
+    return names
+
+
 def make_paths_from_TPS_data(TPS_weight, const):
     folder_name = const.TPS_folder_name
     paths = []
     labels = []
     origins = []
-    precision = 2
     for file_name in listdir(folder_name):
-        path = read_path_from_file("{}/{}".format(folder_name, file_name), 2)
+        path = read_path_from_file(
+            "{}/{}".format(folder_name, file_name),
+            const.precision)
         if path_outside_state_definition(path, const):
-            handle_path_outside_state_definition(file_name)
+            handle_path_outside_state_definition(file_name, path)
         else:
             paths.append(path)
             labels.append(determine_label(path, const))
@@ -271,12 +272,11 @@ def make_paths_from_TPS_data(TPS_weight, const):
 
 
 def read_path_from_file(file_path, precision):
-    # Iterate over all snapshots in the trajectory
-    # remove the linebreak character at the end ("\n")
-    # split them along all occurences of " "
-    # drop the first column (snapshot_index)
-    # transform the strings into floats
-    # and round to the given precision.
+    """Iterate over all snapshots in the trajectory, remove the
+    linebreak character at the end ('\n'), split them along all
+    occurences of ' ', drop the first column (snapshot_index)
+    transform the strings into floats, and round to the given precision.
+    """
     with open(file_path, "r") as file:
         path = file.readlines()
         if path[0].startswith("#"):
@@ -296,7 +296,7 @@ def snapshots_outside_state_definition(snapshot, const):
     return snapshot[0] > const.mcg_A and snapshot[0] < const.mcg_B
 
 
-def handle_path_outside_state_definition(file_name):
+def handle_path_outside_state_definition(file_name, path):
     print(("Path in {} begins (mcg = {}) or ends"
            + "(mcg = {}) outside of state definition.")
           .format(file_name, path[0][0], path[-1][0]))
@@ -326,19 +326,19 @@ def correct_highest_interface(
         TIS_origins,
         TIS_weights,
         TPS_weights):
-    TIS_highest_interface_cnt = len([1 for origin in TIS_origins \
+    TIS_highest_interface_cnt = len([1 for origin in TIS_origins
                                      if origin == highest_interface])
     TPS_highest_interface_cnt = len(TPS_weights)
     # Determine by which factor the weights at the highest interface
     # need to be corrected.
     update_factor = TIS_highest_interface_cnt \
-                    / (TIS_highest_interface_cnt + TPS_highest_interface_cnt)
+        / (TIS_highest_interface_cnt + TPS_highest_interface_cnt)
     # Make an array for broadcasting where the positions of the
     # highest interface are indicated with True.
     TIS_highest_interface_mask = TIS_origins == highest_interface
     # Make an array for broadcasting where the positions of the
     # highest interface are indicated with False.
-    TIS_highest_interface_antimask = TIS_highest_interface_mask == False
+    TIS_highest_interface_antimask = TIS_origins != highest_interface
     # Make an array with the update_factor at all positions of the
     # the highest interface and 0 everywhere else.
     TIS_update_mask = TIS_highest_interface_mask * update_factor
