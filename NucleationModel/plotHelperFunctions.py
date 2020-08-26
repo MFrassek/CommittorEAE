@@ -337,8 +337,10 @@ def map_path_on_timed_1D_latent_space(
 
 def plot_relative_importances(names, values):
     dollar_names = ["$"+name+"$" for name in names]
-    plt.bar(dollar_names, values)
-    plt.ylabel("Relatve importance")
-    plt.ylim(0,1)
+    precentages = [value * 100 for value in values]
+    plt.bar(dollar_names, precentages)
+    plt.ylabel("Relatve importance [%]")
+    plt.ylim(0, 100)
+    plt.xticks(rotation=60)
     plt.savefig("results/LinearComponents.png")
     plt.show()
