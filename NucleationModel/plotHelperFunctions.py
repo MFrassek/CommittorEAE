@@ -290,3 +290,51 @@ def plot_relative_importances(names, values):
     plt.xticks(rotation=60)
     plt.savefig("results/LinearComponents.png")
     plt.show()
+
+
+def plot_single_map(
+        x_int, y_int, const,
+        pipeline, reduced_list_var_names,
+        stamp, method, **kwargs):
+    fig, ax = plt.subplots(1, 1)
+    plt.imshow(
+        np.maximum(
+            np.transpose(
+                method(
+                    x_pos=x_int,
+                    y_pos=y_int,
+                    resolution=const.resolution,
+                    **kwargs)[0])[::-1],
+            const.logvmin / 2),
+        cmap=const.cmap,
+        interpolation='nearest',
+        norm=mpl.colors.LogNorm(
+            vmin=const.logvmin,
+            vmax=1.0-const.logvmin),
+        extent=[0, 1, 0, 1])
+    ax.set_xticks(np.linspace(0, 1, 3))
+    ax.set_xticklabels(
+        np.around(
+            np.linspace(
+                pipeline.lower_bound[x_int],
+                pipeline.upper_bound[x_int],
+                3),
+            2),
+        rotation=60)
+    ax.set_yticks(np.linspace(0, 1, 3))
+    ax.set_yticklabels(np.around(
+        np.linspace(
+            pipeline.lower_bound[y_int],
+            pipeline.upper_bound[y_int],
+            3),
+        2))
+    ax.set_xlabel(
+        "${}$".format(reduced_list_var_names[x_int]),
+        fontsize=const.subfig_size * 10)
+    ax.set_ylabel(
+        "${}$".format(reduced_list_var_names[y_int]),
+        fontsize=const.subfig_size * 10)
+    plt.colorbar(extend="both")
+    plt.tight_layout()
+    plt.savefig("results/{}_x{}_y_{}.png".format(stamp, x_int, y_int))
+    plt.show()
