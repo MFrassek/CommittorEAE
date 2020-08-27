@@ -189,19 +189,21 @@ class Pipeline():
             labels=pBs,
             prediction_weights=pBb_weights,
             reconstruction_weights=hcb_weights)
-        return ds, snapshots, g_snapshots
+        minima = np.amin(snapshots, axis=0)
+        maxima = np.amax(snapshots, axis=0)
+        return ds, minima, maxima, g_snapshots
 
     def prepare_prediction_plotter(
             self,
             reduced_list_var_names,
             dataset):
         bn_snapshots = self.bound_normalize(dataset.snapshots)
-        ds, snapshots, g_snapshots = \
+        ds, minima, maxima, g_snapshots = \
             self.prepare_dataset_from_bn(
                 reduced_list_var_names, bn_snapshots, dataset)
         corrected_1D = self.correct_1D(g_snapshots)
         corrected_2D = self.correct_2D(g_snapshots)
-        return ds, snapshots, corrected_1D, corrected_2D
+        return ds, minima, maxima, corrected_1D, corrected_2D
 
     def prepare_stepper(
             self,
@@ -210,10 +212,10 @@ class Pipeline():
             train_dataset,
             val_bn_snapshots,
             val_dataset):
-        train_ds, _, _ = \
+        train_ds, _, _, _ = \
             self.prepare_dataset_from_bn(
                 reduced_list_var_names, train_bn_snapshots, train_dataset)
-        val_ds, _, _ = \
+        val_ds, _, _, _ = \
             self.prepare_dataset_from_bn(
                 reduced_list_var_names, val_bn_snapshots, val_dataset)
         return train_ds, val_ds
