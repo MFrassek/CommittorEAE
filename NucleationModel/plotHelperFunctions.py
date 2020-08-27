@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib as mpl
 from helperFunctions import function_to_str
 from data_read import get_one_TPS_path, get_one_TIS_path, get_one_toy_path
+from os import listdir
+
 
 def plot_loss_history(history, file_name):
     plt.figure(figsize=(8, 8))
@@ -109,8 +111,9 @@ def plot_encoder_decoder(
         pipeline):
     autoencoder, autoencoder_1, autoencoder_2, \
         encoder, decoder_1, decoder_2 = \
-        AutoEncoder.make_models(len(reduced_list_var_names), loss_function, const)
-    history = autoencoder.fit(
+        AutoEncoder.make_models(
+            len(reduced_list_var_names), loss_function, const)
+    autoencoder.fit(
         x=train_ds,
         epochs=const.epochs,
         validation_data=val_ds,
@@ -201,137 +204,80 @@ def plot_decoder(
     plt.show()
 
 
-def plot_example_TPS_and_TIS_paths_on_latent_space(
-        function,
+def plot_example_paths_on_latent_space(
+        get_paths_function,
         const,
         pipeline,
         reduced_list_var_names,
+        skip,
         encoder,
-        skip):
-    TPS_path = get_one_TPS_path(
-        folder_name=const.TPS_folder_name, const=const)
-    function(
-        pipeline=pipeline,
-        path=TPS_path,
-        reduced_list_var_names=reduced_list_var_names,
-        encoder=encoder,
+        pre_stamp,
+        **kwargs):
+    paths, labels = get_paths_function(const=const, **kwargs)
+    latent_paths = [make_latent_path_from_path(
+            pipeline=pipeline,
+            path=path,
+            reduced_list_var_names=reduced_list_var_names,
+            skip=skip,
+            encoder=encoder)
+        for path in paths]
+    plot_latent_paths(
+        latent_paths=latent_paths,
+        labels=labels,
         skip=skip,
-        pre_stamp="TPS",
+        pre_stamp=pre_stamp,
         const=const)
 
-    for interface in [
-            "mcg30", "mcg35", "mcg40",
-            "mcg45", "mcg50", "mcg60",
-            "mcg70", "mcg80", "mcg90",
-            "mcg100"]:
-        TIS_path = get_one_TIS_path(
-            folder_name=const.TIS_folder_name, interface=interface, const=const)
-        function(
-            pipeline=pipeline,
-            path=TIS_path,
-            reduced_list_var_names=reduced_list_var_names,
-            encoder=encoder,
-            skip=skip,
-            pre_stamp="TIS_{}".format(interface),
-            const=const)
 
-def plot_example_toy_paths_on_latent_space(
-        folder_name,
-        function,
-        const,
-        pipeline,
-        reduced_list_var_names,
-        encoder,
-        skip):
-    for label in const.keep_labels:
-        toy_path = get_one_toy_path(folder_name, label)
-        function(
-            pipeline=pipeline,
-            path=toy_path,
-            reduced_list_var_names=reduced_list_var_names,
-            encoder=encoder,
-            skip=skip,
-            pre_stamp="{}_{}".format(folder_name, label),
-            const=const)
+def get_toy_paths(folder_name, const):
+    paths = []
+    labels = const.keep_labels
+    for label in labels:
+        paths.append(get_one_toy_path(folder_name, label))
+    return paths, labels
 
-def map_path_on_2D_latent_space(
-        pipeline, path, reduced_list_var_names,
-        encoder, skip, pre_stamp, const):
+
+def get_TPS_and_TIS_paths(const):
+    paths = []
+    labels = []
+    paths.append(get_one_TPS_path(const=const))
+    labels.append("TPS")
+    TIS_labels = sorted(sorted(listdir(const.TIS_folder_name)), key=len)
+    labels.extend(TIS_labels)
+    for label in TIS_labels:
+        paths.append(get_one_TIS_path(const=const, interface=label))
+    return paths, labels
+
+
+def make_latent_path_from_path(
+        pipeline, path, reduced_list_var_names, skip, encoder):
+    bn_size = encoder.layers[-1].output_shape[1]
     bn_path = pipeline.bound_normalize(path)
     bnr_path = pipeline.reduce(bn_path, reduced_list_var_names)
-    predictions = []
-    inv_path_len = 1/len(path)
-    for i, snapshot in enumerate(bnr_path[::skip]):
-        predictions.append([*encoder.predict([[snapshot]])[0],
-                      (i*inv_path_len*skip)])
-    for prediction in predictions:
-        plt.scatter(
-            *prediction[:2],
-            c=[
-                [1-prediction[2],
-                0,
-                prediction[2]]],
-            s=10)
-    plt.xlim(-10, 10)
-    plt.xlabel("$BN_1$")
-    plt.ylim(-10, 10)
-    plt.ylabel("$BN_2$")
-    plt.title("Path mapping onto the latent space")
-    plt.savefig("results/LatentSpacePath_scat_{}_{}".format(
-        pre_stamp, const.model_stamp))
-    plt.show()
-    plt.plot(*np.transpose(predictions)[:2], c="b")
-    plt.xlabel("$BN_1$")
-    plt.ylabel("$BN_2$")
-    plt.title("Path mapping onto the latent space")
-    plt.savefig("results/2DLatentSpacePath_plot_{}_{}".format(
-        pre_stamp, const.model_stamp))
-    plt.show()
+    latent_path = [encoder.predict([[snapshot]])[0]
+                   for snapshot in bnr_path[::skip]]
+    if bn_size == 1:
+        return [[path[0], i] for i, path in enumerate(latent_path)]
+    elif bn_size == 2:
+        return latent_path
+    else:
+        raise ValueError(
+            "Data of dimensionality {} cannot be plotted".format(bn_size))
 
 
-def map_path_on_1D_latent_space(
-        pipeline, path, reduced_list_var_names,
-        encoder, skip, pre_stamp, const):
-    bn_path = pipeline.bound_normalize(path)
-    bnr_path = pipeline.reduce(bn_path, reduced_list_var_names)
-    predictions = []
-    inv_path_len = 1/len(path)
-    for i, snapshot in enumerate(bnr_path[::skip]):
-        predictions.append([*encoder.predict([[snapshot]])[0],
-                      (i*inv_path_len*skip)])
-    for prediction in predictions:
-        plt.scatter(
-            prediction[0], 1,
-            c=[
-                [1-prediction[1],
-                0,
-                prediction[1]]],
-            s=10)
-    plt.xlim(-10, 10)
+def plot_latent_paths(latent_paths, labels, skip, pre_stamp, const):
+    for plot_path, label in zip(latent_paths, labels):
+        plt.plot(*np.transpose(plot_path), label=str(label))
     plt.xlabel("$BN_1$")
-    plt.yticks([])
-    plt.title("Path mapping onto the latent space")
-    plt.savefig("results/1DLatentSpacePath_scat_{}_{}".format(
-        pre_stamp, const.model_stamp))
-    plt.show()
-
-
-def map_path_on_timed_1D_latent_space(
-        pipeline, path, reduced_list_var_names,
-        encoder, skip, pre_stamp, const):
-    bn_path = pipeline.bound_normalize(path)
-    bnr_path = pipeline.reduce(bn_path, reduced_list_var_names)
-    predictions = []
-    for i, snapshot in enumerate(bnr_path[::skip]):
-        predictions.append([*encoder.predict([[snapshot]])[0],
-                      i])
-    plt.plot(*np.transpose(predictions), c = "b")
-    plt.xlim(-10, 10)
-    plt.xlabel("$BN_1$")
-    plt.ylabel("Time [x{} snapshots]".format(skip))
-    plt.title("Path mapping onto the latent space")
-    plt.savefig("results/1DTimedLatentSpacePath_plot_{}_{}".format(
-        pre_stamp, const.model_stamp))
+    if const.bottleneck_size == 1:
+        plt.ylabel(r"Time [$\times${} snapshots]".format(skip))
+    else:
+        plt.ylabel("$BN_2$")
+    plt.title("Paths mapped onto the latent space")
+    plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
+    plt.subplots_adjust(right=0.82)
+    plt.savefig("results/{}_LatentSpacePath_plot_{}_{}D".format(
+        pre_stamp, const.model_stamp, const.bottleneck_size))
     plt.show()
 
 

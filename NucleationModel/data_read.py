@@ -369,22 +369,24 @@ def read_shooting_points(filename):
         return shooting_points, labels
 
 
-def get_one_TIS_path(folder_name, interface, const):
+def get_one_TIS_path(const, interface):
     random.seed(42)
-    file_names = listdir("{}/{}/light_data".format(folder_name, interface))
+    file_names = listdir("{}/{}/light_data".format(
+        const.TIS_folder_name, interface))
     file_name = random.choice(file_names)
     path = read_path_from_file(
-        "{}/{}/light_data/{}".format(folder_name, interface, file_name), 2)
+        "{}/{}/light_data/{}".format(
+            const.TIS_folder_name, interface, file_name), 2)
     print("Label: {}".format(determine_label(path, const)))
     return path
 
 
-def get_one_TPS_path(folder_name, const):
+def get_one_TPS_path(const):
     random.seed(42)
-    file_names = listdir(folder_name)
+    file_names = listdir(const.TPS_folder_name)
     file_name = random.choice(file_names)
     path = read_path_from_file(
-        "{}/{}".format(folder_name, file_name), 2)
+        "{}/{}".format(const.TPS_folder_name, file_name), 2)
     print("Label: {}".format(determine_label(path, const)))
     return path
 
