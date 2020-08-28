@@ -7,6 +7,7 @@ import matplotlib as mpl
 from helperFunctions import function_to_str
 from data_read import get_one_TPS_path, get_one_TIS_path, get_one_toy_path
 from os import listdir
+import plotly.graph_objects as go
 
 
 def plot_loss_history(history, file_name):
@@ -221,12 +222,20 @@ def plot_example_paths_on_latent_space(
             skip=skip,
             encoder=encoder)
         for path in paths]
+    flattened_latent_paths = flatten_list_of_lists(latent_paths)
+    latent_minimum = np.amin(np.transpose(flattened_latent_paths)[0], axis=0)
+    latent_maximum = np.amax(np.transpose(flattened_latent_paths)[0], axis=0)
     plot_latent_paths(
         latent_paths=latent_paths,
         labels=labels,
         skip=skip,
         pre_stamp=pre_stamp,
         const=const)
+    return latent_minimum, latent_maximum
+
+
+def flatten_list_of_lists(list_of_lists):
+    return [y for x in list_of_lists for y in x]
 
 
 def get_toy_paths(folder_name, const):
@@ -338,3 +347,35 @@ def plot_single_map(
     plt.tight_layout()
     plt.savefig("results/{}_x{}_y_{}.png".format(stamp, x_int, y_int))
     plt.show()
+
+
+def plot_reconstruction_from_latent_space(
+        reduced_list_var_names,
+        latent_minimum, latent_maximum,
+        steps, recon_decoder, pre_stamp):
+    fig = go.Figure()
+    var_names = ["$"+name+"$" for name
+                 in reduced_list_var_names
+                 + [reduced_list_var_names[0]]]
+    for i, val in enumerate(np.linspace(np.floor(
+            latent_minimum), np.ceil(latent_maximum), steps)):
+        prediction = recon_decoder.predict([val])[0]
+        prediction = np.append(prediction, prediction[0])
+        fig.add_trace(
+            go.Scatterpolar(
+                r=prediction,
+                theta=var_names,
+                name="{:.1f}".format(val),
+                showlegend=True,
+                line=dict(color="rgb({},{},{})".format(
+                    0.8 - 0.6 * i / steps,
+                    0.2 + 0.6 * i / steps,
+                    0.2 + 0.6 * i / steps))))
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, tickangle=0),
+            angularaxis=dict(tickfont=dict(size=18))),
+        title_text="Path reconstruction from latent space", title_x=0.5,
+        legend_title_text="$\ BN_1 input$")
+    fig.write_image("results/{}_PathReconstruction.png".format(pre_stamp))
+    fig.show()
