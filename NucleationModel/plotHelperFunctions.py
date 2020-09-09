@@ -210,7 +210,7 @@ def plot_example_paths_on_latent_space(
         const,
         pipeline,
         reduced_list_var_names,
-        skip,
+        steps,
         encoder,
         pre_stamp,
         **kwargs):
@@ -219,7 +219,7 @@ def plot_example_paths_on_latent_space(
             pipeline=pipeline,
             path=path,
             reduced_list_var_names=reduced_list_var_names,
-            skip=skip,
+            steps=steps,
             encoder=encoder)
         for path in paths]
     flattened_latent_paths = flatten_list_of_lists(latent_paths)
@@ -228,7 +228,7 @@ def plot_example_paths_on_latent_space(
     plot_latent_paths(
         latent_paths=latent_paths,
         labels=labels,
-        skip=skip,
+        steps=steps,
         pre_stamp=pre_stamp,
         const=const)
     return latent_minimum, latent_maximum
@@ -249,22 +249,25 @@ def get_toy_paths(folder_name, const):
 def get_TPS_and_TIS_paths(const):
     paths = []
     labels = []
-    paths.append(get_one_TPS_path(const=const))
-    labels.append("TPS")
     TIS_labels = sorted(sorted(listdir(const.TIS_folder_name)), key=len)
-    labels.extend(TIS_labels)
+    reformated_TIS_labels = \
+        ["$MCG_{}$".format("{"+label[3:]+"}") for label in TIS_labels]
+    labels.extend(reformated_TIS_labels)
     for label in TIS_labels:
         paths.append(get_one_TIS_path(const=const, interface=label))
+    paths.append(get_one_TPS_path(const=const))
+    labels.append("$TPS$")
     return paths, labels
 
 
 def make_latent_path_from_path(
-        pipeline, path, reduced_list_var_names, skip, encoder):
+        pipeline, path, reduced_list_var_names, steps, encoder):
     bn_size = encoder.layers[-1].output_shape[1]
     bn_path = pipeline.bound_normalize(path)
     bnr_path = pipeline.reduce(bn_path, reduced_list_var_names)
-    latent_path = [encoder.predict([[snapshot]])[0]
-                   for snapshot in bnr_path[::skip]]
+    path_len = len(bnr_path)
+    latent_path = [encoder.predict([[bnr_path[int(path_len*i/(steps+1))]]])[0]
+                   for i in range(steps+1)]
     if bn_size == 1:
         return [[path[0], i] for i, path in enumerate(latent_path)]
     elif bn_size == 2:
@@ -274,12 +277,16 @@ def make_latent_path_from_path(
             "Data of dimensionality {} cannot be plotted".format(bn_size))
 
 
-def plot_latent_paths(latent_paths, labels, skip, pre_stamp, const):
+def plot_latent_paths(latent_paths, labels, steps, pre_stamp, const):
     for plot_path, label in zip(latent_paths, labels):
         plt.plot(*np.transpose(plot_path), label=str(label))
     plt.xlabel("$BN_1$")
     if const.bottleneck_size == 1:
-        plt.ylabel(r"Time [$\times${} snapshots]".format(skip))
+        plt.ylabel(r"Fraction of path length [%]")
+        plt.yticks(
+            [steps*i/10 for i in range(11)],
+            [100*i/10 for i in range(11)])
+        plt.ylim(0, steps)
     else:
         plt.ylabel("$BN_2$")
     plt.title("Paths mapped onto the latent space")
