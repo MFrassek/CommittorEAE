@@ -2,7 +2,7 @@ from helperFunctions import make_halfpoint_divided_colormap
 
 
 class Const():
-    def __init__(self):
+    def __init__(self, dataSetType):
         # Complete list of variables in the dataset to chose from
         self._all_var_names = {
             0: "MCG",
@@ -29,56 +29,49 @@ class Const():
             21: "4^{1}5^{10}6^{4}"
             }
 
-        self._name_to_list_position = {
-            "MCG": 0,
-            "N_{w,4}": 1,
-            "N_{w,3}": 2,
-            "N_{w,2}": 3,
-            "N_{sw,3-4}": 4,
-            "N_{sw,2-3}": 5,
-            "F4": 6,
-            "R_g": 7,
-            "5^{12}6^{2}": 8,
-            "5^{12}": 9,
-            "CR": 10,
-            "N_{s,2}": 11,
-            "N_{s,3}": 12,
-            "N_{c,2}": 13,
-            "N_{c,3}": 14,
-            "N_{s,4}": 15,
-            "N_{c,4}": 16,
-            "5^{12}6^{3}": 17,
-            "5^{12}6^{4}": 18,
-            "4^{1}5^{10}6^{2}": 19,
-            "4^{1}5^{10}6^{3}": 20,
-            "4^{1}5^{10}6^{4}": 21
-            }
-
-        self._name_to_list_position = {
-            "x_{1}": 0,
-            "x_{2}": 1,
-            "x_{3}": 2,
-            "x_{4}": 3,
-            "x_{5}": 4,
-            "x_{6}": 5,
-            "x_{7}": 6,
-            "x_{8}": 7,
-            "x_{9}": 8,
-            "x_{10}": 9,
-            }
-
-        # Ordering of the variables in _all_var_names
-        self._all_var_order = [
-            0, 11, 12, 15, 13, 14, 16,
-            3, 2, 1, 5, 4, 9, 8, 17,
-            18, 19, 20, 21, 10, 7, 6
-            ]
-        self._all_var_order = [
-            0, 11, 12, 15, 13, 14, 16,
-            3, 2, 1, 5, 4, 9, 8, 10, 7, 6
-            ]
-        self._names_in_order = [self._all_var_names[i]
-                                for i in self._all_var_order]
+        if dataSetType == "DW" or dataSetType == "ZP":
+            self._name_to_list_position = {
+                "x_{1}": 0,
+                "x_{2}": 1,
+                "x_{3}": 2,
+                "x_{4}": 3,
+                "x_{5}": 4,
+                "x_{6}": 5,
+                "x_{7}": 6,
+                "x_{8}": 7,
+                "x_{9}": 8,
+                "x_{10}": 9}
+        elif dataSetType == "MH":
+            self._name_to_list_position = {
+                "MCG": 0,
+                "N_{w,4}": 1,
+                "N_{w,3}": 2,
+                "N_{w,2}": 3,
+                "N_{sw,3-4}": 4,
+                "N_{sw,2-3}": 5,
+                "F4": 6,
+                "R_g": 7,
+                "5^{12}6^{2}": 8,
+                "5^{12}": 9,
+                "CR": 10,
+                "N_{s,2}": 11,
+                "N_{s,3}": 12,
+                "N_{c,2}": 13,
+                "N_{c,3}": 14,
+                "N_{s,4}": 15,
+                "N_{c,4}": 16,
+                "5^{12}6^{3}": 17,
+                "5^{12}6^{4}": 18,
+                "4^{1}5^{10}6^{2}": 19,
+                "4^{1}5^{10}6^{3}": 20,
+                "4^{1}5^{10}6^{4}": 21}
+            # Ordering of the variables in _all_var_names
+            self._all_var_order = [
+                0, 11, 12, 15, 13, 14, 16,
+                3, 2, 1, 5, 4, 9, 8, 17,
+                18, 19, 20, 21, 10, 7, 6]
+            self._names_in_order = [self._all_var_names[i]
+                                    for i in self._all_var_order]
 
         """Pre-Dataset parameters"""
         # Name of the folder in which the DW data is found
