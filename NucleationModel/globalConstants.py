@@ -3,32 +3,6 @@ from helperFunctions import make_halfpoint_divided_colormap
 
 class Const():
     def __init__(self, dataSetType):
-        # Complete list of variables in the dataset to chose from
-        self._all_var_names = {
-            0: "MCG",
-            1: "N_{w,4}",
-            2: "N_{w,3}",
-            3: "N_{w,2}",
-            4: "N_{sw,3-4}",
-            5: "N_{sw,2-3}",
-            6: "F4",
-            7: "R_g",
-            8: "5^{12}6^{2}",
-            9: "5^{12}",
-            10: "CR",
-            11: "N_{s,2}",
-            12: "N_{s,3}",
-            13: "N_{c,2}",
-            14: "N_{c,3}",
-            15: "N_{s,4}",
-            16: "N_{c,4}",
-            17: "5^{12}6^{3}",
-            18: "5^{12}6^{4}",
-            19: "4^{1}5^{10}6^{2}",
-            20: "4^{1}5^{10}6^{3}",
-            21: "4^{1}5^{10}6^{4}"
-            }
-
         if dataSetType == "DW" or dataSetType == "ZP":
             self._name_to_list_position = {
                 "x_{1}": 0,
@@ -73,13 +47,6 @@ class Const():
                 "4^{1}5^{10}6^{2}": 19,
                 "4^{1}5^{10}6^{3}": 20,
                 "4^{1}5^{10}6^{4}": 21}
-            # Ordering of the variables in _all_var_names
-            self._all_var_order = [
-                0, 11, 12, 15, 13, 14, 16,
-                3, 2, 1, 5, 4, 9, 8, 17,
-                18, 19, 20, 21, 10, 7, 6]
-            self._names_in_order = [self._all_var_names[i]
-                                    for i in self._all_var_order]
             # Name of the folder in which the TIS data is found
             self._TIS_folder_name = "RPE_org"
             self._TIS_highest_interface_name = "mcg100"
@@ -186,26 +153,6 @@ class Const():
         return self._name_to_list_position
 
     @property
-    def all_var_names(self):
-        return self._all_var_names
-
-    @property
-    def all_var_order(self):
-        return self._all_var_order
-
-    @property
-    def names_in_order(self):
-        return self._names_in_order
-
-    @property
-    def var_names(self):
-        return self._var_names
-
-    @property
-    def var_order(self):
-        return self._var_order
-
-    @property
     def toy_folder_name(self):
         return self._toy_folder_name
 
@@ -236,6 +183,7 @@ class Const():
     @property
     def used_toy_frac(self):
         return self._used_toy_frac
+
     @property
     def used_TIS_frac(self):
         return self._used_TIS_frac
@@ -279,10 +227,6 @@ class Const():
     @property
     def path_type_weights(self):
         return self._path_type_weights
-
-    @property
-    def offset(self):
-        return self._offset
 
     @property
     def progress(self):
@@ -463,11 +407,6 @@ class Const():
         assert isinstance(x, list), "Can only be set to type list"
         self._path_type_weights = x
 
-    @offset.setter
-    def offset(self, x):
-        assert isinstance(x, int), "Can only be set to type int"
-        self._offset = x
-
     @keep_labels.setter
     def keep_labels(self, x):
         assert isinstance(x, list), "Can only be set to type list"
@@ -491,15 +430,3 @@ class Const():
     def epochs(self, x):
         assert isinstance(x, int), "Can only be set to type int"
         self._epochs = x
-
-    def used_names(self, used_vars):
-        # Generate a dictionary containing the names of the used variables.
-        var_names = {i: self._all_var_names[used_vars[i]]
-                     for i, _ in enumerate(used_vars)}
-        return var_names
-
-    def used_order(self, used_vars):
-        # Generate a list containing the order for only the used variables.
-        var_order = [used_vars.index(i)
-                     for i in self._all_var_order if i in used_vars]
-        return var_order
