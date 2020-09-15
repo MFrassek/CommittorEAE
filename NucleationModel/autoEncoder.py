@@ -1,6 +1,4 @@
 from tensorflow import keras
-import tensorflow as tf
-import keras.backend as K
 
 
 class AutoEncoder:
@@ -71,14 +69,6 @@ class AutoEncoder:
         return autoencoder, autoencoder_1, autoencoder_2, \
             encoder, decoder_1, decoder_2
 
-
-    @staticmethod
-    def visualize(model, file_name: str):
-        model_layout = keras.utils.plot_model(
-            model,
-            file_name,
-            show_shapes=True)
-
     @staticmethod
     def make_encoder(
             const,
@@ -90,11 +80,9 @@ class AutoEncoder:
         for i in range(const.encoder_hidden):
             x = keras.layers.Dense(
                 units=dimensions * const.node_mult,
-                activity_regularizer=tf.keras.regularizers.l1(const.regularizer),
                 activation=const.encoder_act_func)(x)
         encoder_output = keras.layers.Dense(
             units=const.bottleneck_size,
-            activity_regularizer=tf.keras.regularizers.l1(const.regularizer),
             activation=const.encoder_act_func,
             name="bottleneck")(x)
         encoder = keras.Model(
@@ -119,11 +107,9 @@ class AutoEncoder:
         for i in range(hidden_layer_cnt):
             x = keras.layers.Dense(
                 units=dimensions * const.node_mult,
-                kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
                 activation=hidden_activation_function)(x)
         decoder_output = keras.layers.Dense(
             units=output_units,
-            kernel_regularizer=tf.keras.regularizers.l1(const.regularizer),
             activation=output_activation_function,
             name=output_name)(x)
         decoder = keras.Model(
@@ -143,9 +129,17 @@ class AutoEncoder:
             shape=(dimensions,),
             name=const.input_name)
         encoded_snaphot = encoder(autoencoder_input)
-        autoencoder_outputs = [decoder(encoded_snaphot) for decoder in decoders]
+        autoencoder_outputs = [decoder(encoded_snaphot)
+                               for decoder in decoders]
         autoencoder = keras.Model(
             inputs=autoencoder_input,
             outputs=autoencoder_outputs,
             name=name)
         return autoencoder
+
+    @staticmethod
+    def visualize(model, file_name: str):
+        keras.utils.plot_model(
+            model,
+            file_name,
+            show_shapes=True)
