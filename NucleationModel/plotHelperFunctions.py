@@ -24,8 +24,8 @@ def plot_loss_history(history, file_name):
 
 
 def plot_ground_truth(
-        reduced_list_var_names, reduced_name_to_list_position,
-        pipeline, const, grid_snapshots, labels, weights, pre_stamp):
+        reduced_list_var_names, reduced_name_to_list_position, pipeline,
+        const, grid_snapshots, labels, weights, pre_stamp, norm="log"):
     Plotter.plot_super_map(
         used_variable_names=reduced_list_var_names,
         name_to_list_position=reduced_name_to_list_position,
@@ -36,7 +36,8 @@ def plot_ground_truth(
         method=Plotter.calc_map_given,
         grid_snapshots=grid_snapshots,
         labels=labels,
-        weights=weights)
+        weights=weights,
+        norm=norm)
 
 
 def plot_with_different_settings(
@@ -292,7 +293,7 @@ def plot_latent_paths(latent_paths, labels, steps, pre_stamp, const):
     plt.title("Paths mapped onto the latent space")
     plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
     plt.subplots_adjust(right=0.82)
-    plt.savefig("results/{}_LatentSpacePath_plot_{}_{}D".format(
+    plt.savefig("results/{}_LatentSpacePath_plot_{}_{}D.png".format(
         pre_stamp, const.model_stamp, const.bottleneck_size))
     plt.show()
 
@@ -311,22 +312,29 @@ def plot_relative_importances(names, values):
 def plot_single_map(
         x_int, y_int, const,
         pipeline, reduced_list_var_names,
-        stamp, method, **kwargs):
+        stamp, method, norm="log", **kwargs):
     fig, ax = plt.subplots(1, 1)
+    if norm == "log":
+        cmap = const.cmap
+        norm = mpl.colors.LogNorm(
+            vmin=const.logvmin,
+            vmax=1.0-const.logvmin)
+    else:
+        cmap = "seismic"
+        norm = mpl.colors.Normalize(
+            vmin=const.min_label,
+            vmax=const.max_label)
     plt.imshow(
         np.maximum(
-            np.transpose(
-                method(
-                    x_pos=x_int,
-                    y_pos=y_int,
-                    resolution=const.resolution,
-                    **kwargs)[0])[::-1],
+            method(
+                x_pos=y_int,
+                y_pos=x_int,
+                resolution=const.resolution,
+                **kwargs)[0][::-1],
             const.logvmin / 2),
-        cmap=const.cmap,
+        cmap=cmap,
         interpolation='nearest',
-        norm=mpl.colors.LogNorm(
-            vmin=const.logvmin,
-            vmax=1.0-const.logvmin),
+        norm=norm,
         extent=[0, 1, 0, 1])
     ax.set_xticks(np.linspace(0, 1, 3))
     ax.set_xticklabels(

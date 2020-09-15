@@ -115,7 +115,7 @@ class Plotter():
                                 np.maximum(
                                     super_map[i][j][0][k][::-1],
                                     const.logvmin / 2),
-                                cmap=const.cmap,
+                                cmap="seismic",
                                 interpolation='nearest',
                                 norm=mpl.colors.Normalize(
                                     vmin=const.min_label,
