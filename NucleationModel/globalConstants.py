@@ -41,6 +41,14 @@ class Const():
                 "x_{8}": 7,
                 "x_{9}": 8,
                 "x_{10}": 9}
+            if dataSetType == "DW":
+                # Name of the folder in which the DW data is found
+                self._toy_folder_name = "DW"
+            elif dataSetType == "ZP":
+                # Name of the folder in which the ZP data is found
+                self._toy_folder_name = "ZP"
+            # Fraction of paths used from the read files
+            self._used_toy_frac = 1
         elif dataSetType == "MH":
             self._name_to_list_position = {
                 "MCG": 0,
@@ -72,29 +80,21 @@ class Const():
                 18, 19, 20, 21, 10, 7, 6]
             self._names_in_order = [self._all_var_names[i]
                                     for i in self._all_var_order]
+            # Name of the folder in which the TIS data is found
+            self._TIS_folder_name = "RPE_org"
+            self._TIS_highest_interface_name = "mcg100"
+            # Name of the folder in which the TPS paths are found
+            self._TPS_folder_name = "TPS"
+            # MCG threshold below which a snapshot belongs to state A
+            self._mcg_A = 18
+            # MCG threshold above which a snapshot belongs to state B
+            self._mcg_B = 120
+            # big cage threshold under which a snapshot belongs to amorphous
+            self._big_C = 8
+            # Fraction of paths used from the read files
+            self._used_TIS_frac = 0.1
+            self._used_TPS_frac = 0.1
 
-        """Pre-Dataset parameters"""
-        # Name of the folder in which the DW data is found
-        self._DW_folder_name = "DW"
-        # Name of the folder in which the ZP data is found
-        self._ZP_folder_name = "ZP"
-        # Name of the folder in which the TIS data is found
-        self._TIS_folder_name = "RPE_org"
-        #self._TIS_folder_name = "RPE_low"
-        #self._TIS_folder_name = "RPE_high"
-        self._TIS_highest_interface_name = "mcg100"
-        # Name of the folder in which the TPS paths are found
-        self._TPS_folder_name = "TPS"
-        # MCG threshold below which a snapshot belongs to state A
-        self._mcg_A = 18
-        # MCG threshold above which a snapshot belongs to state B
-        self._mcg_B = 120
-        # big cage threshold under which a snapshot belongs to amorphous
-        self._big_C = 8
-        # Fraction of paths used from the read files
-        self._used_toy_frac = 1
-        self._used_TIS_frac = 0.1
-        self._used_TPS_frac = 0.1
         # Labels assigned to the four types of paths
         self._AA_label = 0.0
         self._AB_label = 1.0
@@ -206,12 +206,8 @@ class Const():
         return self._var_order
 
     @property
-    def DW_folder_name(self):
-        return self._DW_folder_name
-
-    @property
-    def ZP_folder_name(self):
-        return self._ZP_folder_name
+    def toy_folder_name(self):
+        return self._toy_folder_name
 
     @property
     def TIS_folder_name(self):

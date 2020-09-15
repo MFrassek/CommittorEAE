@@ -7,25 +7,12 @@ import random
 import pickle
 
 
-def make_train_val_test_from_DW(const):
+def make_train_val_test_from_toy(const):
     return make_train_val_test_split_snapshots_from_snapshots(
         *make_snapshots_from_paths(
             *filter_paths(
                 *make_paths_from_toy_data(
-                    const,
-                    const.DW_folder_name),
-                const),
-            const),
-        const)
-
-
-def make_train_val_test_from_ZP(const):
-    return make_train_val_test_split_snapshots_from_snapshots(
-        *make_snapshots_from_paths(
-            *filter_paths(
-                *make_paths_from_toy_data(
-                    const,
-                    const.ZP_folder_name),
+                    const),
                 const),
             const),
         const)
@@ -145,11 +132,11 @@ def filter_paths(paths, path_labels, path_weights, path_origins, const):
     return list(map(list, zip(*filtered_tuple_list)))
 
 
-def make_paths_from_toy_data(const, folder_name):
+def make_paths_from_toy_data(const):
     paths = np.array(
-        pickle.load(open("{}/paths.p".format(folder_name), "rb")))
+        pickle.load(open("{}/paths.p".format(const.toy_folder_name), "rb")))
     labels = np.array(
-        pickle.load(open("{}/labels.p".format(folder_name), "rb")))
+        pickle.load(open("{}/labels.p".format(const.toy_folder_name), "rb")))
     weights = np.ones(len(labels))
     origins = np.ones(len(labels))
     paths, labels = \
