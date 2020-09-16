@@ -3,9 +3,9 @@ from losses import *
 from tensorflow import keras
 
 
-
 class Const():
     def __init__(self, dataSetType):
+        self._dataSetType = dataSetType
         if dataSetType == "DW" or dataSetType == "ZP":
             self._name_to_list_position = {
                 "x_{1}": 0,
@@ -154,6 +154,10 @@ class Const():
                 and self._decoder_1_act_func != "tanh":
             print("'tanh' activation function recommended"
                   + "for label prediction.")
+
+    @property
+    def dataSetType(self):
+        return self._dataSetType
 
     @property
     def name_to_list_position(self):
