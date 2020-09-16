@@ -25,15 +25,10 @@ class Plotter():
         """
         method_name = function_to_str(method)
         if "given" in method_name:
-            suptitle = "Given labels depending on input"
-            model_name = "Given"
             out_size = 1
             axis_label = "${}$"
         elif "generated" in method_name:
             model = kwargs["model"]
-            suptitle = "Predicted {} depending on {}"\
-                .format(model.output_names[0], model.input_names[0])
-            model_name = model.name
             out_size = model.layers[-1].output_shape[1]
             if model.input_names[0] == "encoded_snapshots":
                 "b{}"
@@ -62,10 +57,6 @@ class Plotter():
                 figsize=(
                     const.subfig_size * len(used_variable_names),
                     const.subfig_size * len(used_variable_names)))
-            fig.suptitle(
-                suptitle,
-                fontsize=const.subfig_size*len(used_variable_names)*2)
-
             for i, _ in enumerate(used_variable_names):
                 for j, _ in enumerate(used_variable_names):
                     # Defines new_axs to take care of different
@@ -385,17 +376,12 @@ class Plotter():
         line for each dimension indifferent of the value
         chosen for the other dimensions.
         """
-        suptitle = "Predicted snapshots depending on input"
         row_cnt = ((len(used_variable_names)-1)//max_row_len)+1
         fig, axs = plt.subplots(
             row_cnt, max_row_len,
             figsize=(
                 const.subfig_size*max_row_len,
                 const.subfig_size*row_cnt*1.3))
-        fig.suptitle(
-            suptitle,
-            fontsize=const.subfig_size*max_row_len*2,
-            y=1.04 - 0.04*row_cnt)
         fig.align_labels()
 
         for i, var_name in enumerate(used_variable_names):
