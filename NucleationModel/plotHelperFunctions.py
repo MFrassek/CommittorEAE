@@ -283,7 +283,7 @@ def plot_latent_paths(latent_paths, labels, steps, pre_stamp, const):
         plt.plot(*np.transpose(plot_path), label=str(label))
     plt.xlabel("$BN_1$")
     if const.bottleneck_size == 1:
-        plt.ylabel(r"Fraction of path length [%]")
+        plt.ylabel(r"Progress along path [%]")
         plt.yticks(
             [steps*i/10 for i in range(11)],
             [100*i/10 for i in range(11)])
