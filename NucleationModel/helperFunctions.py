@@ -2,10 +2,8 @@ import sys
 import math
 import numpy as np
 from matplotlib import cm
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
-import tensorflow as tf
-from scipy import stats
 
 
 def get_size(obj, seen=None):
@@ -119,7 +117,8 @@ def get_encoder_formula_components(encoder, reduced_list_var_names):
         mod_list[dimension] = 1
         mod_predictions = encoder.predict([[mod_list]])[0]
         for i, _ in enumerate(mod_predictions):
-            formula_components[i].append(mod_predictions[i] - base_predictions[i])
+            formula_components[i].append(
+                mod_predictions[i] - base_predictions[i])
     return list(zip(reduced_list_var_names, *formula_components))
 
 
@@ -128,7 +127,7 @@ def make_components_absolute(formula_components):
     for component in formula_components:
         absolute_components.append((
             component[0],
-            *list(map(abs,component[1:]))))
+            *list(map(abs, component[1:]))))
     return absolute_components
 
 
@@ -136,11 +135,11 @@ def make_components_normalized(formula_components):
     normalized_components = []
     sum_list = []
     for column in np.transpose(formula_components)[1:]:
-        sum_list.append(sum(list(map(float,column))))
+        sum_list.append(sum(list(map(float, column))))
     for component in formula_components:
         normalized_components.append((
             component[0],
-            *list(map(lambda x: (x / sum_list)[0],component[1:]))))
+            *list(map(lambda x: (x / sum_list)[0], component[1:]))))
     return normalized_components
 
 
