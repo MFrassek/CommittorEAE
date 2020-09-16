@@ -1,4 +1,4 @@
-from plotter import Plotter
+from plotter import *
 from autoEncoder import AutoEncoder
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -26,14 +26,14 @@ def plot_loss_history(history, file_name):
 def plot_ground_truth(
         reduced_list_var_names, reduced_name_to_list_position, pipeline,
         const, grid_snapshots, labels, weights, pre_stamp, norm="log"):
-    Plotter.plot_super_map(
+    plot_super_map(
         used_variable_names=reduced_list_var_names,
         name_to_list_position=reduced_name_to_list_position,
         lower_bound=pipeline.lower_bound,
         upper_bound=pipeline.upper_bound,
         const=const,
         pre_stamp=pre_stamp,
-        method=Plotter.calc_map_given,
+        method=calc_map_given,
         grid_snapshots=grid_snapshots,
         labels=labels,
         weights=weights,
@@ -78,18 +78,18 @@ def plot_with_different_settings(
 #        minima = minima,
 #        maxima = maxima,
 #        points_of_interest = train_trimmed_pB_dict)
-    Plotter.plot_super_map(
+    plot_super_map(
         used_variable_names=reduced_list_var_names,
         name_to_list_position=reduced_name_to_list_position,
         lower_bound=pipeline.lower_bound,
         upper_bound=pipeline.upper_bound,
         const=const,
         pre_stamp=pre_stamp,
-        method=Plotter.calc_map_generated,
+        method=calc_map_generated,
         model=autoencoder_1,
         minima=minima,
         maxima=maxima)
-    Plotter.plot_super_scatter(
+    plot_super_scatter(
         used_variable_names=reduced_list_var_names,
         name_to_list_position=reduced_name_to_list_position,
         lower_bound=pipeline.lower_bound,
@@ -140,14 +140,14 @@ def plot_encoder(
         const,
         loss_function,
         encoder):
-    Plotter.plot_super_map(
+    plot_super_map(
         used_variable_names=reduced_list_var_names,
         name_to_list_position=reduced_name_to_list_position,
         lower_bound=pipeline.lower_bound,
         upper_bound=pipeline.upper_bound,
         const=const,
         pre_stamp="EncoderTest"+"_{}".format(function_to_str(loss_function)),
-        method=Plotter.calc_map_generated,
+        method=calc_map_generated,
         model=encoder,
         minima=pipeline.minima,
         maxima=pipeline.maxima)
@@ -163,7 +163,7 @@ def plot_decoder(
     plt.imshow(
         np.maximum(
             np.transpose(
-                Plotter.calc_map_generated(
+                calc_map_generated(
                     x_pos=x_int,
                     y_pos=y_int,
                     minima=minima,
