@@ -3,7 +3,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import plotly.graph_objects as go
-from helperFunctions import function_to_str, flatten_list_of_lists
+from helperFunctions import *
 from autoEncoder import AutoEncoder
 
 
@@ -118,30 +118,16 @@ def plot_super_map(
                         new_axs.set_xlabel(
                             axis_label.format(used_variable_names[j]),
                             fontsize=const.subfig_size * 10)
-                        new_axs.tick_params(
-                            labelbottom=True,
-                            bottom=True,)
-                        new_axs.set_xticks(np.linspace(0, 1, 3))
-                        new_axs.set_xticklabels(
-                            np.around(
-                                np.linspace(
-                                    lower_bound[j], upper_bound[j], 3),
-                                2),
-                            rotation=60,
-                            fontsize=const.subfig_size*6)
+                        new_axs = set_xtick_labels(
+                            new_axs, lower_bound, upper_bound, j,
+                            const.subfig_size*6)
                     if j == 0:
                         new_axs.set_ylabel(
                             axis_label.format(used_variable_names[i]),
                             fontsize=const.subfig_size * 10)
-                        new_axs.tick_params(
-                            labelleft=True,
-                            left=True)
-                        new_axs.set_yticks(np.linspace(0, 1, 3))
-                        new_axs.set_yticklabels(np.around(
-                            np.linspace(
-                                lower_bound[i], upper_bound[i], 3),
-                            2),
-                            fontsize=const.subfig_size*6)
+                        new_axs = set_ytick_labels(
+                            new_axs, lower_bound, upper_bound, i,
+                            const.subfig_size*6)
                 else:
                     # Remove all subplots where i >= j.
                     new_axs.axis("off")
@@ -646,25 +632,13 @@ def plot_decoder(
             vmin=const.logvmin,
             vmax=1.0-const.logvmin),
         extent=[0, 1, 0, 1])
-    ax.set_xticks(np.linspace(0, 1, 3))
-    ax.set_xticklabels(
-        np.around(
-            np.linspace(
-                minima[x_int],
-                maxima[x_int],
-                3),
-            2),
-        rotation=60)
-    ax.set_yticks(np.linspace(0, 1, 3))
-    ax.set_yticklabels(np.around(
-        np.linspace(
-            minima[y_int],
-            maxima[y_int],
-            3),
-        2))
+    ax = set_xtick_labels(
+        ax, minima, maxima, x_int)
     ax.set_xlabel(
         "$bn{}$".format(x_int),
         fontsize=const.subfig_size * 10)
+    ax = set_ytick_labels(
+        ax, minima, maxima, y_int)
     ax.set_ylabel(
         "$bn{}$".format(y_int),
         fontsize=const.subfig_size * 10)
@@ -776,26 +750,17 @@ def plot_single_map(
         cmap=cmap,
         interpolation='nearest',
         norm=norm,
-        extent=[0, 1, 0, 1])
-    ax.set_xticks(np.linspace(0, 1, 3))
-    ax.set_xticklabels(
-        np.around(
-            np.linspace(
-                pipeline.lower_bound[x_int],
-                pipeline.upper_bound[x_int],
-                3),
-            2),
-        rotation=60)
-    ax.set_yticks(np.linspace(0, 1, 3))
-    ax.set_yticklabels(np.around(
-        np.linspace(
-            pipeline.lower_bound[y_int],
-            pipeline.upper_bound[y_int],
-            3),
-        2))
+        extent=[0, 1, 0, 1],
+        zorder=1)
+    ax = set_xtick_labels(
+        ax, pipeline.lower_bound, pipeline.upper_bound, x_int,
+        fontsize=const.subfig_size * 6)
     ax.set_xlabel(
         "${}$".format(reduced_list_var_names[x_int]),
         fontsize=const.subfig_size * 10)
+    ax = set_ytick_labels(
+        ax, pipeline.lower_bound, pipeline.upper_bound, y_int,
+        fontsize=const.subfig_size * 6)
     ax.set_ylabel(
         "${}$".format(reduced_list_var_names[y_int]),
         fontsize=const.subfig_size * 10)
@@ -835,3 +800,25 @@ def plot_reconstruction_from_latent_space(
         legend_title_text="$\ BN_1 input$")
     fig.write_image("results/{}_PathReconstruction.png".format(pre_stamp))
     fig.show()
+
+
+def set_xtick_labels(ax, minima, maxima, x_int, fontsize):
+    ax.tick_params(labelbottom=True, bottom=True,)
+    ax.set_xticks(np.linspace(0, 1, 3))
+    ax.set_xticklabels(
+        np.around(
+            np.linspace(minima[x_int], maxima[x_int], 3),
+            2),
+        rotation=60,
+        fontsize=fontsize)
+    return ax
+
+
+def set_ytick_labels(ax, minima, maxima, y_int, fontsize):
+    ax.tick_params(labelleft=True, left=True)
+    ax.set_yticks(np.linspace(0, 1, 3))
+    ax.set_yticklabels(np.around(
+        np.linspace(minima[y_int], maxima[y_int], 3),
+        2),
+        fontsize=fontsize)
+    return ax
