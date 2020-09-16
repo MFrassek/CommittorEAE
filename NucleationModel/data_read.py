@@ -356,6 +356,28 @@ def read_shooting_points(filename):
         return shooting_points, labels
 
 
+def get_toy_paths(const):
+    paths = []
+    labels = const.keep_labels
+    for label in labels:
+        paths.append(get_one_toy_path(const.toy_folder_name, label))
+    return paths, labels
+
+
+def get_TPS_and_TIS_paths(const):
+    paths = []
+    labels = []
+    TIS_labels = sorted(sorted(listdir(const.TIS_folder_name)), key=len)
+    reformated_TIS_labels = \
+        ["$MCG_{}$".format("{"+label[3:]+"}") for label in TIS_labels]
+    labels.extend(reformated_TIS_labels)
+    for label in TIS_labels:
+        paths.append(get_one_TIS_path(const=const, interface=label))
+    paths.append(get_one_TPS_path(const=const))
+    labels.append("$TPS$")
+    return paths, labels
+
+
 def get_one_TIS_path(const, interface):
     random.seed(42)
     file_names = listdir("{}/{}/light_data".format(

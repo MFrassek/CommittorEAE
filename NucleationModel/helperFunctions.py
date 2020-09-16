@@ -142,3 +142,7 @@ def make_components_normalized(formula_components):
             component[0],
             *list(map(lambda x: (x / sum_list)[0],component[1:]))))
     return normalized_components
+
+
+def flatten_list_of_lists(list_of_lists):
+    return [y for x in list_of_lists for y in x]
