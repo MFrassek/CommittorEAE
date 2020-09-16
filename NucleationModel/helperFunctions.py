@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
+import copy
 
 
 def get_size(obj, seen=None):
@@ -55,6 +56,12 @@ def make_halfpoint_divided_colormap(logvmin):
             upper_bound_halfpoint_int)))), "SplitSummer")
     c_map.set_under([0.2, 0.9, 0.5, 0.9])
     c_map.set_over([1, 0.7, 0.1, 0.9])
+    return c_map
+
+
+def make_png_with_bad_as_transparent_colormap():
+    c_map = copy.copy(plt.cm.get_cmap('gray'))
+    c_map.set_bad(alpha=0)
     return c_map
 
 

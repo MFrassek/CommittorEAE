@@ -727,8 +727,11 @@ def plot_relative_importances(names, values):
 def plot_single_map(
         x_int, y_int, const,
         pipeline, reduced_list_var_names,
-        stamp, method, norm="log", **kwargs):
+        stamp, method, norm="log",
+        injection_function=lambda x: None,
+        **kwargs):
     fig, ax = plt.subplots(1, 1)
+    injection_function(const)
     if norm == "log":
         cmap = const.cmap
         norm = mpl.colors.LogNorm(
@@ -768,6 +771,16 @@ def plot_single_map(
     plt.tight_layout()
     plt.savefig("results/{}_x{}_y_{}.png".format(stamp, x_int, y_int))
     plt.show()
+
+
+def inject_PES(const):
+    PES = plt.imread("PES_{}.png".format(const.dataSetType))
+    PES[PES < 0.1] = np.nan
+    plt.imshow(
+        PES,
+        extent=(0, 1, 0, 1),
+        cmap=make_png_with_bad_as_transparent_colormap(),
+        zorder=2)
 
 
 def plot_reconstruction_from_latent_space(
