@@ -213,9 +213,8 @@ def plot_example_paths_on_latent_space(
         reduced_list_var_names,
         steps,
         encoder,
-        pre_stamp,
-        **kwargs):
-    paths, labels = get_paths_function(const=const, **kwargs)
+        pre_stamp):
+    paths, labels = get_paths_function(const=const)
     latent_paths = [make_latent_path_from_path(
             pipeline=pipeline,
             path=path,
@@ -239,11 +238,11 @@ def flatten_list_of_lists(list_of_lists):
     return [y for x in list_of_lists for y in x]
 
 
-def get_toy_paths(folder_name, const):
+def get_toy_paths(const):
     paths = []
     labels = const.keep_labels
     for label in labels:
-        paths.append(get_one_toy_path(folder_name, label))
+        paths.append(get_one_toy_path(const.toy_folder_name, label))
     return paths, labels
 
 
