@@ -515,11 +515,11 @@ def plot_with_different_settings(
         reduced_list_var_names,
         reduced_name_to_list_position,
         const,
-        train_ds, val_ds, loss_function,
+        train_ds, val_ds,
         pipeline, pre_stamp, minima, maxima):
     autoencoder, autoencoder_1, autoencoder_2, \
         encoder, decoder_1, decoder_2 = \
-        AutoEncoder.make_models(len(reduced_list_var_names), loss_function, const)
+        AutoEncoder.make_models(len(reduced_list_var_names), const)
     history = autoencoder.fit(
         x=train_ds,
         epochs=const.epochs,
@@ -576,7 +576,6 @@ def plot_with_different_settings(
 
 def plot_encoder_decoder(
         const,
-        loss_function,
         reduced_list_var_names,
         reduced_name_to_list_position,
         train_ds,
@@ -585,7 +584,7 @@ def plot_encoder_decoder(
     autoencoder, autoencoder_1, autoencoder_2, \
         encoder, decoder_1, decoder_2 = \
         AutoEncoder.make_models(
-            len(reduced_list_var_names), loss_function, const)
+            len(reduced_list_var_names), const)
     autoencoder.fit(
         x=train_ds,
         epochs=const.epochs,
@@ -597,7 +596,6 @@ def plot_encoder_decoder(
         reduced_name_to_list_position=reduced_name_to_list_position,
         pipeline=pipeline,
         const=const,
-        loss_function=loss_function,
         encoder=encoder)
     plot_decoder(
         const=const,
@@ -609,7 +607,6 @@ def plot_encoder(
         reduced_name_to_list_position,
         pipeline,
         const,
-        loss_function,
         encoder):
     plot_super_map(
         used_variable_names=reduced_list_var_names,
@@ -617,7 +614,7 @@ def plot_encoder(
         lower_bound=pipeline.lower_bound,
         upper_bound=pipeline.upper_bound,
         const=const,
-        pre_stamp="EncoderTest"+"_{}".format(function_to_str(loss_function)),
+        pre_stamp="EncoderTest",
         method=calc_map_generated,
         model=encoder,
         minima=pipeline.minima,

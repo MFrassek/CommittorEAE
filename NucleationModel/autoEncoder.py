@@ -3,7 +3,7 @@ from tensorflow import keras
 
 class AutoEncoder:
     @staticmethod
-    def make_models(dimensions, loss_function, const):
+    def make_models(dimensions, const):
         encoder = AutoEncoder.make_encoder(
             const=const,
             dimensions=dimensions)
@@ -50,20 +50,20 @@ class AutoEncoder:
         autoencoder.compile(
             optimizer=keras.optimizers.RMSprop(1e-3),
             loss={
-                const.output_name_1: loss_function,
-                const.output_name_2: keras.losses.MeanAbsoluteError()},
+                const.output_name_1: const.loss_function_1,
+                const.output_name_2: const.loss_function_2},
             loss_weights=[
                 const.label_loss_weight,
                 const.reconstruction_loss_weight])
 
         autoencoder_1.compile(
             optimizer=keras.optimizers.RMSprop(1e-3),
-            loss={const.output_name_1: loss_function},
+            loss={const.output_name_1: const.loss_function_1},
             loss_weights=[const.label_loss_weight])
 
         autoencoder_2.compile(
             optimizer=keras.optimizers.RMSprop(1e-3),
-            loss={const.output_name_2: keras.losses.MeanAbsoluteError()},
+            loss={const.output_name_2: const.loss_function_2},
             loss_weights=[const.reconstruction_loss_weight])
 
         return autoencoder, autoencoder_1, autoencoder_2, \

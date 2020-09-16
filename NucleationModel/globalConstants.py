@@ -1,4 +1,7 @@
 from helperFunctions import make_halfpoint_divided_colormap
+from losses import *
+from tensorflow import keras
+
 
 
 class Const():
@@ -121,6 +124,10 @@ class Const():
         self._output_name_2 = "reconstruction"
         # List off losses determined by the model.
         self._loss_names = ["total", self._output_name_1, self._output_name_2]
+        # Loss functions used for the autoencoder_1
+        self._loss_function_1 = binaryNegLikelihood
+        # Loss functions used for the autoencoder_2
+        self._loss_function_2 = keras.losses.MeanAbsoluteError()
         # Number of epochs used for model training
         self._epochs = 5
 
@@ -337,6 +344,14 @@ class Const():
     @property
     def loss_type_cnt(self):
         return len(self._loss_names)
+
+    @property
+    def loss_function_1(self):
+        return self._loss_function_1
+
+    @property
+    def loss_function_2(self):
+        return self._loss_function_2
 
     @property
     def epochs(self):

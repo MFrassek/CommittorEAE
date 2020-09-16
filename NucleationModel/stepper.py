@@ -68,7 +68,7 @@ class Stepper:
         for i in range(repetitions):
             autoencoder, _, _, _, _, _ = \
                 AutoEncoder.make_models(
-                    len_reduced, differenceOfLogs, const)
+                    len_reduced, const)
             history = autoencoder.fit(
                 x=train_ds,
                 epochs=epochs,
