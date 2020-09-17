@@ -39,6 +39,7 @@ class Corrector():
                 xy_representation = np.array(
                     [value for value in xy_representation.values()])
                 all_representations[(x, y)] = xy_representation
+                all_representations[(y, x)] = xy_representation
         return all_representations
 
     @classmethod
