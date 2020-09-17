@@ -140,8 +140,8 @@ def plot_super_map(
         cbar = plt.colorbar(im, cax=cax, **kw, extend="both")
         cbar.ax.tick_params(labelsize=const.subfig_size
                             * len(used_variable_names))
-        if function_to_str(method).split("_")[-1][:3] == "gen":
-            if "partial" in function_to_str(method):
+        if "generated" in method_name:
+            if "partial" in method_name:
                 method_stamp = "genP"
             else:
                 method_stamp = "gen"
@@ -153,8 +153,8 @@ def plot_super_map(
                             const.model_stamp,
                             k,
                             const.resolution))
-        elif function_to_str(method).split("_")[-1][:3] == "giv":
-            if "partial" in function_to_str(method):
+        elif "given" in method_name:
+            if "partial" in method_name:
                 method_stamp = "givP"
             else:
                 method_stamp = "giv"
@@ -343,6 +343,30 @@ def calc_represented_map_generated(
             out_map[j][int(xy_representations[i][x_pos])]\
                 [int(xy_representations[i][y_pos])] = prediction[j]
     return np.array(out_map)
+
+
+def calc_map_given_path_density(
+        x_pos,
+        y_pos,
+        resolution,
+        grid_snapshots,
+        weights,
+        fill_val=0):
+    weight_map = [[0 for y in range(resolution)]
+                  for x in range(resolution)]
+    for nr, snapshot in enumerate(grid_snapshots):
+        x_int = int(snapshot[x_pos])
+        y_int = int(snapshot[y_pos])
+        if x_int >= 0 and x_int <= resolution-1 and y_int >= 0 \
+                and y_int <= resolution-1:
+            weight_map[x_int][y_int] = weight_map[x_int][y_int] \
+                + weights[nr]
+    max_weight = np.amax(weight_map)
+    weight_map = [[weight_map[i][j] / max_weight
+                  if weight_map[i][j] > 0 else float("NaN")
+                  for j in range(len(weight_map[i]))]
+                  for i in range(len(weight_map))]
+    return np.array([weight_map])
 
 
 def plot_super_scatter(
