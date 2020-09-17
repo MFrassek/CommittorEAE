@@ -733,8 +733,12 @@ def plot_single_map(
         line_formula=lambda x: np.float("NaN"),
         **kwargs):
     fig, ax = plt.subplots(1, 1)
+    x_name = reduced_list_var_names[x_int]
+    pipeline_x_int = const.name_to_list_position[x_name]
+    y_name = reduced_list_var_names[y_int]
+    pipeline_y_int = const.name_to_list_position[y_name]
     PES_function(const)
-    line_function(line_formula, pipeline, x_int, y_int)
+    line_function(line_formula, pipeline, pipeline_x_int, pipeline_y_int)
     if norm == "log":
         cmap = const.cmap
         norm = mpl.colors.LogNorm(
@@ -760,16 +764,16 @@ def plot_single_map(
         extent=[0, 1, 0, 1],
         zorder=1)
     ax = set_xtick_labels(
-        ax, pipeline.lower_bound, pipeline.upper_bound, x_int,
+        ax, pipeline.lower_bound, pipeline.upper_bound, pipeline_x_int,
         fontsize=const.subfig_size * 6)
     ax.set_xlabel(
-        "${}$".format(reduced_list_var_names[x_int]),
+        "${}$".format(x_name),
         fontsize=const.subfig_size * 10)
     ax = set_ytick_labels(
-        ax, pipeline.lower_bound, pipeline.upper_bound, y_int,
+        ax, pipeline.lower_bound, pipeline.upper_bound, pipeline_y_int,
         fontsize=const.subfig_size * 6)
     ax.set_ylabel(
-        "${}$".format(reduced_list_var_names[y_int]),
+        "${}$".format(y_name),
         fontsize=const.subfig_size * 10)
     plt.colorbar(extend="both")
     plt.tight_layout()
