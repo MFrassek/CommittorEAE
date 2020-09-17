@@ -728,10 +728,13 @@ def plot_single_map(
         x_int, y_int, const,
         pipeline, reduced_list_var_names,
         stamp, method, norm="log",
-        injection_function=lambda x: None,
+        PES_function=lambda x: None,
+        line_function=lambda w, x, y, z: None,
+        line_formula=lambda x: np.float("NaN"),
         **kwargs):
     fig, ax = plt.subplots(1, 1)
-    injection_function(const)
+    PES_function(const)
+    line_function(line_formula, pipeline, x_int, y_int)
     if norm == "log":
         cmap = const.cmap
         norm = mpl.colors.LogNorm(
@@ -781,6 +784,20 @@ def inject_PES(const):
         extent=(0, 1, 0, 1),
         cmap=make_png_with_bad_as_transparent_colormap(),
         zorder=2)
+
+
+def inject_dividing_line(function, pipeline, x_int, y_int):
+    xs = np.linspace(
+        pipeline.lower_bound[x_int],
+        pipeline.upper_bound[x_int],
+        11)
+    ys = np.array([function(x) for x in xs])
+    xs = (xs - pipeline.lower_bound[x_int]) \
+        / (pipeline.upper_bound[x_int] - pipeline.lower_bound[x_int])
+    ys = (ys - pipeline.lower_bound[y_int]) \
+        / (pipeline.upper_bound[y_int] - pipeline.lower_bound[y_int])
+    plt.plot(
+        np.array(xs), np.array(ys), c="r")
 
 
 def plot_reconstruction_from_latent_space(
