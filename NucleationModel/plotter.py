@@ -114,19 +114,23 @@ def plot_super_map(
                                 vmax=const.max_label),
                             extent=[0, 1, 0, 1])
                     # Only sets the leftmost and lowest label.
+                    i_name = used_variable_names[i]
+                    pipeline_i_int = const.name_to_list_position[i_name]
+                    j_name = used_variable_names[j]
+                    pipeline_j_int = const.name_to_list_position[j_name]
                     if i == len(used_variable_names) - 1:
                         new_axs.set_xlabel(
-                            axis_label.format(used_variable_names[j]),
+                            axis_label.format(j_name),
                             fontsize=const.subfig_size * 10)
                         new_axs = set_xtick_labels(
-                            new_axs, lower_bound, upper_bound, j,
+                            new_axs, lower_bound, upper_bound, pipeline_j_int,
                             const.subfig_size*6)
                     if j == 0:
                         new_axs.set_ylabel(
-                            axis_label.format(used_variable_names[i]),
+                            axis_label.format(i_name),
                             fontsize=const.subfig_size * 10)
                         new_axs = set_ytick_labels(
-                            new_axs, lower_bound, upper_bound, i,
+                            new_axs, lower_bound, upper_bound, pipeline_i_int,
                             const.subfig_size*6)
                 else:
                     # Remove all subplots where i >= j.
