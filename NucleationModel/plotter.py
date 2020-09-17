@@ -747,11 +747,12 @@ def plot_single_map(
             vmax=const.max_label)
     plt.imshow(
         np.maximum(
-            method(
-                x_pos=y_int,
-                y_pos=x_int,
-                resolution=const.resolution,
-                **kwargs)[0][::-1],
+            np.transpose(
+                method(
+                    x_pos=x_int,
+                    y_pos=y_int,
+                    resolution=const.resolution,
+                    **kwargs)[0])[::-1],
             const.logvmin / 2),
         cmap=cmap,
         interpolation='nearest',
