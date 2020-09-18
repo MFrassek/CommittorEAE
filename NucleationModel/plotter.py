@@ -885,3 +885,16 @@ def set_ytick_labels(ax, minima, maxima, y_int, fontsize):
         2),
         fontsize=fontsize)
     return ax
+
+
+def scatter_toy_path_with_potential(const, pipeline, path, label):
+    bn_path = pipeline.bound_normalize(path)
+    bn_min = (pipeline.lower_bound - pipeline.mean) / pipeline.std
+    bn_max = (pipeline.upper_bound - pipeline.mean) / pipeline.std
+    bn_inv_span = 1 / (bn_max - bn_min)
+    bn_path = (bn_path - bn_min) * bn_inv_span
+    bn_columns = np.transpose(bn_path)
+    plt.scatter(bn_columns[0], bn_columns[1], s=2, zorder=3)
+    inject_PES(const)
+    plt.savefig("results/{}_{}_ScatterToyPath".format(
+        const.dataSetType, label))
