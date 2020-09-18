@@ -378,8 +378,8 @@ def get_TPS_and_TIS_paths(const):
     return paths, labels
 
 
-def get_one_TIS_path(const, interface):
-    random.seed(42)
+def get_one_TIS_path(const, interface, seed=42):
+    random.seed(seed)
     file_names = listdir("{}/{}/light_data".format(
         const.TIS_folder_name, interface))
     file_name = random.choice(file_names)
@@ -390,8 +390,8 @@ def get_one_TIS_path(const, interface):
     return path
 
 
-def get_one_TPS_path(const):
-    random.seed(42)
+def get_one_TPS_path(const, seed=42):
+    random.seed(seed)
     file_names = listdir(const.TPS_folder_name)
     file_name = random.choice(file_names)
     path = read_path_from_file(
@@ -400,12 +400,12 @@ def get_one_TPS_path(const):
     return path
 
 
-def get_one_toy_path(folder_name, label):
+def get_one_toy_path(folder_name, label, seed=42):
     paths = np.array(
         pickle.load(open("{}/paths.p".format(folder_name), "rb")))
     labels = np.array(
         pickle.load(open("{}/labels.p".format(folder_name), "rb")))
-    random.seed(42)
+    random.seed(seed)
     chosen_index = random.choice(np.where(labels == label)[0])
     path = paths[chosen_index]
     return path
