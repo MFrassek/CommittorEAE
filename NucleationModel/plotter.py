@@ -345,7 +345,7 @@ def calc_represented_map_generated(
     return np.array(out_map)
 
 
-def calc_map_given_path_density(
+def calc_map_given_configurational_density(
         x_pos,
         y_pos,
         resolution,
