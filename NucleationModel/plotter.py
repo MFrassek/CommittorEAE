@@ -15,7 +15,7 @@ def plot_super_map(
         const,
         pre_stamp,
         method,
-        norm="Log",
+        norm="log",
         **kwargs):
     """
     params:
@@ -75,7 +75,7 @@ def plot_super_map(
                     labelbottom=False,
                     bottom=False)
                 if j < i:
-                    if norm == "Log":
+                    if norm == "log":
                         if const.min_label >= 0:
                             im = new_axs.imshow(
                                 np.maximum(
