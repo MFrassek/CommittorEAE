@@ -15,6 +15,7 @@ from corrector import Corrector
 import numpy as np
 import tensorflow as tf
 
+
 class Pipeline():
     def __init__(self, const, base_snapshots):
         self._const = const
@@ -107,7 +108,7 @@ class Pipeline():
     def hypercube_balance(self, snapshots):
         hcb_weights = \
             Hypercube_Balancer.balance(
-            snapshots, self._const.balance_bins)
+                snapshots, self._const.balance_bins)
         return hcb_weights
 
     def multidim_balance(self, snapshots):
@@ -133,12 +134,12 @@ class Pipeline():
         """Pack tensorflow dataset."""
         return tf.data.Dataset.from_tensor_slices(
             ({self._const.input_name: snapshots},
-            {self._const.output_name_1: labels,
-            self._const.output_name_2: snapshots},
-            {self._const.output_name_1: prediction_weights,
-            self._const.output_name_2: reconstruction_weights})) \
-                .shuffle(self.snapshot_cnt) \
-                .batch(self._const.batch_size)
+             {self._const.output_name_1: labels,
+             self._const.output_name_2: snapshots},
+             {self._const.output_name_1: prediction_weights,
+             self._const.output_name_2: reconstruction_weights})) \
+            .shuffle(self.snapshot_cnt) \
+            .batch(self._const.batch_size)
 
     def prepare_groundTruth(
             self,
