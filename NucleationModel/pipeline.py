@@ -182,13 +182,11 @@ class Pipeline():
         pBs = self.squeeze(pBs)
         # Get bnr(t)n_snapshots
         snapshots = self.normalize(snapshots)
-        pBb_weights = self.pB_balance(pBs)
-        hcb_weights = self.hypercube_balance(snapshots)
         ds = self.pack_tf_dataset(
             snapshots=snapshots,
             labels=pBs,
-            prediction_weights=pBb_weights,
-            reconstruction_weights=hcb_weights)
+            prediction_weights=np.ones(len(snapshots)),
+            reconstruction_weights=np.ones(len(snapshots)))
         minima = np.amin(snapshots, axis=0)
         maxima = np.amax(snapshots, axis=0)
         return ds, minima, maxima, g_snapshots
