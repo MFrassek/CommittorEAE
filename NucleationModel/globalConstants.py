@@ -109,7 +109,7 @@ class Const():
         # Number ob hidden layers in the decoder_2
         self._decoder_2_hidden = 4
         # Activation function in the encoder
-        self._encoder_act_func = "linear"
+        self._encoder_act_func = "tanh"
         # Activation function in the decoder_1
         self._decoder_1_act_func = "sigmoid"
         # Activation function in the decoder_2
@@ -117,7 +117,7 @@ class Const():
         # Regularizer applied to all hidden layers
         self._regularizer = 0.00001
         # Ratio of weights for label and reconstruction loss
-        self._loss_weights = [1, 1]
+        self._loss_weights = [1, 0.1]
         # Names of input and output in the model.
         self._input_name = "input_snapshots"
         self._output_name_1 = "label"
@@ -138,7 +138,7 @@ class Const():
         # self._subfig_size = 5
         self._subfig_size = 2
         # Lower bondary for a logarithmic colormap
-        self._logvmin = 10**(-10)
+        self._logvmin = 10**(-4)
         # Colormap used for the heat map plots
         self._cmap = make_halfpoint_divided_colormap(self._logvmin)
         # Thresholds for correlation between dimensions
