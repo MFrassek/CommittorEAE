@@ -204,7 +204,7 @@ def merge_all_OPS_simulation_pickle_files(folder_name):
                     folder_name, file_name), "rb")))
             all_labels = np.append(all_labels, labels)
     pickle.dump(all_paths, open(
-        "{}/all/all_paths.p".format(folder_name), "wb"))
+        "{}/all/paths.p".format(folder_name), "wb"))
     pickle.dump(all_labels, open(
-        "{}/all/all_labels.p".format(folder_name), "wb"))
+        "{}/all/labels.p".format(folder_name), "wb"))
     return all_paths, all_labels
