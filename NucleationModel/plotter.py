@@ -676,64 +676,63 @@ def plot_decoder(
     plt.show()
 
 
-def plot_example_paths_on_latent_space(
+def plot_projected_example_paths(
         get_paths_function,
         const,
         pipeline,
         reduced_list_var_names,
         steps,
-        encoder,
+        model,
         pre_stamp):
     paths, labels = get_paths_function(const=const)
-    latent_paths = [make_latent_path_from_path(
+    projected_paths = [make_projected_path_from_path(
             pipeline=pipeline,
             path=path,
             reduced_list_var_names=reduced_list_var_names,
             steps=steps,
-            encoder=encoder)
+            model=model)
         for path in paths]
-    flattened_latent_paths = flatten_list_of_lists(latent_paths)
-    latent_minimum = np.amin(np.transpose(flattened_latent_paths)[1], axis=0)
-    latent_maximum = np.amax(np.transpose(flattened_latent_paths)[1], axis=0)
-    plot_latent_paths(
-        latent_paths=latent_paths,
+    flattened_projected_paths = flatten_list_of_lists(projected_paths)
+    latent_minimum = np.amin(
+        np.transpose(flattened_projected_paths)[1], axis=0)
+    latent_maximum = np.amax(
+        np.transpose(flattened_projected_paths)[1], axis=0)
+    model_output_name = model.output_names[0]
+    plot_projected_paths(
+        projected_paths=projected_paths,
         labels=labels,
+        model_output_name=model_output_name,
         steps=steps,
         pre_stamp=pre_stamp,
         const=const)
     return latent_minimum, latent_maximum
 
 
-def make_latent_path_from_path(
-        pipeline, path, reduced_list_var_names, steps, encoder):
-    bn_size = encoder.layers[-1].output_shape[1]
+def make_projected_path_from_path(
+        pipeline, path, reduced_list_var_names, steps, model):
+    out_size = model.layers[-1].output_shape[1]
+    if out_size > 1:
+        raise ValueError(
+            "Data of dimensionality {} cannot be plotted".format(out_size))
     bn_path = pipeline.bound_normalize(path)
     bnr_path = pipeline.reduce(bn_path, reduced_list_var_names)
     path_len = len(bnr_path)
-    latent_path = [encoder.predict([[bnr_path[int(path_len*i/(steps+1))]]])[0]
-                   for i in range(steps+1)]
-    if bn_size == 1:
-        return [[i, path[0]] for i, path in enumerate(latent_path)]
-    elif bn_size == 2:
-        return latent_path
-    else:
-        raise ValueError(
-            "Data of dimensionality {} cannot be plotted".format(bn_size))
+    projected_path = [model.predict([[bnr_path[int(path_len*i/(steps+1))]]])[0]
+                      for i in range(steps+1)]
+    return [[i, path[0]] for i, path in enumerate(projected_path)]
 
 
-def plot_latent_paths(latent_paths, labels, steps, pre_stamp, const):
-    for plot_path, label in zip(latent_paths, labels):
+def plot_projected_paths(
+        projected_paths, labels, model_output_name,
+        steps, pre_stamp, const):
+    for plot_path, label in zip(projected_paths, labels):
         plt.plot(*np.transpose(plot_path), label=str(label))
-    plt.ylabel("$BN_1$")
-    if const.bottleneck_size == 1:
-        plt.xlabel(r"Progress along path [%]")
-        plt.xticks(
-            [steps*i/10 for i in range(11)],
-            [100*i/10 for i in range(11)])
-        plt.xlim(0, steps)
-    else:
-        plt.xlabel("$BN_2$")
-    plt.title("Paths mapped onto the latent space")
+    plt.ylabel(model_output_name)
+    plt.xlabel(r"Progress along path [%]")
+    plt.xticks(
+        [steps*i/10 for i in range(11)],
+        [100*i/10 for i in range(11)])
+    plt.xlim(0, steps)
     plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
     plt.subplots_adjust(right=0.82)
     plt.savefig("results/{}_LatentSpacePath_plot_{}_{}D.png".format(
