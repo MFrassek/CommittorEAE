@@ -727,7 +727,7 @@ def plot_projected_paths(
         steps, pre_stamp, const):
     for plot_path, label in zip(projected_paths, labels):
         plt.plot(*np.transpose(plot_path), label=str(label))
-    plt.ylabel(model_output_name)
+    plt.ylabel(model_output_name + " output")
     plt.xlabel(r"Progress along path [%]")
     plt.xticks(
         [steps*i/10 for i in range(11)],
