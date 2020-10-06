@@ -84,7 +84,7 @@ class AutoEncoder:
         encoder_output = keras.layers.Dense(
             units=const.bottleneck_size,
             activation=const.encoder_act_func,
-            name="bottleneck")(x)
+            name="Bottleneck")(x)
         encoder = keras.Model(
             encoder_input,
             encoder_output,
@@ -102,7 +102,7 @@ class AutoEncoder:
             output_name):
         decoder_input = keras.Input(
             shape=(const.bottleneck_size,),
-            name="encoded_snapshots")
+            name="Encoded")
         x = decoder_input
         for i in range(hidden_layer_cnt):
             x = keras.layers.Dense(

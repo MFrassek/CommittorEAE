@@ -119,9 +119,9 @@ class Const():
         # Ratio of weights for label and reconstruction loss
         self._loss_weights = [1, 0.1]
         # Names of input and output in the model.
-        self._input_name = "input_snapshots"
-        self._output_name_1 = "label"
-        self._output_name_2 = "reconstruction"
+        self._input_name = "Input"
+        self._output_name_1 = "Committor"
+        self._output_name_2 = "Reconstruction"
         # List off losses determined by the model.
         self._loss_names = ["total", self._output_name_1, self._output_name_2]
         # Loss functions used for the autoencoder_1
