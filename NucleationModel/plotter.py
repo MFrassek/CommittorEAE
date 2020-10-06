@@ -32,7 +32,7 @@ def plot_super_map(
         model = kwargs["model"]
         out_size = model.layers[-1].output_shape[1]
         if model.input_names[0] == "encoded_snapshots":
-            "b{}"
+            axis_label = "b{}"
         else:
             axis_label = "${}$"
 
