@@ -693,8 +693,8 @@ def plot_example_paths_on_latent_space(
             encoder=encoder)
         for path in paths]
     flattened_latent_paths = flatten_list_of_lists(latent_paths)
-    latent_minimum = np.amin(np.transpose(flattened_latent_paths)[0], axis=0)
-    latent_maximum = np.amax(np.transpose(flattened_latent_paths)[0], axis=0)
+    latent_minimum = np.amin(np.transpose(flattened_latent_paths)[1], axis=0)
+    latent_maximum = np.amax(np.transpose(flattened_latent_paths)[1], axis=0)
     plot_latent_paths(
         latent_paths=latent_paths,
         labels=labels,
@@ -713,7 +713,7 @@ def make_latent_path_from_path(
     latent_path = [encoder.predict([[bnr_path[int(path_len*i/(steps+1))]]])[0]
                    for i in range(steps+1)]
     if bn_size == 1:
-        return [[path[0], i] for i, path in enumerate(latent_path)]
+        return [[i, path[0]] for i, path in enumerate(latent_path)]
     elif bn_size == 2:
         return latent_path
     else:
@@ -724,15 +724,15 @@ def make_latent_path_from_path(
 def plot_latent_paths(latent_paths, labels, steps, pre_stamp, const):
     for plot_path, label in zip(latent_paths, labels):
         plt.plot(*np.transpose(plot_path), label=str(label))
-    plt.xlabel("$BN_1$")
+    plt.ylabel("$BN_1$")
     if const.bottleneck_size == 1:
-        plt.ylabel(r"Progress along path [%]")
-        plt.yticks(
+        plt.xlabel(r"Progress along path [%]")
+        plt.xticks(
             [steps*i/10 for i in range(11)],
             [100*i/10 for i in range(11)])
-        plt.ylim(0, steps)
+        plt.xlim(0, steps)
     else:
-        plt.ylabel("$BN_2$")
+        plt.xlabel("$BN_2$")
     plt.title("Paths mapped onto the latent space")
     plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
     plt.subplots_adjust(right=0.82)
