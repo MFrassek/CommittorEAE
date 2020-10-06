@@ -154,6 +154,10 @@ class Const():
                 and self._decoder_1_act_func != "tanh":
             print("'tanh' activation function recommended"
                   + "for label prediction.")
+        # List of colors for plt.plots
+        self._plt_colors = [
+            "c", "g", "r", "indigo", "y", "m",
+            "k", "lightpink", "orange", "olive", "b"]
 
     @property
     def dataSetType(self):
@@ -380,6 +384,10 @@ class Const():
     @property
     def corr_thresholds(self):
         return self._corr_thresholds
+
+    @property
+    def plt_colors(self):
+        return self._plt_colors
 
     @property
     def data_stamp(self):

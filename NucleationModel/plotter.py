@@ -725,8 +725,12 @@ def make_projected_path_from_path(
 def plot_projected_paths(
         projected_paths, labels, model_output_name,
         steps, pre_stamp, const):
-    for plot_path, label in zip(projected_paths, labels):
-        plt.plot(*np.transpose(plot_path), label=str(label))
+    for plot_path, label, i in zip(
+            projected_paths, labels, range(len(labels))):
+        plt.plot(
+            *np.transpose(plot_path),
+            label=str(label),
+            color=const.plt_colors[i % len(labels)])
     plt.ylabel(model_output_name + " output")
     plt.xlabel(r"Progress along path [%]")
     plt.xticks(
