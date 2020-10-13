@@ -75,44 +75,20 @@ def plot_super_map(
                     labelbottom=False,
                     bottom=False)
                 if j < i:
-                    if norm == "log":
-                        if const.min_label >= 0:
-                            im = new_axs.imshow(
-                                np.maximum(
-                                    super_map[i][j][0][k][::-1],
-                                    const.logvmin / 2),
-                                cmap=const.cmap,
-                                interpolation='nearest',
-                                norm=mpl.colors.LogNorm(
-                                    vmin=const.logvmin,
-                                    vmax=1-const.logvmin),
-                                extent=[0, 1, 0, 1])
-                        else:
-                            im = new_axs.imshow(
-                                np.maximum(
-                                    super_map[i][j][0][k][::-1],
-                                    const.logvmin / 2),
-                                cmap=const.cmap,
-                                interpolation='nearest',
-                                norm=mpl.colors.SymLogNorm(
-                                    linthresh=0.01*(const.max_label
-                                                    - const.min_label),
-                                    linscale=0.1*(const.max_label
-                                                  - const.min_label),
-                                    vmin=const.min_label,
-                                    vmax=const.max_label),
-                                extent=[0, 1, 0, 1])
+                    if "density" not in method_name:
+                        cmap = const.label_cmap
                     else:
-                        im = new_axs.imshow(
-                            np.maximum(
-                                super_map[i][j][0][k][::-1],
-                                const.logvmin / 2),
-                            cmap="seismic",
-                            interpolation='nearest',
-                            norm=mpl.colors.Normalize(
-                                vmin=const.min_label,
-                                vmax=const.max_label),
-                            extent=[0, 1, 0, 1])
+                        cmap = const.density_cmap
+                    im = new_axs.imshow(
+                        np.maximum(
+                            super_map[i][j][0][k][::-1],
+                            const.logvmin / 2),
+                        cmap=cmap,
+                        interpolation='nearest',
+                        norm=mpl.colors.LogNorm(
+                            vmin=const.logvmin,
+                            vmax=1-const.logvmin),
+                        extent=[0, 1, 0, 1])
                     # Only sets the leftmost and lowest label.
                     i_name = used_variable_names[i]
                     pipeline_i_int = const.name_to_list_position[i_name]
@@ -770,16 +746,11 @@ def plot_single_map(
     pipeline_y_int = const.name_to_list_position[y_name]
     PES_function(const)
     line_function(line_formula, pipeline, pipeline_x_int, pipeline_y_int)
-    if norm == "log":
-        cmap = const.cmap
-        norm = mpl.colors.LogNorm(
-            vmin=const.logvmin,
-            vmax=1.0-const.logvmin)
+    method_name = function_to_str(method)
+    if "density" not in method_name:
+        cmap = const.label_cmap
     else:
-        cmap = "seismic"
-        norm = mpl.colors.Normalize(
-            vmin=const.min_label,
-            vmax=const.max_label)
+        cmap = const.density_cmap
     plt.imshow(
         np.maximum(
             np.transpose(
@@ -791,7 +762,9 @@ def plot_single_map(
             const.logvmin / 2),
         cmap=cmap,
         interpolation='nearest',
-        norm=norm,
+        norm=mpl.colors.LogNorm(
+            vmin=const.logvmin,
+            vmax=1.0-const.logvmin),
         extent=[0, 1, 0, 1],
         zorder=1)
     ax = set_xtick_labels(
