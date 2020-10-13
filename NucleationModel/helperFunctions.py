@@ -33,7 +33,7 @@ def get_size(obj, seen=None):
     return size
 
 
-def make_halfpoint_divided_colormap(logvmin):
+def make_halfpoint_divided_label_colormap(logvmin):
     resolution = 1001
     bandwidth = 0.1
     lower_bound_halfpoint = math.log(0.5-bandwidth/2, 10)/math.log(logvmin, 10)

@@ -1,4 +1,4 @@
-from helperFunctions import make_halfpoint_divided_colormap
+from helperFunctions import make_halfpoint_divided_label_colormap
 from losses import *
 from tensorflow import keras
 
@@ -140,7 +140,7 @@ class Const():
         # Lower bondary for a logarithmic colormap
         self._logvmin = 10**(-4)
         # Colormap used for the heat map plots
-        self._cmap = make_halfpoint_divided_colormap(self._logvmin)
+        self._label_cmap = make_halfpoint_divided_label_colormap(self._logvmin)
         # Thresholds for correlation between dimensions
         self._corr_thresholds = [0.5, 0.1]
         if min(self._path_type_weights) >= 0 \
@@ -378,8 +378,8 @@ class Const():
         return self._logvmin
 
     @property
-    def cmap(self):
-        return self._cmap
+    def label_cmap(self):
+        return self._label_cmap
 
     @property
     def corr_thresholds(self):
