@@ -672,6 +672,8 @@ def plot_projected_example_paths(
     latent_maximum = np.amax(
         np.transpose(flattened_projected_paths)[1], axis=0)
     model_output_name = model.output_names[0]
+    ylim_bot = np.floor(latent_minimum)-0.1
+    ylim_top = np.ceil(latent_maximum)+0.1
     for i in range(len(labels)):
         plot_projected_paths(
             projected_paths=projected_paths,
@@ -679,7 +681,8 @@ def plot_projected_example_paths(
             model_output_name=model_output_name,
             steps=steps,
             pre_stamp=pre_stamp,
-            const=const)
+            const=const,
+            ylims=(ylim_bot, ylim_top))
     return latent_minimum, latent_maximum
 
 
@@ -699,7 +702,7 @@ def make_projected_path_from_path(
 
 def plot_projected_paths(
         projected_paths, labels, model_output_name,
-        steps, pre_stamp, const):
+        steps, pre_stamp, const, ylims=(None, None)):
     for plot_path, label, i in zip(
             projected_paths, labels, range(len(labels))):
         plt.plot(
@@ -712,10 +715,11 @@ def plot_projected_paths(
         [steps*i/10 for i in range(11)],
         [100*i/10 for i in range(11)])
     plt.xlim(0, steps)
+    plt.ylim(ylims)
     plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
     plt.subplots_adjust(right=0.82)
-    plt.savefig("results/{}_LatentSpacePath_plot_{}_{}D.png".format(
-        pre_stamp, const.model_stamp, const.bottleneck_size))
+    plt.savefig("results/{}_LatentSpacePath_plot_{}_{}D_{}.png".format(
+        pre_stamp, const.model_stamp, const.bottleneck_size, len(labels)))
     plt.show()
 
 
