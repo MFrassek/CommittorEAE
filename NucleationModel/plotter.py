@@ -15,7 +15,6 @@ def plot_super_map(
         const,
         pre_stamp,
         method,
-        norm="log",
         **kwargs):
     """
     params:
@@ -486,7 +485,7 @@ def plot_loss_history(history, file_name):
 
 def plot_ground_truth(
         reduced_list_var_names, reduced_name_to_list_position, pipeline,
-        const, grid_snapshots, labels, weights, pre_stamp, norm="log"):
+        const, grid_snapshots, labels, weights, pre_stamp):
     plot_super_map(
         used_variable_names=reduced_list_var_names,
         name_to_list_position=reduced_name_to_list_position,
@@ -497,8 +496,7 @@ def plot_ground_truth(
         method=calc_map_given,
         grid_snapshots=grid_snapshots,
         labels=labels,
-        weights=weights,
-        norm=norm)
+        weights=weights)
 
 
 def plot_with_different_settings(
@@ -734,7 +732,7 @@ def plot_relative_importances(names, values):
 def plot_single_map(
         x_int, y_int, const,
         pipeline, reduced_list_var_names,
-        stamp, method, norm="log",
+        stamp, method,
         PES_function=lambda x: None,
         line_function=lambda w, x, y, z: None,
         line_formula=lambda x: np.float("NaN"),
