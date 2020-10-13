@@ -397,7 +397,6 @@ def plot_super_scatter(
             const.subfig_size*max_row_len,
             const.subfig_size*row_cnt*1.3))
     fig.align_labels()
-
     for i, var_name in enumerate(used_variable_names):
         xs, ys = method(
             x_pos=name_to_list_position[var_name],
@@ -433,11 +432,12 @@ def plot_super_scatter(
             labelleft=False)
         new_axs[i % max_row_len].set_xticks(
             np.linspace(min(xs), max(xs), 3))
+        pipeline_var_int = const.name_to_list_position[var_name]
         new_axs[i % max_row_len].set_xticklabels(
             np.around(
                 np.linspace(
-                    lower_bound[i],
-                    upper_bound[i],
+                    lower_bound[pipeline_var_int],
+                    upper_bound[pipeline_var_int],
                     3),
                 2),
             rotation=60,
