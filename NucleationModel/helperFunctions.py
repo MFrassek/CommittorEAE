@@ -61,6 +61,12 @@ def make_halfpoint_divided_label_colormap(logvmin):
     return c_map
 
 
+def make_density_colormap():
+    resolution = 1001
+    cmap = cm.get_cmap("autumn", resolution)
+    return cmap
+
+
 def make_png_with_bad_as_transparent_colormap():
     c_map = copy.copy(plt.cm.get_cmap('gray'))
     c_map.set_bad(alpha=0)

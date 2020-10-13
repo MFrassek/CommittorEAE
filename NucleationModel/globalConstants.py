@@ -1,4 +1,6 @@
-from helperFunctions import make_halfpoint_divided_label_colormap
+from helperFunctions import \
+    make_halfpoint_divided_label_colormap, \
+    make_density_colormap
 from losses import *
 from tensorflow import keras
 
@@ -141,6 +143,8 @@ class Const():
         self._logvmin = 10**(-4)
         # Colormap used for the heat map plots
         self._label_cmap = make_halfpoint_divided_label_colormap(self._logvmin)
+        # Colormap used for the desnity plots
+        self._density_cmap = make_density_colormap()
         # Thresholds for correlation between dimensions
         self._corr_thresholds = [0.5, 0.1]
         if min(self._path_type_weights) >= 0 \
@@ -380,6 +384,10 @@ class Const():
     @property
     def label_cmap(self):
         return self._label_cmap
+
+    @property
+    def density_cmap(self):
+        return self._density_cmap
 
     @property
     def corr_thresholds(self):
