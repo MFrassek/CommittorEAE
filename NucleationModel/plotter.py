@@ -672,13 +672,14 @@ def plot_projected_example_paths(
     latent_maximum = np.amax(
         np.transpose(flattened_projected_paths)[1], axis=0)
     model_output_name = model.output_names[0]
-    plot_projected_paths(
-        projected_paths=projected_paths,
-        labels=labels,
-        model_output_name=model_output_name,
-        steps=steps,
-        pre_stamp=pre_stamp,
-        const=const)
+    for i in range(len(labels)):
+        plot_projected_paths(
+            projected_paths=projected_paths,
+            labels=labels[:i+1],
+            model_output_name=model_output_name,
+            steps=steps,
+            pre_stamp=pre_stamp,
+            const=const)
     return latent_minimum, latent_maximum
 
 
