@@ -667,13 +667,13 @@ def plot_projected_example_paths(
             model=model)
         for path in paths]
     flattened_projected_paths = flatten_list_of_lists(projected_paths)
-    latent_minimum = np.amin(
+    projected_minimum = np.amin(
         np.transpose(flattened_projected_paths)[1], axis=0)
-    latent_maximum = np.amax(
+    projected_maximum = np.amax(
         np.transpose(flattened_projected_paths)[1], axis=0)
     model_output_name = model.output_names[0]
-    ylim_bot = np.floor(latent_minimum)-0.1
-    ylim_top = np.ceil(latent_maximum)+0.1
+    ylim_bot = np.floor(projected_minimum)-0.1
+    ylim_top = np.ceil(projected_maximum)+0.1
     for i in range(len(labels)):
         plot_projected_paths(
             projected_paths=projected_paths,
@@ -683,7 +683,7 @@ def plot_projected_example_paths(
             pre_stamp=pre_stamp,
             const=const,
             ylims=(ylim_bot, ylim_top))
-    return latent_minimum, latent_maximum
+    return projected_minimum, projected_maximum
 
 
 def make_projected_path_from_path(
