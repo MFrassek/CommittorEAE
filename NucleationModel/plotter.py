@@ -394,29 +394,45 @@ def plot_super_scatter(
                 [minima[name_to_list_position[var_name]],
                  maxima[name_to_list_position[var_name]]])
         new_axs[i % max_row_len]\
-            .set_xlabel(
+            .set_title(
                 "${}$".format(var_name),
                 fontsize=const.subfig_size*10)
+        if i // max_row_len == (len(used_variable_names)-1) // max_row_len:
+            new_axs[i % max_row_len]\
+                .set_xlabel(
+                    "$Input$",
+                    fontsize=const.subfig_size*5)
+        if i % max_row_len == 0:
+            new_axs[i % max_row_len]\
+                .set_ylabel(
+                    "$Reconstruction$",
+                    fontsize=const.subfig_size*5)
         new_axs[i % max_row_len].tick_params(
             axis='both',
             which='both',
             top=False,
             labelbottom=True,
             bottom=True,
-            left=False,
-            labelleft=False)
+            left=True,
+            labelleft=True)
         new_axs[i % max_row_len].set_xticks(
             np.linspace(min(xs), max(xs), 3))
+        new_axs[i % max_row_len].set_yticks(
+            np.linspace(min(xs), max(xs), 3))
         pipeline_var_int = const.name_to_list_position[var_name]
+        axis_tick_labels = np.around(
+            np.linspace(
+                lower_bound[pipeline_var_int],
+                upper_bound[pipeline_var_int],
+                3),
+            2)
         new_axs[i % max_row_len].set_xticklabels(
-            np.around(
-                np.linspace(
-                    lower_bound[pipeline_var_int],
-                    upper_bound[pipeline_var_int],
-                    3),
-                2),
+            axis_tick_labels,
             rotation=60,
-            fontsize=const.subfig_size*6)
+            fontsize=const.subfig_size*4)
+        new_axs[i % max_row_len].set_yticklabels(
+            axis_tick_labels,
+            fontsize=const.subfig_size*4)
     # if not all rows are filled
     # remove the remaining empty subplots in the last row
     if len(used_variable_names) % max_row_len != 0:
