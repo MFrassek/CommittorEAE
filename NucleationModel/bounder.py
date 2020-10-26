@@ -24,16 +24,11 @@ class Bounder():
     def bound_snapshots(self, snapshots):
         """Set the values of a snapshot that lie outside of the bounds to that
         bound while leaving the other values unchanged.
-        Initially transpose the snapshots to a column list
-        For each column, iterate over all entries and compare them to the
-        lower or upper bound of that column. If they are lower or higher,
-        change to the value of that bound.
-        Return the transpose of the column list, thereby yielding
-        the cleaned snapshots.
+        Initially transpose the snapshots to columns.
+        Bound all entries betwwen their respective upper and lower bound.
+        Transpose the columns back into snapshots and return.
         """
-        columns = np.transpose(snapshots)
-        bound_columns = self.bound_all_columns(columns)
-        return np.transpose(bound_columns)
+        return np.transpose(self.bound_all_columns(np.transpose(snapshots)))
 
     def bound_all_columns(self, columns):
         return [self.bound_one_dimensional_column(
