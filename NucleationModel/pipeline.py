@@ -117,13 +117,11 @@ class Pipeline():
                 snapshots, self._const.balance_bins)
         return mdb_weights
 
-    def correct_1D(self, snapshots):
-        corrected_1D = Corrector.correct_1D_row(snapshots)
-        return corrected_1D
+    def get_1D_means(self, snapshots):
+        return Corrector.get_means_for_1D_row(snapshots)
 
-    def correct_2D(self, snapshots):
-        corrected_2D = Corrector.correct_2D_grid(snapshots)
-        return corrected_2D
+    def get_2D_means(self, snapshots):
+        return Corrector.get_means_for_2D_grid(snapshots)
 
     def pack_tf_dataset(
             self,

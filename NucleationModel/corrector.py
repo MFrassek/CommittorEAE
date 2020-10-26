@@ -3,7 +3,7 @@ import numpy as np
 
 class Corrector():
     @classmethod
-    def correct_1D_row(self, grid_snapshots):
+    def get_means_for_1D_row(self, grid_snapshots):
         all_representations = {}
         for x in range(len(grid_snapshots[0])):
             x_representation = self.get_mean_values_per_point(
@@ -13,7 +13,7 @@ class Corrector():
         return all_representations
 
     @classmethod
-    def correct_2D_grid(self, grid_snapshots):
+    def get_means_for_2D_grid(self, grid_snapshots):
         all_representations = {}
         for x in range(len(grid_snapshots[0])):
             for y in range(0, x):
