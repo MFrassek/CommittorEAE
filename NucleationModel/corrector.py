@@ -6,7 +6,6 @@ class Corrector():
     def correct_1D_row(self, grid_snapshots):
         all_representations = {}
         for x in range(len(grid_snapshots[0])):
-            print(x)
             x_representation = self.correct_1D_point(
                 grid_snapshots=grid_snapshots,
                 x_int=x)
@@ -18,13 +17,18 @@ class Corrector():
     @classmethod
     def correct_1D_point(self, grid_snapshots, x_int):
         snapshots_per_x = {}
-        for snapshot in grid_snapshots:
-            self.attempt_adding_snapshot_to_dictionary_at_key(
-                snapshots_per_x, snapshot, (snapshot[x_int]))
+        self.fill_dictionary(snapshots_per_x, grid_snapshots, x_int)
         means_per_x = {}
         for x in snapshots_per_x:
             means_per_x[x] = self.get_means_from_tuples(snapshots_per_x[x])
         return means_per_x
+
+    @classmethod
+    def fill_dictionary(self, dictionary, grid_snapshots, *args):
+        for snapshot in grid_snapshots:
+            key_tuple = tuple(snapshot[pos_int] for pos_int in args)
+            self.attempt_adding_snapshot_to_dictionary_at_key(
+                dictionary, snapshot, key_tuple)
 
     @classmethod
     def attempt_adding_snapshot_to_dictionary_at_key(
@@ -39,7 +43,6 @@ class Corrector():
         all_representations = {}
         for x in range(len(grid_snapshots[0])):
             for y in range(0, x):
-                print(x, y)
                 xy_representation = self.correct_2D_point(
                     grid_snapshots=grid_snapshots,
                     x_int=x,
@@ -53,9 +56,7 @@ class Corrector():
     @classmethod
     def correct_2D_point(self, grid_snapshots, x_int, y_int):
         snapshots_per_xy = {}
-        for snapshot in grid_snapshots:
-            self.attempt_adding_snapshot_to_dictionary_at_key(
-                snapshots_per_xy, snapshot, (snapshot[x_int], snapshot[y_int]))
+        self.fill_dictionary(snapshots_per_xy, grid_snapshots, x_int, y_int)
         means_per_xy = {}
         for xy in snapshots_per_xy:
             means_per_xy[xy] = self.get_means_from_tuples(snapshots_per_xy[xy])
