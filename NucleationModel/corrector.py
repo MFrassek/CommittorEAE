@@ -16,13 +16,14 @@ class Corrector():
 
     @classmethod
     def correct_point(self, grid_snapshots, **kwargs):
-        self.fill_dictionary(grid_snapshots, **kwargs)
+        snapshots_per_position = self.get_position_snapshot_dictionary(
+            grid_snapshots, **kwargs)
         means_per_position = self.get_position_means_dictionary(
             snapshots_per_position)
         return means_per_position
 
     @classmethod
-    def fill_dictionary(self, grid_snapshots, **kwargs):
+    def get_position_snapshot_dictionary(self, grid_snapshots, **kwargs):
         snapshots_per_position = {}
         for snapshot in grid_snapshots:
             key_tuple = tuple(snapshot[pos_int] for pos_int in kwargs.values())
