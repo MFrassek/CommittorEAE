@@ -32,11 +32,14 @@ class Bounder():
         the cleaned snapshots.
         """
         column_list = np.transpose(snapshots)
-        column_list = [[self.bound_one_dimensional_entry(col_nr, entry)
+        column_list = [[self.bound_one_dimensional_entry(
+                            self.upper_bound[col_nr],
+                            self.lower_bound[col_nr],
+                            entry)
                         for entry in column_list[col_nr]]
                        for col_nr in range(self._dimensions)]
         return np.transpose(column_list)
 
-    def bound_one_dimensional_entry(self, column_number, entry):
-        return min(self.upper_bound[column_number],
-                   max(self.lower_bound[column_number], entry))
+    def bound_one_dimensional_entry(self, upper_bound, lower_bound, entry):
+        return min(upper_bound,
+                   max(lower_bound, entry))
