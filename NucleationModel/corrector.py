@@ -15,18 +15,18 @@ class Corrector():
         return all_representations
 
     @classmethod
-    def correct_1D_point(self, grid_snapshots, x_int):
+    def correct_1D_point(self, grid_snapshots, **kwargs):
         snapshots_per_x = {}
-        self.fill_dictionary(snapshots_per_x, grid_snapshots, x_int)
+        self.fill_dictionary(snapshots_per_x, grid_snapshots, **kwargs)
         means_per_x = {}
         for x in snapshots_per_x:
             means_per_x[x] = self.get_means_from_tuples(snapshots_per_x[x])
         return means_per_x
 
     @classmethod
-    def fill_dictionary(self, dictionary, grid_snapshots, *args):
+    def fill_dictionary(self, dictionary, grid_snapshots, **kwargs):
         for snapshot in grid_snapshots:
-            key_tuple = tuple(snapshot[pos_int] for pos_int in args)
+            key_tuple = tuple(snapshot[pos_int] for pos_int in kwargs.values())
             self.attempt_adding_snapshot_to_dictionary_at_key(
                 dictionary, snapshot, key_tuple)
 
@@ -54,9 +54,9 @@ class Corrector():
         return all_representations
 
     @classmethod
-    def correct_2D_point(self, grid_snapshots, x_int, y_int):
+    def correct_2D_point(self, grid_snapshots, **kwargs):
         snapshots_per_xy = {}
-        self.fill_dictionary(snapshots_per_xy, grid_snapshots, x_int, y_int)
+        self.fill_dictionary(snapshots_per_xy, grid_snapshots, **kwargs)
         means_per_xy = {}
         for xy in snapshots_per_xy:
             means_per_xy[xy] = self.get_means_from_tuples(snapshots_per_xy[xy])
