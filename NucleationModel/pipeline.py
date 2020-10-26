@@ -136,7 +136,7 @@ class Pipeline():
              self._const.output_name_2: snapshots},
              {self._const.output_name_1: prediction_weights,
              self._const.output_name_2: reconstruction_weights})) \
-            .shuffle(self.snapshot_cnt) \
+            .shuffle(250000) \
             .batch(self._const.batch_size)
 
     def prepare_groundTruth(
