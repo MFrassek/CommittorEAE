@@ -31,13 +31,16 @@ class Bounder():
         Return the transpose of the column list, thereby yielding
         the cleaned snapshots.
         """
-        column_list = np.transpose(snapshots)
-        column_list = [self.bound_one_dimensional_column(
-                            self.upper_bound[col_nr],
-                            self.lower_bound[col_nr],
-                            column_list[col_nr])
-                       for col_nr in range(self._dimensions)]
-        return np.transpose(column_list)
+        columns = np.transpose(snapshots)
+        bound_columns = self.bound_all_columns(columns)
+        return np.transpose(bound_columns)
+
+    def bound_all_columns(self, columns):
+        return [self.bound_one_dimensional_column(
+                    self.upper_bound[col_nr],
+                    self.lower_bound[col_nr],
+                    columns[col_nr])
+                for col_nr in range(self._dimensions)]
 
     def bound_one_dimensional_column(self, upper_bound, lower_bound, column):
         return [self.bound_one_dimensional_entry(
