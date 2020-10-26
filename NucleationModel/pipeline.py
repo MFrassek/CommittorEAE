@@ -211,3 +211,18 @@ class Pipeline():
             self.prepare_dataset_from_bn(
                 reduced_list_var_names, val_bn_snapshots, val_dataset)
         return train_ds, val_ds
+
+    def prepare_dataset_pickle(
+            self,
+            reduced_list_var_names,
+            dataset):
+        bn_snapshots = self.bound_normalize(dataset.snapshots)
+        # Get bnr_snapshots
+        snapshots = self.reduce(bn_snapshots, reduced_list_var_names)
+        # Get bnrg_snapshots
+        g_snapshots = self.gridify(snapshots)
+        _, pBs, _ = self.approximate(g_snapshots, dataset)
+        hcb_weights = self.hypercube_balance(snapshots)
+        minima = np.amin(snapshots, axis=0)
+        maxima = np.amax(snapshots, axis=0)
+        return snapshots, pBs, hcb_weights, minima, maxima, g_snapshots
