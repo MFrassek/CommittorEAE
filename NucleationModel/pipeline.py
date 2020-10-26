@@ -193,9 +193,9 @@ class Pipeline():
         ds, minima, maxima, g_snapshots = \
             self.prepare_dataset_from_bn(
                 reduced_list_var_names, bn_snapshots, dataset)
-        corrected_1D = self.correct_1D(g_snapshots)
-        corrected_2D = self.correct_2D(g_snapshots)
-        return ds, minima, maxima, corrected_1D, corrected_2D
+        means_1D = self.get_1D_means(g_snapshots)
+        means_2D = self.get_2D_means(g_snapshots)
+        return ds, minima, maxima, means_1D, means_2D
 
     def prepare_stepper(
             self,
