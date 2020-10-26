@@ -175,11 +175,12 @@ class Pipeline():
         # Get bnrg_snapshots
         g_snapshots = self.gridify(snapshots)
         _, pBs, _ = self.approximate(g_snapshots, dataset)
+        hcb_weights = self.hypercube_balance(snapshots)
         ds = self.pack_tf_dataset(
             snapshots=snapshots,
             labels=pBs,
-            prediction_weights=np.ones(len(snapshots)),
-            reconstruction_weights=np.ones(len(snapshots)))
+            prediction_weights=hcb_weights,
+            reconstruction_weights=hcb_weights)
         minima = np.amin(snapshots, axis=0)
         maxima = np.amax(snapshots, axis=0)
         return ds, minima, maxima, g_snapshots
