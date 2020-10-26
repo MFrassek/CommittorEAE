@@ -6,7 +6,7 @@ class Corrector():
     def correct_1D_row(self, grid_snapshots):
         all_representations = {}
         for x in range(len(grid_snapshots[0])):
-            x_representation = self.correct_1D_point(
+            x_representation = self.correct_point(
                 grid_snapshots=grid_snapshots,
                 x_int=x)
             x_representation = np.array(
@@ -15,11 +15,12 @@ class Corrector():
         return all_representations
 
     @classmethod
-    def correct_1D_point(self, grid_snapshots, **kwargs):
-        snapshots_per_x = {}
-        self.fill_dictionary(snapshots_per_x, grid_snapshots, **kwargs)
-        means_per_x = self.get_position_means_dictionary(snapshots_per_x)
-        return means_per_x
+    def correct_point(self, grid_snapshots, **kwargs):
+        snapshots_per_position = {}
+        self.fill_dictionary(snapshots_per_position, grid_snapshots, **kwargs)
+        means_per_position = self.get_position_means_dictionary(
+            snapshots_per_position)
+        return means_per_position
 
     @classmethod
     def fill_dictionary(self, dictionary, grid_snapshots, **kwargs):
@@ -49,7 +50,7 @@ class Corrector():
         all_representations = {}
         for x in range(len(grid_snapshots[0])):
             for y in range(0, x):
-                xy_representation = self.correct_2D_point(
+                xy_representation = self.correct_point(
                     grid_snapshots=grid_snapshots,
                     x_int=x,
                     y_int=y)
@@ -58,13 +59,6 @@ class Corrector():
                 all_representations[(x, y)] = xy_representation
                 all_representations[(y, x)] = xy_representation
         return all_representations
-
-    @classmethod
-    def correct_2D_point(self, grid_snapshots, **kwargs):
-        snapshots_per_xy = {}
-        self.fill_dictionary(snapshots_per_xy, grid_snapshots, **kwargs)
-        means_per_xy = self.get_position_means_dictionary(snapshots_per_xy)
-        return means_per_xy
 
     def get_means_from_tuples(tuples):
         return np.mean(list(zip(*tuples)), axis=1)
