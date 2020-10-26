@@ -18,9 +18,7 @@ class Corrector():
     def correct_1D_point(self, grid_snapshots, **kwargs):
         snapshots_per_x = {}
         self.fill_dictionary(snapshots_per_x, grid_snapshots, **kwargs)
-        means_per_x = {}
-        for x in snapshots_per_x:
-            means_per_x[x] = self.get_means_from_tuples(snapshots_per_x[x])
+        means_per_x = self.get_position_means_dictionary(snapshots_per_x)
         return means_per_x
 
     @classmethod
@@ -37,6 +35,14 @@ class Corrector():
             dictionary[key].append(tuple(snapshot))
         except Exception:
             dictionary[key] = [tuple(snapshot)]
+
+    @classmethod
+    def get_position_means_dictionary(
+            self, snapshots_per_position_dictionary):
+        means_per_position = {}
+        for key, value in snapshots_per_position_dictionary.items():
+            means_per_position[key] = self.get_means_from_tuples(value)
+        return means_per_position
 
     @classmethod
     def correct_2D_grid(self, grid_snapshots):
@@ -57,9 +63,7 @@ class Corrector():
     def correct_2D_point(self, grid_snapshots, **kwargs):
         snapshots_per_xy = {}
         self.fill_dictionary(snapshots_per_xy, grid_snapshots, **kwargs)
-        means_per_xy = {}
-        for xy in snapshots_per_xy:
-            means_per_xy[xy] = self.get_means_from_tuples(snapshots_per_xy[xy])
+        means_per_xy = self.get_position_means_dictionary(snapshots_per_xy)
         return means_per_xy
 
     def get_means_from_tuples(tuples):
