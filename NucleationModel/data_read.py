@@ -357,11 +357,29 @@ def read_shooting_points(filename):
 
 
 def get_toy_paths(const):
-    paths = []
     labels = const.keep_labels
-    for label in labels:
-        paths.append(get_one_toy_path(const.toy_folder_name, label))
+    paths = [get_one_toy_path(const.toy_folder_name, label)
+             for label in labels]
     return paths, labels
+
+
+def get_one_toy_path(folder_name, label, seed=42):
+    paths, labels = read_paths_and_labels_from_pickles(folder_name)
+    chosen_index = choose_random_index_where_label_matches(seed, labels, label)
+    return paths[chosen_index]
+
+
+def read_paths_and_labels_from_pickles(folder_name):
+    paths = np.array(
+        pickle.load(open("{}/paths.p".format(folder_name), "rb")))
+    labels = np.array(
+        pickle.load(open("{}/labels.p".format(folder_name), "rb")))
+    return paths, labels
+
+
+def choose_random_index_where_label_matches(seed, labels, label):
+    random.seed(seed)
+    return random.choice(np.where(labels == label)[0])
 
 
 def get_TPS_and_TIS_paths(const):
@@ -408,22 +426,3 @@ def choose_random_file(folder_name, seed):
 
 def convert_interface_name_to_math_text(interface_name):
     return "$MCG_{}$".format("{"+interface_name[3:]+"}")
-
-
-def get_one_toy_path(folder_name, label, seed=42):
-    paths, labels = read_paths_and_labels_from_pickles(folder_name)
-    chosen_index = choose_random_index_where_label_matches(seed, labels, label)
-    return paths[chosen_index]
-
-
-def read_paths_and_labels_from_pickles(folder_name):
-    paths = np.array(
-        pickle.load(open("{}/paths.p".format(folder_name), "rb")))
-    labels = np.array(
-        pickle.load(open("{}/labels.p".format(folder_name), "rb")))
-    return paths, labels
-
-
-def choose_random_index_where_label_matches(seed, labels, label):
-    random.seed(seed)
-    return random.choice(np.where(labels == label)[0])
