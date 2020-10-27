@@ -402,8 +402,7 @@ def get_one_TPS_path(const, seed=42):
 
 def get_one_toy_path(folder_name, label, seed=42):
     paths, labels = read_paths_and_labels_from_pickles(folder_name)
-    random.seed(seed)
-    chosen_index = random.choice(np.where(labels == label)[0])
+    chosen_index = choose_random_index_where_label_matches(seed, labels, label)
     path = paths[chosen_index]
     return path
 
@@ -414,3 +413,8 @@ def read_paths_and_labels_from_pickles(folder_name):
     labels = np.array(
         pickle.load(open("{}/labels.p".format(folder_name), "rb")))
     return paths, labels
+
+
+def choose_random_index_where_label_matches(seed, labels, label):
+    random.seed(seed)
+    return random.choice(np.where(labels == label)[0])
