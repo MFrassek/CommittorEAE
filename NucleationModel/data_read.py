@@ -379,10 +379,8 @@ def get_TPS_and_TIS_paths(const):
 
 
 def get_one_TIS_path(const, interface, seed=42):
-    random.seed(seed)
-    file_names = listdir("{}/{}/light_data".format(
-        const.TIS_folder_name, interface))
-    file_name = random.choice(file_names)
+    file_name = choose_random_file(
+        "{}/{}/light_data".format(const.TIS_folder_name, interface), seed)
     path = read_path_from_file(
         "{}/{}/light_data/{}".format(
             const.TIS_folder_name, interface, file_name), 2)
@@ -391,13 +389,17 @@ def get_one_TIS_path(const, interface, seed=42):
 
 
 def get_one_TPS_path(const, seed=42):
-    random.seed(seed)
-    file_names = listdir(const.TPS_folder_name)
-    file_name = random.choice(file_names)
+    file_name = choose_random_file(const.TPS_folder_name, seed)
     path = read_path_from_file(
         "{}/{}".format(const.TPS_folder_name, file_name), 2)
     print("Label: {}".format(determine_label(path, const)))
     return path
+
+
+def choose_random_file(folder_name, seed):
+    random.seed(seed)
+    file_names = listdir(folder_name)
+    return random.choice(file_names)
 
 
 def get_one_toy_path(folder_name, label, seed=42):
