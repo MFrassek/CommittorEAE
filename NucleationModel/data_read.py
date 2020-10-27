@@ -346,10 +346,16 @@ def read_shooting_points(filename):
         shooting_points = file.readlines()
     precision = 2
     shooting_points = round_points_to_precision(shooting_points, precision)
-    labels = np.array([point[0] for point in shooting_points])
-    shooting_points = np.array([point[1:] for point in shooting_points])
+    labels, shooting_points = \
+        get_labels_and_shooting_points_from_shooting_data(shooting_points)
     print("{} shooting points read".format(len(labels)))
     return shooting_points, labels
+
+
+def get_labels_and_shooting_points_from_shooting_data(shooting_data):
+    labels, points = map(
+        np.array, zip(*[(datum[0], datum[1:]) for datum in shooting_data]))
+    return labels, points
 
 
 def round_points_to_precision(points, precision):
