@@ -365,12 +365,10 @@ def get_toy_paths(const):
 
 
 def get_TPS_and_TIS_paths(const):
-    paths = []
     TIS_interface_names = get_TIS_interface_names(const)
-    for TIS_interface_name in TIS_interface_names:
-        paths.append(
-            get_one_TIS_path(const=const, interface=TIS_interface_names))
-    paths.append(get_one_TPS_path(const=const))
+    paths = [get_one_TIS_path(const=const, interface=TIS_interface_name)
+             for TIS_interface_name in TIS_interface_names]\
+        + [get_one_TPS_path(const=const)]
     labels = [convert_interface_name_to_math_text(TIS_interface_name)
               for TIS_interface_name in TIS_interface_names] + ["$TPS$"]
     return paths, labels
