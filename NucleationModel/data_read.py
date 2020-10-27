@@ -370,8 +370,8 @@ def get_TPS_and_TIS_paths(const):
     for label in TIS_labels:
         paths.append(get_one_TIS_path(const=const, interface=label))
     paths.append(get_one_TPS_path(const=const))
-    labels = ["$MCG_{}$".format("{"+label[3:]+"}") for label in TIS_labels]\
-        + ["$TPS$"]
+    labels = [convert_interface_name_to_math_text(TIS_interface_name)
+              for TIS_interface_name in TIS_labels] + ["$TPS$"]
     return paths, labels
 
 
@@ -401,6 +401,10 @@ def choose_random_file(folder_name, seed):
     random.seed(seed)
     file_names = listdir(folder_name)
     return random.choice(file_names)
+
+
+def convert_interface_name_to_math_text(interface_name):
+    return "$MCG_{}$".format("{"+interface_name[3:]+"}")
 
 
 def get_one_toy_path(folder_name, label, seed=42):
