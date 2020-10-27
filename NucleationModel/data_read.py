@@ -268,8 +268,7 @@ def read_path_from_file(file_path, precision):
         path = file.readlines()
         if path[0].startswith("#"):
             path = path[1:]
-        path = np.array(
-            [round_point_to_precision(snap, precision) for snap in path])
+        path = round_points_to_precision(path, precision)
         return path
 
 
@@ -346,13 +345,16 @@ def read_shooting_points(filename):
         file.readline()
         shooting_points = file.readlines()
     precision = 2
-    shooting_points = np.array(
-        [round_point_to_precision(point, precision)
-         for point in shooting_points])
+    shooting_points = round_points_to_precision(shooting_points, precision)
     labels = np.array([point[0] for point in shooting_points])
     shooting_points = np.array([point[1:] for point in shooting_points])
     print("{} shooting points read".format(len(labels)))
     return shooting_points, labels
+
+
+def round_points_to_precision(points, precision):
+    return np.array([round_point_to_precision(point, precision)
+                    for point in points])
 
 
 def round_point_to_precision(point, precision):
