@@ -366,15 +366,12 @@ def get_toy_paths(const):
 
 def get_TPS_and_TIS_paths(const):
     paths = []
-    labels = []
     TIS_labels = sorted(sorted(listdir(const.TIS_folder_name)), key=len)
-    reformated_TIS_labels = \
-        ["$MCG_{}$".format("{"+label[3:]+"}") for label in TIS_labels]
-    labels.extend(reformated_TIS_labels)
     for label in TIS_labels:
         paths.append(get_one_TIS_path(const=const, interface=label))
     paths.append(get_one_TPS_path(const=const))
-    labels.append("$TPS$")
+    labels = ["$MCG_{}$".format("{"+label[3:]+"}") for label in TIS_labels]\
+        + ["$TPS$"]
     return paths, labels
 
 
