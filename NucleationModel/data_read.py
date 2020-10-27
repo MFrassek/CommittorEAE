@@ -346,14 +346,14 @@ def read_shooting_points(filename):
     with open(filename, "r") as file:
         file.readline()
         shooting_points = file.readlines()
-        precision = 2
-        shooting_points = np.array(
-            [list(map(lambda x: round(float(x), precision),
-             point[:-1].split(" ")[1:])) for point in shooting_points])
-        labels = np.array([point[0] for point in shooting_points])
-        shooting_points = np.array([point[1:] for point in shooting_points])
-        print("{} shooting points read".format(len(labels)))
-        return shooting_points, labels
+    precision = 2
+    shooting_points = np.array(
+        [list(map(lambda x: round(float(x), precision),
+         point[:-1].split(" ")[1:])) for point in shooting_points])
+    labels = np.array([point[0] for point in shooting_points])
+    shooting_points = np.array([point[1:] for point in shooting_points])
+    print("{} shooting points read".format(len(labels)))
+    return shooting_points, labels
 
 
 def get_toy_paths(const):
