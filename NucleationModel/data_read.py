@@ -379,21 +379,25 @@ def get_TPS_and_TIS_paths(const):
 
 
 def get_one_TIS_path(const, interface, seed=42):
-    file_name = choose_random_file(
-        "{}/{}/light_data".format(const.TIS_folder_name, interface), seed)
     path = read_path_from_file(
-        "{}/{}/light_data/{}".format(
-            const.TIS_folder_name, interface, file_name), 2)
+        get_file_path_with_randomly_chosen_file(
+            "{}/{}/light_data".format(const.TIS_folder_name, interface), seed),
+        2)
     print("Label: {}".format(determine_label(path, const)))
     return path
 
 
 def get_one_TPS_path(const, seed=42):
-    file_name = choose_random_file(const.TPS_folder_name, seed)
     path = read_path_from_file(
-        "{}/{}".format(const.TPS_folder_name, file_name), 2)
+        get_file_path_with_randomly_chosen_file(
+            const.TPS_folder_name, seed),
+        2)
     print("Label: {}".format(determine_label(path, const)))
     return path
+
+
+def get_file_path_with_randomly_chosen_file(folder_name, seed):
+    return "{}/{}".format(folder_name, choose_random_file(folder_name, seed))
 
 
 def choose_random_file(folder_name, seed):
