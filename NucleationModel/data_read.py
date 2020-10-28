@@ -76,15 +76,13 @@ def make_snapshots_from_paths(
     snapshot_origins = []
     for path, path_label, path_weight, path_origin in zip(
             paths, path_labels, path_weights, path_origins):
-        path_part_weight = path_weight / len(path)
-        for snapshot_nr, snapshot in enumerate(path):
-            # Iterate over all indices within each path and append
-            # accordingly the snapshot as well as label,
-            # weight and origin.
-            snapshots.append(snapshot)
-            snapshot_weights.append(path_part_weight)
-            snapshot_origins.append(path_origin)
-            snapshot_labels.append(get_snapshot_label(path_label, const))
+        path_len = len(path)
+        path_part_weight = path_weight / path_len
+        snapshots.extend(path)
+        snapshot_weights.extend([path_part_weight] * path_len)
+        snapshot_origins.extend([path_origin] * path_len)
+        snapshot_labels.extend(
+            [get_snapshot_label(path_label, const)] * path_len)
     snapshot_weights = np.array(snapshot_weights) / np.mean(snapshot_weights)
     print("Total mean weights: {}".format(np.mean(snapshot_weights)))
     print("Total sum weights: {}".format(np.sum(snapshot_weights)))
