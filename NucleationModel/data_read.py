@@ -282,44 +282,44 @@ def handle_path_outside_state_definition(file_name, path):
 
 
 def determine_label(path, const):
-    if path[0][0] <= const.mcg_A:
-        if path[-1][0] <= const.mcg_A:
-            return "AA"
-        elif path[-1][0] >= const.mcg_B:
-            if np.amax(path, axis=0)[8] \
-                    >= const.big_C:
-                return "AB"
-            else:
-                return "AC"
-    elif path[0][0] >= const.mcg_B:
-        if path[-1][0] <= const.mcg_A:
-            return "BA"
-        elif path[-1][0] >= const.mcg_B:
-            return "BB"
+    start_state = determine_state(path[0], const)
+    end_state = determine_state(path[-1], const)
+    return start_state + end_state
+
+
+def determine_state(snapshot, const):
+    if snapshot[0] <= const.mcg_A:
+        return "A"
+    elif snapshot[0] >= const.mcg_B:
+        return "B"
     else:
-        return "NN"
+        return "N"
 
 
 def correct_highest_interface(
-        highest_interface,
-        TIS_origins,
-        TIS_weights,
-        TPS_weights):
+        highest_interface, TIS_origins, TIS_weights, TPS_weights):
+    """Update the highest TIS interface as well as the TPS weights."""
     update_factor = get_TIS_highest_interface_update_factor(
         TIS_origins, highest_interface, TPS_weights)
+    TIS_full_broadcast_mask = get_TIS_highest_interface_full_broadcast_mask(
+        TIS_origins, highest_interface, update_factor)
+    TIS_weights = TIS_weights * TIS_full_broadcast_mask
+    TPS_weights = TPS_weights * update_factor
+    return TIS_weights, TPS_weights
+
+
+def get_TIS_highest_interface_full_broadcast_mask(
+        TIS_origins, highest_interface, update_factor):
+    """Make a full mask for updating the weights of the highest interface
+    without touching the other weights.
+    """
     TIS_update_mask = \
         get_TIS_highest_interface_update_mask(
             TIS_origins, highest_interface, update_factor)
     TIS_non_update_mask = \
         get_TIS_highest_interface_non_update_mask(
             TIS_origins, highest_interface)
-    # Make a full mask for updating the weights of the highest interface
-    # without losing the other weights.
-    TIS_full_mask = TIS_update_mask + TIS_non_update_mask
-    # Update the TIS and TPS weights.
-    TIS_weights = TIS_weights * TIS_full_mask
-    TPS_weights = TPS_weights * update_factor
-    return TIS_weights, TPS_weights
+    return TIS_update_mask + TIS_non_update_mask
 
 
 def get_TIS_highest_interface_update_mask(
