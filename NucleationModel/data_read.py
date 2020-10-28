@@ -76,11 +76,12 @@ def make_snapshots_from_paths(
     snapshot_origins = []
     for path, path_label, path_weight, path_origin in zip(
             paths, path_labels, path_weights, path_origins):
-        path_len = len(path)
-        path_part_weight = path_weight / path_len
         snapshots.extend(path)
-        snapshot_weights.extend([path_part_weight] * path_len)
-        snapshot_origins.extend([path_origin] * path_len)
+        path_len = len(path)
+        snapshot_weights.extend(
+            [get_snapshot_weight(path_weight, path_len)] * path_len)
+        snapshot_origins.extend(
+            [path_origin] * path_len)
         snapshot_labels.extend(
             [get_snapshot_label(path_label, const)] * path_len)
     snapshot_weights = normalize_snapshots_weights(snapshot_weights)
@@ -90,6 +91,10 @@ def make_snapshots_from_paths(
         np.array(snapshot_labels), \
         np.array(snapshot_weights), \
         np.array(snapshot_origins)
+
+
+def get_snapshot_weight(path_weight, path_len):
+    return path_weight / path_len
 
 
 def get_snapshot_label(path_label, const):
