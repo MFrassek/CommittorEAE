@@ -221,8 +221,7 @@ def get_lines_from_file(folder_name, interface_name, file_string):
     """
     with open(glob.glob("{}/{}/{}".format(
             folder_name, interface_name, file_string))[0], "r") as file:
-        lines = file.readlines()
-        return lines
+        return file.readlines()
 
 
 def get_names_from_lines(lines, frac_len, type_function):
