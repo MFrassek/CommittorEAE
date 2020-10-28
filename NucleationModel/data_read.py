@@ -272,7 +272,7 @@ def path_outside_state_definition(path, const):
 
 
 def snapshots_outside_state_definition(snapshot, const):
-    return snapshot[0] > const.mcg_A and snapshot[0] < const.mcg_B
+    return determine_state(snapshot, const) == "N"
 
 
 def handle_path_outside_state_definition(file_name, path):
