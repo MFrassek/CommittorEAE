@@ -305,13 +305,8 @@ def correct_highest_interface(
         TIS_origins,
         TIS_weights,
         TPS_weights):
-    TIS_highest_interface_cnt = len([1 for origin in TIS_origins
-                                     if origin == highest_interface])
-    TPS_highest_interface_cnt = len(TPS_weights)
-    # Determine by which factor the weights at the highest interface
-    # need to be corrected.
-    update_factor = TIS_highest_interface_cnt \
-        / (TIS_highest_interface_cnt + TPS_highest_interface_cnt)
+    update_factor = get_TIS_highest_interface_update_factor(
+        TIS_origins, highest_interface, TPS_weights)
     # Make an array for broadcasting where the positions of the
     # highest interface are indicated with True.
     TIS_highest_interface_mask = TIS_origins == highest_interface
@@ -331,6 +326,27 @@ def correct_highest_interface(
     TIS_weights = TIS_weights * TIS_full_mask
     TPS_weights = TPS_weights * update_factor
     return TIS_weights, TPS_weights
+
+
+def get_TIS_highest_interface_update_factor(
+        TIS_origins, highest_interface, TPS_weights):
+    """Determine by which factor the weights at the highest TIS interface
+    need to be corrected.
+    """
+    TIS_highest_interface_cnt = \
+        get_TIS_highest_interface_cnt(TIS_origins, highest_interface)
+    TPS_highest_interface_cnt = \
+        get_TPS_highest_interface_count(TPS_weights)
+    return TIS_highest_interface_cnt \
+        / (TIS_highest_interface_cnt + TPS_highest_interface_cnt)
+
+
+def get_TIS_highest_interface_cnt(TIS_origins, highest_interface):
+    return len([1 for origin in TIS_origins if origin == highest_interface])
+
+
+def get_TPS_highest_interface_count(TPS_weights):
+    return len(TPS_weights)
 
 
 def read_shooting_points(filename):
