@@ -259,11 +259,7 @@ def make_paths_from_TPS_data(TPS_weight, const):
 
 
 def read_path_from_file(file_path, precision):
-    """Iterate over all snapshots in the trajectory, remove the
-    linebreak character at the end ('\n'), split them along all
-    occurences of ' ', drop the first column (snapshot_index)
-    transform the strings into floats, and round to the given precision.
-    """
+    """Read in data file and convert into a path of the right format"""
     return round_points_to_precision(
         get_data_elements_from_lines(
             read_data_lines_from_data_file(file_path)),
