@@ -268,9 +268,9 @@ def read_path_from_file(file_path, precision):
         path_lines = file.readlines()
         if path_lines[0].startswith("#"):
             path_lines = path_lines[1:]
-        path = get_data_elements_from_lines(path_lines)
-        path = round_points_to_precision(path, precision)
-        return path
+    path = get_data_elements_from_lines(path_lines)
+    path = round_points_to_precision(path, precision)
+    return path
 
 
 def path_outside_state_definition(path, const):
