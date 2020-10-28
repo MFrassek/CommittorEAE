@@ -264,10 +264,7 @@ def read_path_from_file(file_path, precision):
     occurences of ' ', drop the first column (snapshot_index)
     transform the strings into floats, and round to the given precision.
     """
-    with open(file_path, "r") as file:
-        path_lines = file.readlines()
-        if path_lines[0].startswith("#"):
-            path_lines = path_lines[1:]
+    path_lines = read_data_lines_from_data_file(file_path)
     path = get_data_elements_from_lines(path_lines)
     path = round_points_to_precision(path, precision)
     return path
@@ -342,9 +339,7 @@ def correct_highest_interface(
 
 def read_shooting_points(filename):
     print("Read shooting point file")
-    with open(filename, "r") as file:
-        file.readline()
-        shooting_lines = file.readlines()
+    shooting_lines = read_data_lines_from_data_file(filename)
     shooting_data = get_data_elements_from_lines(shooting_lines)
     labels, shooting_points = \
         get_labels_and_shooting_points_from_shooting_data(shooting_data)
@@ -352,6 +347,14 @@ def read_shooting_points(filename):
     shooting_points = round_points_to_precision(shooting_points, precision)
     print("{} shooting points read".format(len(labels)))
     return shooting_points, labels
+
+
+def read_data_lines_from_data_file(file_path):
+    with open(file_path, "r") as file:
+        lines = file.readlines()
+        if lines[0].startswith("#"):
+            lines = lines[1:]
+    return lines
 
 
 def get_data_elements_from_lines(lines):
