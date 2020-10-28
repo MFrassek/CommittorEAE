@@ -225,13 +225,12 @@ def get_lines_from_file(folder_name, interface_name, file_string):
         return lines
 
 
-def get_names_from_lines(lines, frac_len, function):
+def get_names_from_lines(lines, frac_len, type_function):
     """Take list of lines read from a file, keep the first fract_len
     elements, remove the end of line character at the end of each
     element and convert it to the type definded by function.
     """
-    names = list(map(lambda x: function(x[:-1]), lines[:frac_len]))
-    return names
+    return [type_function(line[:-1]) for line in lines[:frac_len]]
 
 
 def make_paths_from_TPS_data(TPS_weight, const):
