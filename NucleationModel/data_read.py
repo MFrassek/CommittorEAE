@@ -346,10 +346,10 @@ def read_shooting_points(filename):
         file.readline()
         shooting_lines = file.readlines()
     shooting_data = get_data_elements_from_lines(shooting_lines)
-    precision = 2
-    shooting_data = round_points_to_precision(shooting_data, precision)
     labels, shooting_points = \
         get_labels_and_shooting_points_from_shooting_data(shooting_data)
+    precision = 2
+    shooting_points = round_points_to_precision(shooting_points, precision)
     print("{} shooting points read".format(len(labels)))
     return shooting_points, labels
 
