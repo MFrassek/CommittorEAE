@@ -84,24 +84,7 @@ def make_snapshots_from_paths(
             snapshots.append(snapshot)
             snapshot_weights.append(path_part_weight)
             snapshot_origins.append(path_origin)
-            if path_label == "AA":
-                snapshot_labels.append(const.AA_label)
-            if path_label == "BB":
-                snapshot_labels.append(const.BB_label)
-            if path_label == "AB":
-                if const.progress:
-                    snapshot_labels.append(
-                        calculate_progress_label(
-                            len(path), snapshot_nr, const))
-                else:
-                    snapshot_labels.append(const.AB_label)
-            if path_label == "BA":
-                if const.progress:
-                    snapshot_labels.append(
-                        const.BB_label - calculate_progress_label(
-                            len(path), snapshot_nr, const))
-                else:
-                    snapshot_labels.append(const.BA_label)
+            snapshot_labels.append(get_snapshot_label(path_label, const))
     snapshot_weights = np.array(snapshot_weights) / np.mean(snapshot_weights)
     print("Total mean weights: {}".format(np.mean(snapshot_weights)))
     print("Total sum weights: {}".format(np.sum(snapshot_weights)))
@@ -111,16 +94,15 @@ def make_snapshots_from_paths(
         np.array(snapshot_origins)
 
 
-def calculate_progress_label(path_len, snapshot_nr, const):
-    """Calculate the progress label in such a way, that the first
-    snapshot of the current path is assigned the same label as an
-    AA path, the last snapshot is assigned the same label as an BB
-    path, and all other snapshot labels are mapped lineraly between
-    them.
-    """
-    return (const.BB_label - const.AA_label) \
-        * (snapshot_nr) / (path_len - 1.0) \
-        + const.AA_label
+def get_snapshot_label(path_label, const):
+    if path_label == "AA":
+        return const.AA_label
+    elif path_label == "BB":
+        return const.BB_label
+    elif path_label == "AB":
+        return const.AB_label
+    elif path_label == "BA":
+        return const.BA_label
 
 
 def filter_paths(paths, path_labels, path_weights, path_origins, const):
