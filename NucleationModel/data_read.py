@@ -265,9 +265,10 @@ def read_path_from_file(file_path, precision):
     transform the strings into floats, and round to the given precision.
     """
     with open(file_path, "r") as file:
-        path = file.readlines()
-        if path[0].startswith("#"):
-            path = path[1:]
+        path_lines = file.readlines()
+        if path_lines[0].startswith("#"):
+            path_lines = path_lines[1:]
+        path = get_data_elements_from_lines(path_lines)
         path = round_points_to_precision(path, precision)
         return path
 
@@ -343,13 +344,23 @@ def read_shooting_points(filename):
     print("Read shooting point file")
     with open(filename, "r") as file:
         file.readline()
-        shooting_data = file.readlines()
+        shooting_lines = file.readlines()
+    shooting_data = get_data_elements_from_lines(shooting_lines)
     precision = 2
     shooting_data = round_points_to_precision(shooting_data, precision)
     labels, shooting_points = \
         get_labels_and_shooting_points_from_shooting_data(shooting_data)
     print("{} shooting points read".format(len(labels)))
     return shooting_points, labels
+
+
+def get_data_elements_from_lines(lines):
+    return np.array([get_data_elements_from_line(line)
+                     for line in lines])
+
+
+def get_data_elements_from_line(line):
+    return list(map(float, line[:-1].split(" ")[1:]))
 
 
 def get_labels_and_shooting_points_from_shooting_data(shooting_data):
@@ -364,8 +375,7 @@ def round_points_to_precision(points, precision):
 
 
 def round_point_to_precision(point, precision):
-    return list(map(lambda x: round(float(x), precision),
-                point[:-1].split(" ")[1:]))
+    return list(map(lambda x: round(x, precision), point))
 
 
 def get_toy_paths(const):
