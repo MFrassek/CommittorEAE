@@ -2,7 +2,6 @@ from os import listdir
 import glob
 import numpy as np
 from sklearn.utils import shuffle
-from collections import Counter
 import random
 import pickle
 
@@ -37,16 +36,10 @@ def make_train_val_test_split_snapshots_from_snapshots(
         const):
     train_end = int(len(snapshots) * const.train_ratio)
     val_end = train_end + int(len(snapshots) * const.val_ratio)
-    origCounter = Counter(snapshot_origins)
     snapshots, snapshot_labels, snapshot_weights, snapshot_origins = \
         shuffle(
             snapshots, snapshot_labels, snapshot_weights, snapshot_origins,
             random_state=42)
-    newCounter = Counter(snapshot_origins[:train_end])
-    print("\nFraction of snapshots per interface in the test set:")
-    for key in origCounter:
-        print("    {}:\t{:.3f}".format(
-            key, newCounter[key] / origCounter[key]))
     return np.array([*snapshots[:train_end]]), \
         np.array([*snapshot_labels[:train_end]]), \
         np.array([*snapshot_weights[:train_end]]), \
