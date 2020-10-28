@@ -58,16 +58,6 @@ def make_train_val_test_split_snapshots_from_snapshots(
         np.array([*snapshot_weights[val_end:]])
 
 
-def calculate_origin_balanced_weights(snapshot_origins):
-    origin_cnt = len(set(snapshot_origins))
-    snapshot_len = len(snapshot_origins)
-    origin_counter = Counter(snapshot_origins)
-    origin_balanced_weights = [snapshot_len /
-                               (origin_counter[origin] * origin_cnt)
-                               for origin in snapshot_origins]
-    return np.array(origin_balanced_weights)
-
-
 def make_snapshots_from_paths(
         paths, path_labels, path_weights, path_origins, const):
     snapshots = []
