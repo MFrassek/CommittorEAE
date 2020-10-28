@@ -83,7 +83,7 @@ def make_snapshots_from_paths(
         snapshot_origins.extend([path_origin] * path_len)
         snapshot_labels.extend(
             [get_snapshot_label(path_label, const)] * path_len)
-    snapshot_weights = np.array(snapshot_weights) / np.mean(snapshot_weights)
+    snapshot_weights = normalize_snapshots_weights(snapshot_weights)
     print("Total mean weights: {}".format(np.mean(snapshot_weights)))
     print("Total sum weights: {}".format(np.sum(snapshot_weights)))
     return np.array(snapshots), \
@@ -101,6 +101,10 @@ def get_snapshot_label(path_label, const):
         return const.AB_label
     elif path_label == "BA":
         return const.BA_label
+
+
+def normalize_snapshots_weights(snapshot_weights):
+    return np.array(snapshot_weights) / np.mean(snapshot_weights)
 
 
 def filter_paths(paths, path_labels, path_weights, path_origins, const):
