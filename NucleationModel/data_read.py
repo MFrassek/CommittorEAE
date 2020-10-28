@@ -307,25 +307,45 @@ def correct_highest_interface(
         TPS_weights):
     update_factor = get_TIS_highest_interface_update_factor(
         TIS_origins, highest_interface, TPS_weights)
-    # Make an array for broadcasting where the positions of the
-    # highest interface are indicated with True.
-    TIS_highest_interface_mask = TIS_origins == highest_interface
-    # Make an array for broadcasting where the positions of the
-    # highest interface are indicated with False.
-    TIS_highest_interface_antimask = TIS_origins != highest_interface
-    # Make an array with the update_factor at all positions of the
-    # the highest interface and 0 everywhere else.
-    TIS_update_mask = TIS_highest_interface_mask * update_factor
-    # Make an array with the update_factor at all positions of the
-    # the highest interface and 0 everywhere else.
-    TIS_not_update_mask = TIS_highest_interface_antimask * 1
+    TIS_update_mask = \
+        get_TIS_highest_interface_update_mask(
+            TIS_origins, highest_interface, update_factor)
+    TIS_non_update_mask = \
+        get_TIS_highest_interface_non_update_mask(
+            TIS_origins, highest_interface)
     # Make a full mask for updating the weights of the highest interface
     # without losing the other weights.
-    TIS_full_mask = TIS_update_mask + TIS_not_update_mask
+    TIS_full_mask = TIS_update_mask + TIS_non_update_mask
     # Update the TIS and TPS weights.
     TIS_weights = TIS_weights * TIS_full_mask
     TPS_weights = TPS_weights * update_factor
     return TIS_weights, TPS_weights
+
+
+def get_TIS_highest_interface_update_mask(
+        TIS_origins, highest_interface, update_factor):
+    """Make a mask with the update_factor at all positions of the
+    highest interface and 0 everywhere else.
+    """
+    return get_TIS_highest_interface_true_mask(
+        TIS_origins, highest_interface) * update_factor
+
+
+def get_TIS_highest_interface_true_mask(TIS_origins, highest_interface):
+    return TIS_origins == highest_interface
+
+
+def get_TIS_highest_interface_non_update_mask(
+        TIS_origins, highest_interface):
+    """Make a mask with 0 at all positions of the the highest interface and 1
+    everywhere else.
+    """
+    return get_TIS_highest_interface_false_mask(
+        TIS_origins, highest_interface) * 1
+
+
+def get_TIS_highest_interface_false_mask(TIS_origins, highest_interface):
+    return TIS_origins != highest_interface
 
 
 def get_TIS_highest_interface_update_factor(
