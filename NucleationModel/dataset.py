@@ -1,4 +1,4 @@
-class DatasetData():
+class Dataset():
     def __init__(self, snapshots, labels, weights, flag):
         self._snapshots = snapshots
         self._labels = labels
@@ -16,11 +16,11 @@ class DatasetData():
             train_snapshots, train_labels, train_weights,
             val_snapshots, val_labels, val_weights,
             test_snapshots, test_labels, test_weights):
-        return DatasetData(
+        return Dataset(
                 train_snapshots, train_labels, train_weights, "Training"), \
-            DatasetData(
+            Dataset(
                 val_snapshots, val_labels, val_weights, "Validation"), \
-            DatasetData(
+            Dataset(
                 test_snapshots, test_labels, test_weights, "Testing")
 
     @property
