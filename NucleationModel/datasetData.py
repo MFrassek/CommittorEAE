@@ -1,14 +1,5 @@
-import numpy as np
-import tensorflow as tf
-
-
 class DatasetData():
-    def __init__(
-            self,
-            snapshots,
-            labels,
-            weights,
-            flag):
+    def __init__(self, snapshots, labels, weights, flag):
         self._snapshots = snapshots
         self._labels = labels
         self._weights = weights
@@ -22,30 +13,15 @@ class DatasetData():
 
     @staticmethod
     def initialize_train_val_test_datasets(
-            train_snapshots,
-            train_labels,
-            train_weights,
-            val_snapshots,
-            val_labels,
-            val_weights,
-            test_snapshots,
-            test_labels,
-            test_weights):
+            train_snapshots, train_labels, train_weights,
+            val_snapshots, val_labels, val_weights,
+            test_snapshots, test_labels, test_weights):
         return DatasetData(
-                train_snapshots,
-                train_labels,
-                train_weights,
-                "Training"), \
+                train_snapshots, train_labels, train_weights, "Training"), \
             DatasetData(
-                val_snapshots,
-                val_labels,
-                val_weights,
-                "Validation"), \
+                val_snapshots, val_labels, val_weights, "Validation"), \
             DatasetData(
-                test_snapshots,
-                test_labels,
-                test_weights,
-                "Testing")
+                test_snapshots, test_labels, test_weights, "Testing")
 
     @property
     def size(self):
