@@ -893,3 +893,48 @@ def scatter_toy_path_with_potential(const, pipeline, path, label):
     inject_PES(const)
     plt.savefig("results/{}_{}_ScatterToyPath".format(
         const.dataSetType, label))
+
+
+def plot_distribution(
+        grid_snapshots, max_row_len,
+        subfig_size, var_names, file_name, resolution):
+    cols = np.transpose(grid_snapshots)
+    dimensions = len(grid_snapshots[0])
+    suptitle = "Distribution of input"
+    row_cnt = ((dimensions-1)//max_row_len)+1
+    fig, axs = plt.subplots(
+        row_cnt, max_row_len,
+        figsize=(
+            subfig_size*max_row_len,
+            subfig_size*row_cnt*1.3))
+    fig.suptitle(
+        suptitle,
+        fontsize=subfig_size*max_row_len*2,
+        y=1.04 - 0.04*row_cnt)
+
+    for i in range(dimensions):
+        if row_cnt > 1:
+            new_axs = axs[i//max_row_len]
+        else:
+            new_axs = axs
+        new_axs[i % max_row_len].tick_params(
+            axis='both',
+            which='both',
+            top=False,
+            bottom=False,
+            labelbottom=False,
+            left=False,
+            labelleft=False)
+        im = new_axs[i % max_row_len]\
+            .hist(cols[i], resolution)
+        new_axs[i % max_row_len]\
+            .set_xlabel("${}$".format(var_names[i]),
+                        fontsize=subfig_size*10)
+    # if not all rows are filled
+    # remove the remaining empty subplots in the last row
+    if dimensions % max_row_len != 0:
+        for i in range(dimensions % max_row_len, max_row_len):
+            new_axs[i].axis("off")
+    plt.tight_layout(rect=[0, 0, 1, 0.8])
+    plt.savefig("hist_{}_{}.png".format(file_name, resolution))
+    plt.show()
