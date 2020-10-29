@@ -26,21 +26,21 @@ class Gridifier():
         return self._maxima
 
     def gridify_snapshots(self, snapshots):
-        """Take a list of snapshots and round all entries
-        to the closest gridpoint.
-        The positions of the gridpoints are determined by the chosen
-        resolution as well as the gridfiers given minima and maxima.
+        """Take a list of snapshots and bin all entries to the closest
+        gridpoint.
         """
-        # Use broadcasting to
-        # shift (- self._minima)
-        # rescale (* self._inverse_spans_times_resolution)
-        # increase by 0.5 and
-        # round
-        # to have an efficient way of rounding.
-        grid_snapshots = np.floor(
-            (snapshots - self._minima)
-            * self._inverse_spans_times_resolution + 0.5)
-        return grid_snapshots
+        return self.broadcast_round_to_closest_integer(
+            self.broadcast_rescale_to_resolution_range(
+                self.broadcast_shift_values_to_start_at_minimum(snapshots)))
+
+    def broadcast_shift_values_to_start_at_minimum(self, snapshots):
+        return snapshots - self.minima
+
+    def broadcast_rescale_to_resolution_range(self, snapshots):
+        return snapshots * self._inverse_spans_times_resolution
+
+    def broadcast_round_to_closest_integer(self, snapshots):
+        return np.floor(snapshots + 0.5)
 
     def plot_distribution(
             self, grid_snapshots, max_row_len,
