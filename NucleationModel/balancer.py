@@ -10,9 +10,8 @@ class Balancer():
         # Turn into tuples to be hashable
         tuple_round_snapshots = list(map(tuple, gridified_snapshots))
         snapshot_len = len(snapshots)
-        counter = Counter(tuple_round_snapshots)
         balanced_counter = \
-            Balancer.get_balanced_counter(snapshot_len, counter)
+            Balancer.get_balanced_counter(snapshot_len, tuple_round_snapshots)
         return Balancer.get_weights_from_balanced_counter(
             balanced_counter, tuple_round_snapshots)
 
@@ -23,9 +22,8 @@ class Balancer():
         hc_balanced_weights = np.ones(snapshot_len)
         round_columns = np.transpose(gridified_snapshots)
         for column in round_columns:
-            counter = Counter(column)
             balanced_counter = \
-                Balancer.get_balanced_counter(snapshot_len, counter)
+                Balancer.get_balanced_counter(snapshot_len, column)
             hc_balanced_weights *= Balancer.get_weights_from_balanced_counter(
                     balanced_counter, column)
         hc_balanced_weights /= np.mean(hc_balanced_weights)
@@ -35,10 +33,11 @@ class Balancer():
         gridifier = Gridifier(snapshots, bins)
         return gridifier.gridify_snapshots(snapshots)
 
-    def get_balanced_counter(snapshot_len, counter):
+    def get_balanced_counter(snapshot_len, list_in_need_of_weights):
         """Balance weights such that all weight together sum to snapshot_len
         and the weights for each key sum together to snapshot_len / counter_len
         """
+        counter = Counter(list_in_need_of_weights)
         counter_len = len(counter)
         return {key: snapshot_len / (label * counter_len)
                 for key, label in counter.items()}
