@@ -59,14 +59,7 @@ def plot_super_map(
                     new_axs = axs[i]
                 else:
                     new_axs = axs[i][j]
-                new_axs.tick_params(
-                    axis='both',
-                    which='both',
-                    top=False,
-                    labelleft=False,
-                    left=False,
-                    labelbottom=False,
-                    bottom=False)
+                remove_all_tick_labels(new_axs)
                 if j < i:
                     if "density" not in method_name:
                         cmap = const.label_cmap
@@ -129,6 +122,17 @@ def plot_super_map(
                             const.data_stamp, const.resolution))
         plt.show()
     return super_map
+
+
+def remove_all_tick_labels(subplot_axs):
+    subplot_axs.tick_params(
+                    axis='both',
+                    which='both',
+                    top=False,
+                    labelleft=False,
+                    left=False,
+                    labelbottom=False,
+                    bottom=False)
 
 
 def calc_map_given(
@@ -766,14 +770,7 @@ def plot_distribution(
             new_axs = axs[i//max_row_len]
         else:
             new_axs = axs
-        new_axs[i % max_row_len].tick_params(
-            axis='both',
-            which='both',
-            top=False,
-            bottom=False,
-            labelbottom=False,
-            left=False,
-            labelleft=False)
+        remove_all_tick_labels(new_axs[i % max_row_len])
         im = new_axs[i % max_row_len]\
             .hist(cols[i], resolution)
         new_axs[i % max_row_len]\
