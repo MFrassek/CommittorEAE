@@ -509,12 +509,12 @@ def plot_decoder(
             vmax=1.0-const.logvmin),
         extent=[0, 1, 0, 1])
     ax = set_xtick_labels(
-        ax, minima, maxima, x_int)
+        ax, minima, maxima, x_int, const.subfig_size*6)
     ax.set_xlabel(
         "$bn{}$".format(x_int),
         fontsize=const.subfig_size * 10)
     ax = set_ytick_labels(
-        ax, minima, maxima, y_int)
+        ax, minima, maxima, y_int, const.subfig_size*6)
     ax.set_ylabel(
         "$bn{}$".format(y_int),
         fontsize=const.subfig_size * 10)
