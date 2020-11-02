@@ -7,9 +7,7 @@ from helperFunctions import *
 from autoEncoder import AutoEncoder
 
 
-def plot_super_map(
-        used_variable_names: list, name_to_list_position: dict,
-        pipeline, const, pre_stamp, method, **kwargs):
+def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
     """
     params:
         used_variable_names: list
@@ -21,19 +19,19 @@ def plot_super_map(
     out_size = get_out_size(method_name, **kwargs)
     cmap = select_color_map(method_name, const)
     super_map = calculate_super_map(
-        method, name_to_list_position, used_variable_names, const, **kwargs)
+        method, const, **kwargs)
     for k in range(out_size):
         print(k)
         fig, axs = plt.subplots(
-            len(used_variable_names), len(used_variable_names),
+            len(const.used_variable_names), len(const.used_variable_names),
             figsize=(
-                const.subfig_size * len(used_variable_names),
-                const.subfig_size * len(used_variable_names)))
-        for i, _ in enumerate(used_variable_names):
-            for j, _ in enumerate(used_variable_names):
+                const.subfig_size * len(const.used_variable_names),
+                const.subfig_size * len(const.used_variable_names)))
+        for i, _ in enumerate(const.used_variable_names):
+            for j, _ in enumerate(const.used_variable_names):
                 # Defines new_axs to take care of different
                 # handling of only one column of subplots.
-                if len(used_variable_names) == 1:
+                if len(const.used_variable_names) == 1:
                     new_axs = axs[i]
                 else:
                     new_axs = axs[i][j]
@@ -50,11 +48,11 @@ def plot_super_map(
                             vmax=1-const.logvmin),
                         extent=[0, 1, 0, 1])
                     # Only sets the leftmost and lowest label.
-                    i_name = used_variable_names[i]
+                    i_name = const.used_variable_names[i]
                     pipeline_i_int = const.name_to_list_position[i_name]
-                    j_name = used_variable_names[j]
+                    j_name = const.used_variable_names[j]
                     pipeline_j_int = const.name_to_list_position[j_name]
-                    if i == len(used_variable_names) - 1:
+                    if i == len(const.used_variable_names) - 1:
                         new_axs.set_xlabel(
                             "${}$".format(j_name),
                             fontsize=const.subfig_size * 10)
@@ -88,14 +86,14 @@ def get_out_size(method_name, **kwargs):
 
 
 def calculate_super_map(
-        method, name_to_list_position, used_variable_names, const, **kwargs):
+        method, const, **kwargs):
     return [[[method(
-            x_pos=name_to_list_position[var_name_i],
-            y_pos=name_to_list_position[var_name_j],
+            x_pos=const.used_name_to_list_position[var_name_i],
+            y_pos=const.used_name_to_list_position[var_name_j],
             resolution=const.resolution,
             **kwargs)] if j < i else []
-          for j, var_name_j in enumerate(used_variable_names)]
-          for i, var_name_i in enumerate(used_variable_names)]
+          for j, var_name_j in enumerate(const.used_variable_names)]
+          for i, var_name_i in enumerate(const.used_variable_names)]
 
 
 def remove_all_tick_labels(subplot_axs):
@@ -430,11 +428,8 @@ def plot_loss_history(history, file_name):
 
 
 def plot_ground_truth(
-        reduced_list_var_names, reduced_name_to_list_position, pipeline,
-        const, grid_snapshots, labels, weights, pre_stamp):
+        pipeline, const, grid_snapshots, labels, weights, pre_stamp):
     plot_super_map(
-        used_variable_names=reduced_list_var_names,
-        name_to_list_position=reduced_name_to_list_position,
         pipeline=pipeline,
         const=const,
         pre_stamp=pre_stamp,
@@ -444,13 +439,11 @@ def plot_ground_truth(
         weights=weights)
 
 
-def plot_encoder_decoder(
-        const, reduced_list_var_names, reduced_name_to_list_position,
-        train_ds, val_ds, pipeline):
+def plot_encoder_decoder(const, train_ds, val_ds, pipeline):
     autoencoder, autoencoder_1, autoencoder_2, \
         encoder, decoder_1, decoder_2 = \
         AutoEncoder.make_models(
-            len(reduced_list_var_names), const)
+            len(const.used_variable_names), const)
     autoencoder.fit(
         x=train_ds,
         epochs=const.epochs,
@@ -458,8 +451,6 @@ def plot_encoder_decoder(
         callbacks=[tf.keras.callbacks.EarlyStopping(
             monitor="val_loss", patience=3)])
     plot_encoder(
-        reduced_list_var_names=reduced_list_var_names,
-        reduced_name_to_list_position=reduced_name_to_list_position,
         pipeline=pipeline,
         const=const,
         encoder=encoder)
@@ -468,12 +459,8 @@ def plot_encoder_decoder(
         decoder_1=decoder_1)
 
 
-def plot_encoder(
-        reduced_list_var_names, reduced_name_to_list_position,
-        pipeline, const, encoder):
+def plot_encoder(pipeline, const, encoder):
     plot_super_map(
-        used_variable_names=reduced_list_var_names,
-        name_to_list_position=reduced_name_to_list_position,
         pipeline=pipeline,
         const=const,
         pre_stamp="EncoderTest",
