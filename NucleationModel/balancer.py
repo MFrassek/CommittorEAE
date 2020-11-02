@@ -7,18 +7,17 @@ class Balancer():
     @staticmethod
     def hypercube_balance(snapshots, bins):
         gridified_snapshots = Balancer.gridify_snapshots(snapshots, bins)
-        # Turn into tuples to be hashable
-        tuple_round_snapshots = list(map(tuple, gridified_snapshots))
+        tuple_gridified_snapshots = list(map(tuple, gridified_snapshots))
         snapshot_len = len(snapshots)
         return Balancer.get_balanced_weights_from_list(
-            snapshot_len, tuple_round_snapshots)
+            snapshot_len, tuple_gridified_snapshots)
 
     @staticmethod
     def multidim_balance(snapshots, bins):
         gridified_snapshots = Balancer.gridify_snapshots(snapshots, bins)
+        gridified_columns = np.transpose(gridified_snapshots)
         snapshot_len = len(snapshots)
         md_balanced_weights = np.ones(snapshot_len)
-        gridified_columns = np.transpose(gridified_snapshots)
         for column in gridified_columns:
             Balancer.update_balanced_weights_based_on_column(
                 md_balanced_weights, snapshot_len, column)
