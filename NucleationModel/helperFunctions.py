@@ -226,11 +226,9 @@ def discard_unwanted_dimensions_from_pickle_files(folder_name, keep_first_n):
 def measure_correlation(
         snapshots, strong_correlation_threshold,
         weak_correlation_threshold):
-    columns = np.transpose(snapshots)
-    covar_matrix = np.cov(columns)
     strong_corr_inputs = []
     weak_corr_inputs = []
-    for row_nr, row in enumerate(covar_matrix):
+    for row_nr, row in enumerate(get_covariance_matrix(snapshots)):
         for entry_nr, entry in enumerate(row):
             if row_nr > entry_nr:
                 if abs(entry) >= strong_correlation_threshold:
@@ -264,3 +262,7 @@ def measure_correlation(
         print("No correlation above {} found between the inputs."
               .format(weak_correlation_threshold))
     return strong_corr_inputs, weak_corr_inputs
+
+
+def get_covariance_matrix(snapshots):
+    return np.cov(np.transpose(snapshots))
