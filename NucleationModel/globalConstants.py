@@ -10,16 +10,10 @@ class Const():
         self._dataSetType = dataSetType
         if dataSetType == "DW" or dataSetType == "ZP":
             self._name_to_list_position = {
-                "x_{1}": 0,
-                "x_{2}": 1,
-                "x_{3}": 2,
-                "x_{4}": 3,
-                "x_{5}": 4,
-                "x_{6}": 5,
-                "x_{7}": 6,
-                "x_{8}": 7,
-                "x_{9}": 8,
-                "x_{10}": 9}
+                "x_{1}": 0, "x_{2}": 1, "x_{3}": 2, "x_{4}": 3, "x_{5}": 4,
+                "x_{6}": 5, "x_{7}": 6, "x_{8}": 7, "x_{9}": 8, "x_{10}": 9}
+            self._used_variable_names = [
+                "x_{1}", "x_{2}", "x_{3}", "x_{4}", "x_{5}"]
             if dataSetType == "DW":
                 # Name of the folder in which the DW data is found
                 self._toy_folder_name = "DW"
@@ -30,28 +24,16 @@ class Const():
             self._used_toy_frac = 1
         elif dataSetType == "MH":
             self._name_to_list_position = {
-                "MCG": 0,
-                "N_{w,4}": 1,
-                "N_{w,3}": 2,
-                "N_{w,2}": 3,
-                "N_{sw,3-4}": 4,
-                "N_{sw,2-3}": 5,
-                "F4": 6,
-                "R_g": 7,
-                "5^{12}6^{2}": 8,
-                "5^{12}": 9,
-                "CR": 10,
-                "N_{s,2}": 11,
-                "N_{s,3}": 12,
-                "N_{c,2}": 13,
-                "N_{c,3}": 14,
-                "N_{s,4}": 15,
-                "N_{c,4}": 16,
-                "5^{12}6^{3}": 17,
-                "5^{12}6^{4}": 18,
-                "4^{1}5^{10}6^{2}": 19,
-                "4^{1}5^{10}6^{3}": 20,
+                "MCG": 0, "N_{w,4}": 1, "N_{w,3}": 2, "N_{w,2}": 3,
+                "N_{sw,3-4}": 4, "N_{sw,2-3}": 5, "F4": 6, "R_g": 7,
+                "5^{12}6^{2}": 8, "5^{12}": 9, "CR": 10, "N_{s,2}": 11,
+                "N_{s,3}": 12, "N_{c,2}": 13, "N_{c,3}": 14, "N_{s,4}": 15,
+                "N_{c,4}": 16, "5^{12}6^{3}": 17, "5^{12}6^{4}": 18,
+                "4^{1}5^{10}6^{2}": 19, "4^{1}5^{10}6^{3}": 20,
                 "4^{1}5^{10}6^{4}": 21}
+            self._used_variable_names = [
+                "MCG", "5^{12}6^{2}", "5^{12}",
+                "CR", "R_g", "F4", "N_{w,3}", "5^{12}6^{4}"]
             # Name of the folder in which the TIS data is found
             self._TIS_folder_name = "RPE_org"
             self._TIS_highest_interface_name = "mcg100"
@@ -67,6 +49,9 @@ class Const():
             self._used_TIS_frac = 0.1
             self._used_TPS_frac = 0.1
 
+        self._used_name_to_list_position = {
+            self._used_variable_names[i]: i
+            for i in range(len(self._used_variable_names))}
         # Labels assigned to the four types of paths
         self._AA_label = 0.0
         self._AB_label = 1.0
@@ -170,6 +155,14 @@ class Const():
     @property
     def name_to_list_position(self):
         return self._name_to_list_position
+
+    @property
+    def used_variable_names(self):
+        return self._used_variable_names
+
+    @property
+    def used_name_to_list_position(self):
+        return self._used_name_to_list_position
 
     @property
     def toy_folder_name(self):
@@ -427,6 +420,14 @@ class Const():
                 self._epochs)
 
     # Define setter methods for all variables that can be changed.
+    @used_variable_names.setter
+    def used_variable_names(self, x):
+        assert isinstance(x, list), "Can only be set to type list"
+        self._used_variable_names = x
+        self._used_name_to_list_position = {
+            self._used_list_var_names[i]: i
+            for i in range(len(self._used_list_var_names))}
+
     @TIS_folder_name.setter
     def TIS_folder_name(self, x):
         assert isinstance(x, str), "Can only be set to type str"
