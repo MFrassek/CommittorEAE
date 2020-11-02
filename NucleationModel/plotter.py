@@ -518,7 +518,7 @@ def plot_projected_example_paths(
     projected_paths = [make_projected_path_from_path(
             pipeline=pipeline,
             path=path,
-            reduced_list_var_names=const.used_variable_names,
+            const=const,
             steps=steps,
             model=model)
         for path in paths]
@@ -543,13 +543,13 @@ def plot_projected_example_paths(
 
 
 def make_projected_path_from_path(
-        pipeline, path, reduced_list_var_names, steps, model):
+        pipeline, path, const, steps, model):
     out_size = model.layers[-1].output_shape[1]
     if out_size > 1:
         raise ValueError(
             "Data of dimensionality {} cannot be plotted".format(out_size))
     bn_path = pipeline.bound_normalize(path)
-    bnr_path = pipeline.reduce(bn_path, reduced_list_var_names)
+    bnr_path = pipeline.reduce(bn_path, const.used_variable_names)
     path_len = len(bnr_path)
     projected_path = [model.predict([[bnr_path[int(path_len*i/(steps+1))]]])[0]
                       for i in range(steps+1)]
@@ -665,12 +665,12 @@ def inject_dividing_line(function, pipeline, x_int, y_int):
 
 
 def plot_reconstruction_from_latent_space(
-        reduced_list_var_names, latent_minimum, latent_maximum,
+        const, latent_minimum, latent_maximum,
         steps, recon_decoder, pre_stamp):
     fig = go.Figure()
     var_names = ["$"+name+"$" for name
-                 in reduced_list_var_names
-                 + [reduced_list_var_names[0]]]
+                 in const.used_variable_names
+                 + [const.used_variable_names[0]]]
     for i, val in enumerate(np.linspace(np.floor(
             latent_minimum), np.ceil(latent_maximum), steps)):
         prediction = recon_decoder.predict([val])[0]
