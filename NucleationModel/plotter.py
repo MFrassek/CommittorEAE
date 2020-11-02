@@ -442,8 +442,7 @@ def plot_ground_truth(
 def plot_encoder_decoder(const, train_ds, val_ds, pipeline):
     autoencoder, autoencoder_1, autoencoder_2, \
         encoder, decoder_1, decoder_2 = \
-        AutoEncoder.make_models(
-            len(const.used_variable_names), const)
+        AutoEncoder.make_models(const)
     autoencoder.fit(
         x=train_ds,
         epochs=const.epochs,

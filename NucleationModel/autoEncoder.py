@@ -3,14 +3,12 @@ from tensorflow import keras
 
 class AutoEncoder:
     @staticmethod
-    def make_models(dimensions, const):
+    def make_models(const):
         encoder = AutoEncoder.make_encoder(
-            const=const,
-            dimensions=dimensions)
+            const=const)
 
         decoder_1 = AutoEncoder.make_decoder(
             const=const,
-            dimensions=dimensions,
             hidden_activation_function=const.decoder_1_act_func,
             hidden_layer_cnt=const.decoder_1_hidden,
             output_units=1,
@@ -19,30 +17,26 @@ class AutoEncoder:
 
         decoder_2 = AutoEncoder.make_decoder(
             const=const,
-            dimensions=dimensions,
             hidden_activation_function=const.decoder_2_act_func,
             hidden_layer_cnt=const.decoder_2_hidden,
-            output_units=dimensions,
+            output_units=len(const.used_variable_names),
             output_activation_function=None,
             output_name=const.output_name_2)
 
         autoencoder = AutoEncoder.make_autoencoder(
             const=const,
-            dimensions=dimensions,
             encoder=encoder,
             decoders=[decoder_1, decoder_2],
             name="Autoencoder")
 
         autoencoder_1 = AutoEncoder.make_autoencoder(
             const=const,
-            dimensions=dimensions,
             encoder=encoder,
             decoders=[decoder_1],
             name="Autoencoder_1")
 
         autoencoder_2 = AutoEncoder.make_autoencoder(
             const=const,
-            dimensions=dimensions,
             encoder=encoder,
             decoders=[decoder_2],
             name="Autoencoder_2")
@@ -71,8 +65,8 @@ class AutoEncoder:
 
     @staticmethod
     def make_encoder(
-            const,
-            dimensions):
+            const):
+        dimensions = len(const.used_variable_names)
         encoder_input = keras.Input(
             shape=(dimensions,),
             name=const.input_name)
@@ -94,7 +88,6 @@ class AutoEncoder:
     @staticmethod
     def make_decoder(
             const,
-            dimensions,
             hidden_layer_cnt,
             hidden_activation_function,
             output_units,
@@ -103,6 +96,7 @@ class AutoEncoder:
         decoder_input = keras.Input(
             shape=(const.bottleneck_size,),
             name="Encoded")
+        dimensions = len(const.used_variable_names)
         x = decoder_input
         for i in range(hidden_layer_cnt):
             x = keras.layers.Dense(
@@ -121,10 +115,10 @@ class AutoEncoder:
     @staticmethod
     def make_autoencoder(
             const,
-            dimensions,
             encoder,
             decoders,
             name):
+        dimensions = len(const.used_variable_names)
         autoencoder_input = keras.Input(
             shape=(dimensions,),
             name=const.input_name)
