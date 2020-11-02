@@ -95,18 +95,7 @@ def plot_super_map(
                     new_axs.axis("off")
         fig.align_labels()
         make_color_bar(axs, im, const)
-        if "generated" in method_name:
-            method_stamp = "gen"
-            plt.savefig("results/{}_{}_{}_{}_outN{}_r{}_map.png"
-                        .format(
-                            pre_stamp, method_stamp, const.data_stamp,
-                            const.model_stamp, k, const.resolution))
-        elif "given" in method_name:
-            method_stamp = "giv"
-            plt.savefig("results/{}_{}_{}_r{}_map.png"
-                        .format(
-                            pre_stamp, method_stamp,
-                            const.data_stamp, const.resolution))
+        plt.savefig(get_output_file_name(method_name, pre_stamp, const, k))
         plt.show()
     return super_map
 
@@ -133,6 +122,16 @@ def make_color_bar(axs, im, const):
     cax, kw = mpl.colorbar.make_axes([ax for ax in axs])
     cbar = plt.colorbar(im, cax=cax, **kw, extend="both")
     cbar.ax.tick_params(labelsize=const.subfig_size * len(axs) * 2)
+
+
+def get_output_file_name(method_name, pre_stamp, const, k):
+    if "given" in method_name:
+        return "results/{}_giv_{}_r{}_map.png".format(
+            pre_stamp, const.data_stamp, const.resolution)
+    elif "generated" in method_name:
+        return "results/{}_gen_{}_{}_outN{}_r{}_map.png".format(
+            pre_stamp, const.data_stamp, const.model_stamp,
+            k, const.resolution)
 
 
 def calc_map_given(
