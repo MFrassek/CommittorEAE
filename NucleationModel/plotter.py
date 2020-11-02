@@ -8,14 +8,8 @@ from autoEncoder import AutoEncoder
 
 
 def plot_super_map(
-        used_variable_names: list,
-        name_to_list_position: dict,
-        lower_bound,
-        upper_bound,
-        const,
-        pre_stamp,
-        method,
-        **kwargs):
+        used_variable_names: list, name_to_list_position: dict,
+        lower_bound, upper_bound, const, pre_stamp, method, **kwargs):
     """
     params:
         used_variable_names: list
@@ -122,12 +116,8 @@ def plot_super_map(
                 method_stamp = "gen"
             plt.savefig("results/{}_{}_{}_{}_outN{}_r{}_map.png"
                         .format(
-                            pre_stamp,
-                            method_stamp,
-                            const.data_stamp,
-                            const.model_stamp,
-                            k,
-                            const.resolution))
+                            pre_stamp, method_stamp, const.data_stamp,
+                            const.model_stamp, k, const.resolution))
         elif "given" in method_name:
             if "partial" in method_name:
                 method_stamp = "givP"
@@ -135,22 +125,14 @@ def plot_super_map(
                 method_stamp = "giv"
             plt.savefig("results/{}_{}_{}_r{}_map.png"
                         .format(
-                            pre_stamp,
-                            method_stamp,
-                            const.data_stamp,
-                            const.resolution))
+                            pre_stamp, method_stamp,
+                            const.data_stamp, const.resolution))
         plt.show()
     return super_map
 
 
 def calc_map_given(
-        x_pos,
-        y_pos,
-        resolution,
-        grid_snapshots,
-        labels,
-        weights,
-        fill_val=0):
+        x_pos, y_pos, resolution, grid_snapshots, labels, weights, fill_val=0):
     label_map = [[0 for y in range(resolution)] for x in range(resolution)]
     weight_map = [[0 for y in range(resolution)]
                   for x in range(resolution)]
@@ -172,14 +154,8 @@ def calc_map_given(
 
 
 def calc_partial_map_given(
-        x_pos,
-        y_pos,
-        resolution,
-        grid_snapshots,
-        labels,
-        weights,
-        points_of_interest,
-        fill_val=0):
+        x_pos, y_pos, resolution, grid_snapshots, labels, weights,
+        points_of_interest, fill_val=0):
     xys = list(set([(int(ele[x_pos]), int(ele[y_pos]))
                     for ele in points_of_interest]))
     label_map = calc_map_given(
@@ -198,13 +174,7 @@ def calc_partial_map_given(
 
 
 def calc_map_generated(
-        x_pos,
-        y_pos,
-        resolution,
-        minima,
-        maxima,
-        model,
-        fill_val=0):
+        x_pos, y_pos, resolution, minima, maxima, model, fill_val=0):
     """
     Makes predictions over the full (normalized) range of
     two input variables with all other variables fixed to a specific value.
@@ -248,14 +218,8 @@ def calc_map_generated(
 
 
 def calc_partial_map_generated(
-        x_pos,
-        y_pos,
-        resolution,
-        minima,
-        maxima,
-        model,
-        points_of_interest,
-        fill_val=0):
+        x_pos, y_pos, resolution, minima, maxima, model,
+        points_of_interest, fill_val=0):
     assert x_pos != y_pos, "x_pos and y_pos need to differ"
     in_size = model.layers[0].output_shape[0][1]
     out_size = model.layers[-1].output_shape[1]
@@ -281,26 +245,14 @@ def calc_partial_map_generated(
 
 
 def calc_map_point(
-        model,
-        x,
-        y,
-        x_pos,
-        y_pos,
-        in_size,
-        fill_val=0):
+        model, x, y, x_pos, y_pos, in_size, fill_val=0):
     return model.predict([[x if x_pos == pos_nr else y
                           if y_pos == pos_nr else fill_val
                           for pos_nr in range(in_size)]])[0]
 
 
 def calc_represented_map_generated(
-        x_pos,
-        y_pos,
-        resolution,
-        minima,
-        maxima,
-        model,
-        representations):
+        x_pos, y_pos, resolution, minima, maxima, model, representations):
     assert x_pos != y_pos, "x_pos and y_pos need to differ"
     out_size = model.layers[-1].output_shape[1]
     xy_representations = representations[(x_pos, y_pos)]
@@ -321,12 +273,7 @@ def calc_represented_map_generated(
 
 
 def calc_map_given_configurational_density(
-        x_pos,
-        y_pos,
-        resolution,
-        grid_snapshots,
-        weights,
-        fill_val=0):
+        x_pos, y_pos, resolution, grid_snapshots, weights, fill_val=0):
     weight_map = [[0 for y in range(resolution)]
                   for x in range(resolution)]
     for nr, snapshot in enumerate(grid_snapshots):
@@ -345,17 +292,9 @@ def calc_map_given_configurational_density(
 
 
 def plot_super_scatter(
-        used_variable_names: list,
-        name_to_list_position: dict,
-        lower_bound,
-        upper_bound,
-        const,
-        pre_stamp,
-        method,
-        minima,
-        maxima,
-        max_row_len=6,
-        **kwargs):
+        used_variable_names: list, name_to_list_position: dict,
+        lower_bound, upper_bound, const, pre_stamp, method,
+        minima, maxima, max_row_len=6, **kwargs):
     """Generates a superfigure of scater plots.
     Iterates over the different dimensions and based on
     different input values for one dimensions
@@ -451,12 +390,7 @@ def plot_super_scatter(
 
 
 def calc_scatter_generated(
-        x_pos,
-        resolution,
-        model,
-        minima,
-        maxima,
-        fill_val=0):
+        x_pos, resolution, model, minima, maxima, fill_val=0):
     in_size = model.layers[0].output_shape[0][1]
     xs = np.linspace(minima[x_pos], maxima[x_pos], resolution)
     ys = []
@@ -468,12 +402,7 @@ def calc_scatter_generated(
 
 
 def calc_represented_scatter_generated(
-        x_pos,
-        resolution,
-        model,
-        minima,
-        maxima,
-        representations):
+        x_pos, resolution, model, minima, maxima, representations):
     x_representations = representations[x_pos]
     xs = np.linspace(minima[x_pos], maxima[x_pos], resolution)
     ys = [float("NaN") for i in range(resolution)]
@@ -516,12 +445,8 @@ def plot_ground_truth(
 
 
 def plot_encoder_decoder(
-        const,
-        reduced_list_var_names,
-        reduced_name_to_list_position,
-        train_ds,
-        val_ds,
-        pipeline):
+        const, reduced_list_var_names, reduced_name_to_list_position,
+        train_ds, val_ds, pipeline):
     autoencoder, autoencoder_1, autoencoder_2, \
         encoder, decoder_1, decoder_2 = \
         AutoEncoder.make_models(
@@ -544,11 +469,8 @@ def plot_encoder_decoder(
 
 
 def plot_encoder(
-        reduced_list_var_names,
-        reduced_name_to_list_position,
-        pipeline,
-        const,
-        encoder):
+        reduced_list_var_names, reduced_name_to_list_position,
+        pipeline, const, encoder):
     plot_super_map(
         used_variable_names=reduced_list_var_names,
         name_to_list_position=reduced_name_to_list_position,
@@ -604,13 +526,8 @@ def plot_decoder(
 
 
 def plot_projected_example_paths(
-        get_paths_function,
-        const,
-        pipeline,
-        reduced_list_var_names,
-        steps,
-        model,
-        pre_stamp):
+        get_paths_function, const, pipeline, reduced_list_var_names,
+        steps, model, pre_stamp):
     paths, labels = get_paths_function(const=const)
     projected_paths = [make_projected_path_from_path(
             pipeline=pipeline,
@@ -688,13 +605,9 @@ def plot_relative_importances(names, values):
 
 
 def plot_single_map(
-        x_int, y_int, const,
-        pipeline, reduced_list_var_names,
-        stamp, method,
-        PES_function=lambda x: None,
-        line_function=lambda w, x, y, z: None,
-        line_formula=lambda x: np.float("NaN"),
-        **kwargs):
+        x_int, y_int, const, pipeline, reduced_list_var_names, stamp, method,
+        PES_function=lambda x: None, line_function=lambda w, x, y, z: None,
+        line_formula=lambda x: np.float("NaN"), **kwargs):
     fig, ax = plt.subplots(1, 1)
     x_name = reduced_list_var_names[x_int]
     pipeline_x_int = const.name_to_list_position[x_name]
@@ -766,8 +679,7 @@ def inject_dividing_line(function, pipeline, x_int, y_int):
 
 
 def plot_reconstruction_from_latent_space(
-        reduced_list_var_names,
-        latent_minimum, latent_maximum,
+        reduced_list_var_names, latent_minimum, latent_maximum,
         steps, recon_decoder, pre_stamp):
     fig = go.Figure()
     var_names = ["$"+name+"$" for name
@@ -833,8 +745,8 @@ def scatter_toy_path_with_potential(const, pipeline, path, label):
 
 
 def plot_distribution(
-        grid_snapshots, max_row_len,
-        subfig_size, var_names, file_name, resolution):
+        grid_snapshots, max_row_len, subfig_size, var_names,
+        file_name, resolution):
     cols = np.transpose(grid_snapshots)
     dimensions = len(grid_snapshots[0])
     suptitle = "Distribution of input"
