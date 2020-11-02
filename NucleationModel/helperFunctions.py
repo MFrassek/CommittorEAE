@@ -221,3 +221,46 @@ def discard_unwanted_dimensions_from_pickle_files(folder_name, keep_first_n):
                        for path in paths]
     pickle.dump(
         truncated_paths, open("{}/trunc_paths.p".format(folder_name), "wb"))
+
+
+def measure_correlation(
+        snapshots, strong_correlation_threshold,
+        weak_correlation_threshold):
+    columns = np.transpose(snapshots)
+    covar_matrix = np.cov(columns)
+    strong_corr_inputs = []
+    weak_corr_inputs = []
+    for row_nr, row in enumerate(covar_matrix):
+        for entry_nr, entry in enumerate(row):
+            if row_nr > entry_nr:
+                if abs(entry) >= strong_correlation_threshold:
+                    strong_corr_inputs.append(
+                        [[str(row_nr), str(entry_nr)],
+                         "{:.3f}".format(entry)])
+                elif abs(entry) >= weak_correlation_threshold:
+                    weak_corr_inputs.append(
+                        [[str(row_nr), str(entry_nr)],
+                         "{:.3f}".format(entry)])
+    if len(strong_corr_inputs) > 0 or len(weak_corr_inputs) > 0:
+        print(("Caution!\nCorrelation between input data can affect the "
+              + "reliability of the importance measure.\n"
+              + "Strong correlations of more than {} "
+              + "were found between {} pair(s) of input variables:\n\t{}\n"
+              + "Additionally, weak correlations of more than "
+              + "{} were found between {} pair(s) of input variables:\n\t")
+              .format(strong_correlation_threshold),
+              len(strong_corr_inputs),
+              weak_correlation_threshold,
+              len(weak_corr_inputs),
+              "\n\t".join([": ".join([",".join(subentry)
+                           if isinstance(subentry, list) else subentry
+                           for subentry in entry])
+                           for entry in strong_corr_inputs]),
+              "\n\t".join([": ".join([",".join(subentry)
+                           if isinstance(subentry, list) else subentry
+                           for subentry in entry])
+                           for entry in weak_corr_inputs]))
+    else:
+        print("No correlation above {} found between the inputs."
+              .format(weak_correlation_threshold))
+    return strong_corr_inputs, weak_corr_inputs
