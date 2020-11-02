@@ -6,10 +6,8 @@ class pB_Approximator():
     def approximate_pBs(grid_snapshots, labels, weights):
         weighted_label_dict = {}
         weight_dict = {}
-        for snapshot_nr, snapshot in enumerate(grid_snapshots):
+        for snapshot, label, weight in zip(grid_snapshots, labels, weights):
             gridpoint_tuple = tuple(snapshot)
-            weight = weights[snapshot_nr]
-            label = labels[snapshot_nr]
             if gridpoint_tuple in weighted_label_dict:
                 update_dictionary_entries(
                     weighted_label_dict, weight_dict,
