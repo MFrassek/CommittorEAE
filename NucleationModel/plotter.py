@@ -20,13 +20,8 @@ def plot_super_map(
     method_name = function_to_str(method)
     out_size = get_out_size(method_name, **kwargs)
     cmap = select_color_map(method_name, const)
-    super_map = [[[method(
-            x_pos=name_to_list_position[var_name_i],
-            y_pos=name_to_list_position[var_name_j],
-            resolution=const.resolution,
-            **kwargs)] if j < i else []
-          for j, var_name_j in enumerate(used_variable_names)]
-          for i, var_name_i in enumerate(used_variable_names)]
+    super_map = calculate_super_map(
+        method, name_to_list_position, used_variable_names, const, **kwargs)
     for k in range(out_size):
         print(k)
         fig, axs = plt.subplots(
@@ -88,6 +83,17 @@ def get_out_size(method_name, **kwargs):
         return 1
     elif "generated" in method_name:
         return kwargs["model"].layers[-1].output_shape[1]
+
+
+def calculate_super_map(
+        method, name_to_list_position, used_variable_names, const, **kwargs):
+    return [[[method(
+            x_pos=name_to_list_position[var_name_i],
+            y_pos=name_to_list_position[var_name_j],
+            resolution=const.resolution,
+            **kwargs)] if j < i else []
+          for j, var_name_j in enumerate(used_variable_names)]
+          for i, var_name_i in enumerate(used_variable_names)]
 
 
 def remove_all_tick_labels(subplot_axs):
