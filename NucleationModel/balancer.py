@@ -19,15 +19,15 @@ class Balancer():
     def multidim_balance(snapshots, bins):
         gridified_snapshots = Balancer.gridify_snapshots(snapshots, bins)
         snapshot_len = len(snapshots)
-        hc_balanced_weights = np.ones(snapshot_len)
-        round_columns = np.transpose(gridified_snapshots)
-        for column in round_columns:
+        md_balanced_weights = np.ones(snapshot_len)
+        gridified_columns = np.transpose(gridified_snapshots)
+        for column in gridified_columns:
             balanced_counter = \
                 Balancer.get_balanced_counter(snapshot_len, column)
-            hc_balanced_weights *= Balancer.get_weights_from_balanced_counter(
+            md_balanced_weights *= Balancer.get_weights_from_balanced_counter(
                     balanced_counter, column)
-        hc_balanced_weights /= np.mean(hc_balanced_weights)
-        return hc_balanced_weights
+        md_balanced_weights /= np.mean(md_balanced_weights)
+        return md_balanced_weights
 
     def gridify_snapshots(snapshots, bins):
         gridifier = Gridifier(snapshots, bins)
