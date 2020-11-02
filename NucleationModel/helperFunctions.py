@@ -234,9 +234,7 @@ def measure_correlation(
               + "were found between {} pair(s) of input variables:\n\t{}\n")
               .format(correlation_threshold,
               len(correlated_inputs),
-              "\n\t".join([": ".join([",".join(subentry)
-                           if isinstance(subentry, list) else subentry
-                           for subentry in entry])
+              "\n\t".join(["{},{}: {}".format(*entry)
                            for entry in correlated_inputs])))
     else:
         print("No correlation above {} was found between the inputs."
@@ -256,4 +254,4 @@ def get_covariance_matrix(snapshots):
 
 
 def make_correlation_list_entry(row_nr, col_nr, entry):
-    return [[str(row_nr), str(col_nr)], "{:.3f}".format(entry)]
+    return [str(row_nr), str(col_nr), "{:.3f}".format(entry)]
