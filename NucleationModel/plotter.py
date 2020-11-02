@@ -515,69 +515,6 @@ def plot_ground_truth(
         weights=weights)
 
 
-def plot_with_different_settings(
-        reduced_list_var_names,
-        reduced_name_to_list_position,
-        const,
-        train_ds, val_ds,
-        pipeline, pre_stamp, minima, maxima):
-    autoencoder, autoencoder_1, autoencoder_2, \
-        encoder, decoder_1, decoder_2 = \
-        AutoEncoder.make_models(len(reduced_list_var_names), const)
-    history = autoencoder.fit(
-        x=train_ds,
-        epochs=const.epochs,
-        validation_data=val_ds,
-        callbacks=[tf.keras.callbacks.EarlyStopping(
-            monitor="val_loss",
-            patience=3)])
-    with open("results/{}_LossLog_{}_{}.txt".format(
-            pre_stamp, const.data_stamp, const.model_stamp), "w") as output:
-        output.write("\t".join([key for key in history.history.keys()]))
-        output.write("\n")
-        for epoch_log in list(zip(*history.history.values())):
-            output.write("\t".join(list(map(
-                lambda x: str(round(x, 3)), epoch_log))))
-            output.write("\n")
-    plot_loss_history(history, "results/{}_LossLog_{}_{}.png".format(
-        pre_stamp, const.data_stamp, const.model_stamp))
-#    Plotter.plot_super_map(
-#        used_variable_names = reduced_list_var_names,
-#        name_to_list_position = reduced_name_to_list_position,
-#        lower_bound=pipeline.lower_bound,
-#        upper_bound=pipeline.upper_bound,
-#        const = c,
-#        pre_stamp = pre_stamp,
-#        method = Plotter.calc_partial_map_generated,
-#        model = autoencoder_1,
-#        minima = minima,
-#        maxima = maxima,
-#        points_of_interest = train_trimmed_pB_dict)
-    plot_super_map(
-        used_variable_names=reduced_list_var_names,
-        name_to_list_position=reduced_name_to_list_position,
-        lower_bound=pipeline.lower_bound,
-        upper_bound=pipeline.upper_bound,
-        const=const,
-        pre_stamp=pre_stamp,
-        method=calc_map_generated,
-        model=autoencoder_1,
-        minima=minima,
-        maxima=maxima)
-    plot_super_scatter(
-        used_variable_names=reduced_list_var_names,
-        name_to_list_position=reduced_name_to_list_position,
-        lower_bound=pipeline.lower_bound,
-        upper_bound=pipeline.upper_bound,
-        const=const,
-        pre_stamp=pre_stamp,
-        model=autoencoder_2,
-        minima=minima,
-        maxima=maxima,
-        fill_val=0,
-        max_row_len=6)
-
-
 def plot_encoder_decoder(
         const,
         reduced_list_var_names,
