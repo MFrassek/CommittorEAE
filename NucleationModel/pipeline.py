@@ -6,8 +6,7 @@ from pB_approximator import pB_Approximator
 from trimmer import Trimmer
 from trimmer import HalfTrimmer
 from pB_balancer import pB_Balancer
-from hypercube_balancer import Hypercube_Balancer
-from multidim_balancer import MultiDim_Balancer
+from balancer import Balancer
 from squeezer import Squeezer
 from corrector import Corrector
 
@@ -107,13 +106,13 @@ class Pipeline():
 
     def hypercube_balance(self, snapshots):
         hcb_weights = \
-            Hypercube_Balancer.balance(
+            Balancer.hypercube_balance(
                 snapshots, self._const.balance_bins)
         return hcb_weights
 
     def multidim_balance(self, snapshots):
         mdb_weights = \
-            MultiDim_Balancer.balance(
+            Balancer.multidim_balance(
                 snapshots, self._const.balance_bins)
         return mdb_weights
 
