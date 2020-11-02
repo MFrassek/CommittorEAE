@@ -225,13 +225,11 @@ def discard_unwanted_dimensions_from_pickle_files(folder_name, keep_first_n):
 
 def measure_correlation(
         snapshots, correlation_threshold):
-    strong_corr_inputs = []
-    for row_nr, row in enumerate(get_covariance_matrix(snapshots)):
-        for col_nr, entry in enumerate(row):
-            if row_nr > col_nr:
-                if abs(entry) >= correlation_threshold:
-                    strong_corr_inputs.append(
-                        make_correlation_list_entry(row_nr, col_nr, entry))
+    strong_corr_inputs = [
+        make_correlation_list_entry(row_nr, col_nr, entry)
+        for row_nr, row in enumerate(get_covariance_matrix(snapshots))
+        for col_nr, entry in enumerate(row)
+        if row_nr > col_nr and abs(entry) >= correlation_threshold]
     if len(strong_corr_inputs) > 0:
         print(("Caution!\nCorrelation between input data can affect the "
               + "reliability of the importance measure.\n"
