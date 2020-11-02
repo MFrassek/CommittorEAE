@@ -291,7 +291,6 @@ def calc_map_given_configurational_density(
 
 
 def plot_super_scatter(
-        used_variable_names: list, name_to_list_position: dict,
         pipeline, const, pre_stamp, method,
         minima, maxima, max_row_len=6, **kwargs):
     """Generates a superfigure of scater plots.
@@ -303,16 +302,16 @@ def plot_super_scatter(
     line for each dimension indifferent of the value
     chosen for the other dimensions.
     """
-    row_cnt = ((len(used_variable_names)-1)//max_row_len)+1
+    row_cnt = ((len(const.used_variable_names)-1)//max_row_len)+1
     fig, axs = plt.subplots(
         row_cnt, max_row_len,
         figsize=(
             const.subfig_size*max_row_len,
             const.subfig_size*row_cnt*1.3))
     fig.align_labels()
-    for i, var_name in enumerate(used_variable_names):
+    for i, var_name in enumerate(const.used_variable_names):
         xs, ys = method(
-            x_pos=name_to_list_position[var_name],
+            x_pos=const.used_name_to_list_position[var_name],
             resolution=const.resolution,
             minima=minima,
             maxima=maxima,
@@ -325,17 +324,18 @@ def plot_super_scatter(
             .scatter(xs, ys, s=const.subfig_size*20)
         new_axs[i % max_row_len]\
             .set_xlim(
-                [minima[name_to_list_position[var_name]],
-                 maxima[name_to_list_position[var_name]]])
+                [minima[const.used_name_to_list_position[var_name]],
+                 maxima[const.used_name_to_list_position[var_name]]])
         new_axs[i % max_row_len]\
             .set_ylim(
-                [minima[name_to_list_position[var_name]],
-                 maxima[name_to_list_position[var_name]]])
+                [minima[const.used_name_to_list_position[var_name]],
+                 maxima[const.used_name_to_list_position[var_name]]])
         new_axs[i % max_row_len]\
             .set_title(
                 "${}$".format(var_name),
                 fontsize=const.subfig_size*10)
-        if i // max_row_len == (len(used_variable_names)-1) // max_row_len:
+        if i // max_row_len == (len(const.used_variable_names)-1) \
+                // max_row_len:
             new_axs[i % max_row_len]\
                 .set_xlabel(
                     "$Input$",
@@ -373,8 +373,8 @@ def plot_super_scatter(
             fontsize=const.subfig_size*4)
     # if not all rows are filled
     # remove the remaining empty subplots in the last row
-    if len(used_variable_names) % max_row_len != 0:
-        for i in range(len(used_variable_names)
+    if len(const.used_variable_names) % max_row_len != 0:
+        for i in range(len(const.used_variable_names)
                        % max_row_len, max_row_len):
             new_axs[i].axis("off")
     plt.tight_layout(rect=[0, 0, 1, 0.8])
