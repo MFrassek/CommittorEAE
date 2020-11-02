@@ -20,14 +20,19 @@ class Balancer():
         md_balanced_weights = np.ones(snapshot_len)
         gridified_columns = np.transpose(gridified_snapshots)
         for column in gridified_columns:
-            md_balanced_weights *= Balancer.get_balanced_weights_from_list(
-                    snapshot_len, column)
+            Balancer.update_balanced_weights_based_on_column(
+                md_balanced_weights, snapshot_len, column)
         md_balanced_weights /= np.mean(md_balanced_weights)
         return md_balanced_weights
 
     def gridify_snapshots(snapshots, bins):
         gridifier = Gridifier(snapshots, bins)
         return gridifier.gridify_snapshots(snapshots)
+
+    def update_balanced_weights_based_on_column(
+            balanced_weights, snapshot_len, column):
+        balanced_weights *= Balancer.get_balanced_weights_from_list(
+                snapshot_len, column)
 
     def get_balanced_weights_from_list(snapshot_len, list_in_need_of_weights):
         return Balancer.get_weights_from_balanced_counter(
