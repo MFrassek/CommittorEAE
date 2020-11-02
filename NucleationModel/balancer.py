@@ -13,9 +13,8 @@ class Balancer():
         counter = Counter(tuple_round_snapshots)
         balanced_counter = \
             Balancer.get_balanced_counter(snapshot_len, counter)
-        hc_balanced_weights = np.array(
-            [balanced_counter[i] for i in tuple_round_snapshots])
-        return hc_balanced_weights
+        return Balancer.get_weights_from_balanced_counter(
+            balanced_counter, tuple_round_snapshots)
 
     @staticmethod
     def multidim_balance(snapshots, bins):
@@ -27,9 +26,8 @@ class Balancer():
             counter = Counter(column)
             balanced_counter = \
                 Balancer.get_balanced_counter(snapshot_len, counter)
-            col_balanced_weights = np.array(
-                [balanced_counter[i] for i in column])
-            hc_balanced_weights *= col_balanced_weights
+            hc_balanced_weights *= Balancer.get_weights_from_balanced_counter(
+                    balanced_counter, column)
         hc_balanced_weights /= np.mean(hc_balanced_weights)
         return hc_balanced_weights
 
@@ -44,3 +42,6 @@ class Balancer():
         counter_len = len(counter)
         return {key: snapshot_len / (label * counter_len)
                 for key, label in counter.items()}
+
+    def get_weights_from_balanced_counter(counter, list_in_need_of_weights):
+        return np.array([counter[i] for i in list_in_need_of_weights])
