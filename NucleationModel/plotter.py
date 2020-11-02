@@ -28,7 +28,7 @@ def plot_super_map(
             axis_label = "b{}"
         else:
             axis_label = "${}$"
-
+    cmap = select_color_map(method_name, const)
     super_map = []
     for i, var_name_i in enumerate(used_variable_names):
         super_map.append([])
@@ -61,10 +61,6 @@ def plot_super_map(
                     new_axs = axs[i][j]
                 remove_all_tick_labels(new_axs)
                 if j < i:
-                    if "density" not in method_name:
-                        cmap = const.label_cmap
-                    else:
-                        cmap = const.density_cmap
                     im = new_axs.imshow(
                         np.maximum(
                             super_map[i][j][0][k][::-1],
@@ -98,10 +94,7 @@ def plot_super_map(
                     # Remove all subplots where i >= j.
                     new_axs.axis("off")
         fig.align_labels()
-        cax, kw = mpl.colorbar.make_axes([ax for ax in axs])
-        cbar = plt.colorbar(im, cax=cax, **kw, extend="both")
-        cbar.ax.tick_params(labelsize=const.subfig_size
-                            * len(used_variable_names))
+        make_color_bar(axs, im, const)
         if "generated" in method_name:
             if "partial" in method_name:
                 method_stamp = "genP"
@@ -133,6 +126,19 @@ def remove_all_tick_labels(subplot_axs):
                     left=False,
                     labelbottom=False,
                     bottom=False)
+
+
+def select_color_map(method_name, const):
+    if "density" not in method_name:
+        return const.label_cmap
+    else:
+        return const.density_cmap
+
+
+def make_color_bar(axs, im, const):
+    cax, kw = mpl.colorbar.make_axes([ax for ax in axs])
+    cbar = plt.colorbar(im, cax=cax, **kw, extend="both")
+    cbar.ax.tick_params(labelsize=const.subfig_size * len(axs) * 2)
 
 
 def calc_map_given(
