@@ -9,7 +9,7 @@ from autoEncoder import AutoEncoder
 
 def plot_super_map(
         used_variable_names: list, name_to_list_position: dict,
-        lower_bound, upper_bound, const, pre_stamp, method, **kwargs):
+        pipeline, const, pre_stamp, method, **kwargs):
     """
     params:
         used_variable_names: list
@@ -59,14 +59,16 @@ def plot_super_map(
                             "${}$".format(j_name),
                             fontsize=const.subfig_size * 10)
                         new_axs = set_xtick_labels(
-                            new_axs, lower_bound, upper_bound, pipeline_j_int,
+                            new_axs, pipeline.lower_bound,
+                            pipeline.upper_bound, pipeline_j_int,
                             const.subfig_size*6)
                     if j == 0:
                         new_axs.set_ylabel(
                             "${}$".format(i_name),
                             fontsize=const.subfig_size * 10)
                         new_axs = set_ytick_labels(
-                            new_axs, lower_bound, upper_bound, pipeline_i_int,
+                            new_axs, pipeline.lower_bound,
+                            pipeline.upper_bound, pipeline_i_int,
                             const.subfig_size*6)
                 else:
                     # Remove all subplots where i >= j.
@@ -292,7 +294,7 @@ def calc_map_given_configurational_density(
 
 def plot_super_scatter(
         used_variable_names: list, name_to_list_position: dict,
-        lower_bound, upper_bound, const, pre_stamp, method,
+        pipeline, const, pre_stamp, method,
         minima, maxima, max_row_len=6, **kwargs):
     """Generates a superfigure of scater plots.
     Iterates over the different dimensions and based on
@@ -360,8 +362,8 @@ def plot_super_scatter(
         pipeline_var_int = const.name_to_list_position[var_name]
         axis_tick_labels = np.around(
             np.linspace(
-                lower_bound[pipeline_var_int],
-                upper_bound[pipeline_var_int],
+                pipeline.lower_bound[pipeline_var_int],
+                pipeline.upper_bound[pipeline_var_int],
                 3),
             2)
         new_axs[i % max_row_len].set_xticklabels(
@@ -433,8 +435,7 @@ def plot_ground_truth(
     plot_super_map(
         used_variable_names=reduced_list_var_names,
         name_to_list_position=reduced_name_to_list_position,
-        lower_bound=pipeline.lower_bound,
-        upper_bound=pipeline.upper_bound,
+        pipeline=pipeline,
         const=const,
         pre_stamp=pre_stamp,
         method=calc_map_given,
@@ -473,8 +474,7 @@ def plot_encoder(
     plot_super_map(
         used_variable_names=reduced_list_var_names,
         name_to_list_position=reduced_name_to_list_position,
-        lower_bound=pipeline.lower_bound,
-        upper_bound=pipeline.upper_bound,
+        pipeline=pipeline,
         const=const,
         pre_stamp="EncoderTest",
         method=calc_map_generated,
