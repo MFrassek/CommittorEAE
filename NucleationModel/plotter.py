@@ -512,13 +512,13 @@ def plot_decoder(
 
 
 def plot_projected_example_paths(
-        get_paths_function, const, pipeline, reduced_list_var_names,
+        get_paths_function, const, pipeline,
         steps, model, pre_stamp):
     paths, labels = get_paths_function(const=const)
     projected_paths = [make_projected_path_from_path(
             pipeline=pipeline,
             path=path,
-            reduced_list_var_names=reduced_list_var_names,
+            reduced_list_var_names=const.used_variable_names,
             steps=steps,
             model=model)
         for path in paths]
