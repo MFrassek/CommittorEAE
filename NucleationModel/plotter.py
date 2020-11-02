@@ -85,8 +85,7 @@ def get_out_size(method_name, **kwargs):
         return kwargs["model"].layers[-1].output_shape[1]
 
 
-def calculate_super_map(
-        method, const, **kwargs):
+def calculate_super_map(method, const, **kwargs):
     return [[[method(
             x_pos=const.used_name_to_list_position[var_name_i],
             y_pos=const.used_name_to_list_position[var_name_j],
@@ -98,13 +97,8 @@ def calculate_super_map(
 
 def remove_all_tick_labels(subplot_axs):
     subplot_axs.tick_params(
-                    axis='both',
-                    which='both',
-                    top=False,
-                    labelleft=False,
-                    left=False,
-                    labelbottom=False,
-                    bottom=False)
+        axis='both', which='both', top=False, labelleft=False, left=False,
+        labelbottom=False, bottom=False)
 
 
 def select_color_map(method_name, const):
@@ -158,13 +152,9 @@ def calc_partial_map_given(
     xys = list(set([(int(ele[x_pos]), int(ele[y_pos]))
                     for ele in points_of_interest]))
     label_map = calc_map_given(
-            x_pos=x_pos,
-            y_pos=y_pos,
-            resolution=resolution,
-            grid_snapshots=grid_snapshots,
-            labels=labels,
-            weights=weights,
-            fill_val=fill_val)
+        x_pos=x_pos, y_pos=y_pos, resolution=resolution,
+        grid_snapshots=grid_snapshots, labels=labels,
+        weights=weights, fill_val=fill_val)
     partial_out_map = [[label_map[0][x][y]
                        if (x, y) in xys else float("NaN")
                        for y in range(resolution)]
@@ -202,13 +192,8 @@ def calc_map_generated(
         for y in ys:
             # make predicition for current grid point
             prediction = calc_map_point(
-                model=model,
-                x=x,
-                y=y,
-                x_pos=x_pos,
-                y_pos=y_pos,
-                in_size=in_size,
-                fill_val=fill_val)
+                model=model, x=x, y=y, x_pos=x_pos, y_pos=y_pos,
+                in_size=in_size, fill_val=fill_val)
             for i in range(out_size):
                 out_current_row[i].append(prediction[i])
         for i in range(out_size):
@@ -231,20 +216,14 @@ def calc_partial_map_generated(
     ys = np.linspace(minima[y_pos], maxima[y_pos], resolution)
     for x, y in xys:
         prediction = calc_map_point(
-            model=model,
-            x=xs[x],
-            y=ys[y],
-            x_pos=x_pos,
-            y_pos=y_pos,
-            in_size=in_size,
-            fill_val=fill_val)
+            model=model, x=xs[x], y=ys[y], x_pos=x_pos, y_pos=y_pos,
+            in_size=in_size, fill_val=fill_val)
         for i in range(out_size):
             out_map[i][x][y] = prediction[i]
     return np.array(out_map)
 
 
-def calc_map_point(
-        model, x, y, x_pos, y_pos, in_size, fill_val=0):
+def calc_map_point(model, x, y, x_pos, y_pos, in_size, fill_val=0):
     return model.predict([[x if x_pos == pos_nr else y
                           if y_pos == pos_nr else fill_val
                           for pos_nr in range(in_size)]])[0]
@@ -306,15 +285,12 @@ def plot_super_scatter(
     fig, axs = plt.subplots(
         row_cnt, max_row_len,
         figsize=(
-            const.subfig_size*max_row_len,
-            const.subfig_size*row_cnt*1.3))
+            const.subfig_size*max_row_len, const.subfig_size*row_cnt*1.3))
     fig.align_labels()
     for i, var_name in enumerate(const.used_variable_names):
         xs, ys = method(
             x_pos=const.used_name_to_list_position[var_name],
-            resolution=const.resolution,
-            minima=minima,
-            maxima=maxima,
+            resolution=const.resolution, minima=minima, maxima=maxima,
             **kwargs)
         if row_cnt > 1:
             new_axs = axs[i//max_row_len]
@@ -346,13 +322,8 @@ def plot_super_scatter(
                     "$Reconstruction$",
                     fontsize=const.subfig_size*5)
         new_axs[i % max_row_len].tick_params(
-            axis='both',
-            which='both',
-            top=False,
-            labelbottom=True,
-            bottom=True,
-            left=True,
-            labelleft=True)
+            axis='both', which='both', top=False, labelbottom=True,
+            bottom=True, left=True, labelleft=True)
         new_axs[i % max_row_len].set_xticks(
             np.linspace(min(xs), max(xs), 3))
         new_axs[i % max_row_len].set_yticks(
@@ -365,12 +336,9 @@ def plot_super_scatter(
                 3),
             2)
         new_axs[i % max_row_len].set_xticklabels(
-            axis_tick_labels,
-            rotation=60,
-            fontsize=const.subfig_size*4)
+            axis_tick_labels, rotation=60, fontsize=const.subfig_size*4)
         new_axs[i % max_row_len].set_yticklabels(
-            axis_tick_labels,
-            fontsize=const.subfig_size*4)
+            axis_tick_labels, fontsize=const.subfig_size*4)
     # if not all rows are filled
     # remove the remaining empty subplots in the last row
     if len(const.used_variable_names) % max_row_len != 0:
@@ -380,9 +348,7 @@ def plot_super_scatter(
     plt.tight_layout(rect=[0, 0, 1, 0.8])
     plt.savefig("results/{}_{}_{}_r{}_scat.png"
                 .format(
-                    pre_stamp,
-                    const.data_stamp,
-                    const.model_stamp,
+                    pre_stamp, const.data_stamp, const.model_stamp,
                     const.resolution))
     plt.show()
     return
@@ -430,13 +396,9 @@ def plot_loss_history(history, file_name):
 def plot_ground_truth(
         pipeline, const, grid_snapshots, labels, weights, pre_stamp):
     plot_super_map(
-        pipeline=pipeline,
-        const=const,
-        pre_stamp=pre_stamp,
-        method=calc_map_given,
-        grid_snapshots=grid_snapshots,
-        labels=labels,
-        weights=weights)
+        pipeline=pipeline, const=const, pre_stamp=pre_stamp,
+        method=calc_map_given, grid_snapshots=grid_snapshots,
+        labels=labels, weights=weights)
 
 
 def plot_encoder_decoder(const, train_ds, val_ds, pipeline):
@@ -449,28 +411,18 @@ def plot_encoder_decoder(const, train_ds, val_ds, pipeline):
         validation_data=val_ds,
         callbacks=[tf.keras.callbacks.EarlyStopping(
             monitor="val_loss", patience=3)])
-    plot_encoder(
-        pipeline=pipeline,
-        const=const,
-        encoder=encoder)
-    plot_decoder(
-        const=const,
-        decoder_1=decoder_1)
+    plot_encoder(pipeline=pipeline, const=const, encoder=encoder)
+    plot_decoder(const=const, decoder_1=decoder_1)
 
 
 def plot_encoder(pipeline, const, encoder):
     plot_super_map(
-        pipeline=pipeline,
-        const=const,
-        pre_stamp="EncoderTest",
-        method=calc_map_generated,
-        model=encoder,
-        minima=pipeline.minima,
-        maxima=pipeline.maxima)
+        pipeline=pipeline, const=const, pre_stamp="EncoderTest",
+        method=calc_map_generated, model=encoder,
+        minima=pipeline.minima, maxima=pipeline.maxima)
 
 
-def plot_decoder(
-        const, decoder_1):
+def plot_decoder(const, decoder_1):
     x_int = 0
     y_int = 1
     minima = [-10, -10]
@@ -480,12 +432,8 @@ def plot_decoder(
         np.maximum(
             np.transpose(
                 calc_map_generated(
-                    x_pos=x_int,
-                    y_pos=y_int,
-                    minima=minima,
-                    maxima=maxima,
-                    resolution=const.resolution,
-                    model=decoder_1,
+                    x_pos=x_int, y_pos=y_int, minima=minima, maxima=maxima,
+                    resolution=const.resolution, model=decoder_1,
                     fill_val=1)[0])[::-1],
             const.logvmin / 2),
         cmap=const.label_cmap,
@@ -511,14 +459,10 @@ def plot_decoder(
 
 
 def plot_projected_example_paths(
-        get_paths_function, const, pipeline,
-        steps, model, pre_stamp):
+        get_paths_function, const, pipeline, steps, model, pre_stamp):
     paths, labels = get_paths_function(const=const)
     projected_paths = [make_projected_path_from_path(
-            pipeline=pipeline,
-            path=path,
-            const=const,
-            steps=steps,
+            pipeline=pipeline, path=path, const=const, steps=steps,
             model=model)
         for path in paths]
     flattened_projected_paths = flatten_list_of_lists(projected_paths)
@@ -531,18 +475,13 @@ def plot_projected_example_paths(
     ylim_top = np.ceil(projected_maximum)+0.1
     for i in range(len(labels)):
         plot_projected_paths(
-            projected_paths=projected_paths,
-            labels=labels[:i+1],
-            model_output_name=model_output_name,
-            steps=steps,
-            pre_stamp=pre_stamp,
-            const=const,
-            ylims=(ylim_bot, ylim_top))
+            projected_paths=projected_paths, labels=labels[:i+1],
+            model_output_name=model_output_name, steps=steps,
+            pre_stamp=pre_stamp, const=const, ylims=(ylim_bot, ylim_top))
     return projected_minimum, projected_maximum
 
 
-def make_projected_path_from_path(
-        pipeline, path, const, steps, model):
+def make_projected_path_from_path(pipeline, path, const, steps, model):
     out_size = model.layers[-1].output_shape[1]
     if out_size > 1:
         raise ValueError(
@@ -609,9 +548,7 @@ def plot_single_map(
         np.maximum(
             np.transpose(
                 method(
-                    x_pos=x_int,
-                    y_pos=y_int,
-                    resolution=const.resolution,
+                    x_pos=x_int, y_pos=y_int, resolution=const.resolution,
                     **kwargs)[0])[::-1],
             const.logvmin / 2),
         cmap=cmap,
