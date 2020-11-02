@@ -10,10 +10,8 @@ class Balancer():
         # Turn into tuples to be hashable
         tuple_round_snapshots = list(map(tuple, gridified_snapshots))
         snapshot_len = len(snapshots)
-        balanced_counter = \
-            Balancer.get_balanced_counter(snapshot_len, tuple_round_snapshots)
-        return Balancer.get_weights_from_balanced_counter(
-            balanced_counter, tuple_round_snapshots)
+        return Balancer.get_balanced_weights_from_list(
+            snapshot_len, tuple_round_snapshots)
 
     @staticmethod
     def multidim_balance(snapshots, bins):
@@ -22,16 +20,20 @@ class Balancer():
         md_balanced_weights = np.ones(snapshot_len)
         gridified_columns = np.transpose(gridified_snapshots)
         for column in gridified_columns:
-            balanced_counter = \
-                Balancer.get_balanced_counter(snapshot_len, column)
-            md_balanced_weights *= Balancer.get_weights_from_balanced_counter(
-                    balanced_counter, column)
+            md_balanced_weights *= Balancer.get_balanced_weights_from_list(
+                    snapshot_len, column)
         md_balanced_weights /= np.mean(md_balanced_weights)
         return md_balanced_weights
 
     def gridify_snapshots(snapshots, bins):
         gridifier = Gridifier(snapshots, bins)
         return gridifier.gridify_snapshots(snapshots)
+
+    def get_balanced_weights_from_list(snapshot_len, list_in_need_of_weights):
+        return Balancer.get_weights_from_balanced_counter(
+            Balancer.get_balanced_counter(
+                snapshot_len, list_in_need_of_weights),
+            list_in_need_of_weights)
 
     def get_balanced_counter(snapshot_len, list_in_need_of_weights):
         """Balance weights such that all weight together sum to snapshot_len
