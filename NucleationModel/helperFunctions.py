@@ -233,12 +233,10 @@ def measure_correlation(
             if row_nr > col_nr:
                 if abs(entry) >= strong_correlation_threshold:
                     strong_corr_inputs.append(
-                        [[str(row_nr), str(col_nr)],
-                         "{:.3f}".format(entry)])
+                        make_correlation_list_entry(row_nr, col_nr, entry))
                 elif abs(entry) >= weak_correlation_threshold:
                     weak_corr_inputs.append(
-                        [[str(row_nr), str(col_nr)],
-                         "{:.3f}".format(entry)])
+                        make_correlation_list_entry(row_nr, col_nr, entry))
     if len(strong_corr_inputs) > 0 or len(weak_corr_inputs) > 0:
         print(("Caution!\nCorrelation between input data can affect the "
               + "reliability of the importance measure.\n"
@@ -266,3 +264,7 @@ def measure_correlation(
 
 def get_covariance_matrix(snapshots):
     return np.cov(np.transpose(snapshots))
+
+
+def make_correlation_list_entry(row_nr, col_nr, entry):
+    return [[str(row_nr), str(col_nr)], "{:.3f}".format(entry)]
