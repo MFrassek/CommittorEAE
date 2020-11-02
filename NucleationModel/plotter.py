@@ -96,19 +96,13 @@ def plot_super_map(
         fig.align_labels()
         make_color_bar(axs, im, const)
         if "generated" in method_name:
-            if "partial" in method_name:
-                method_stamp = "genP"
-            else:
-                method_stamp = "gen"
+            method_stamp = "gen"
             plt.savefig("results/{}_{}_{}_{}_outN{}_r{}_map.png"
                         .format(
                             pre_stamp, method_stamp, const.data_stamp,
                             const.model_stamp, k, const.resolution))
         elif "given" in method_name:
-            if "partial" in method_name:
-                method_stamp = "givP"
-            else:
-                method_stamp = "giv"
+            method_stamp = "giv"
             plt.savefig("results/{}_{}_{}_r{}_map.png"
                         .format(
                             pre_stamp, method_stamp,
