@@ -223,8 +223,7 @@ def discard_unwanted_dimensions_from_pickle_files(folder_name, keep_first_n):
         truncated_paths, open("{}/trunc_paths.p".format(folder_name), "wb"))
 
 
-def measure_correlation(
-        snapshots, correlation_threshold):
+def measure_correlation(snapshots, correlation_threshold):
     correlated_inputs = get_list_of_correlated_inputs(
         snapshots, correlation_threshold)
     if len(correlated_inputs) > 0:
@@ -234,7 +233,7 @@ def measure_correlation(
               + "were found between {} pair(s) of input variables:\n\t{}\n")
               .format(correlation_threshold,
               len(correlated_inputs),
-              "\n\t".join(["{},{}: {}".format(*entry)
+              "\n\t".join([convert_correlation_list_entry_to_string(entry)
                            for entry in correlated_inputs])))
     else:
         print("No correlation above {} was found between the inputs."
@@ -255,3 +254,7 @@ def get_covariance_matrix(snapshots):
 
 def make_correlation_list_entry(row_nr, col_nr, entry):
     return [str(row_nr), str(col_nr), "{:.3f}".format(entry)]
+
+
+def convert_correlation_list_entry_to_string(entry):
+    return "{},{}: {}".format(*entry)
