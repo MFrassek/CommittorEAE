@@ -591,13 +591,13 @@ def plot_relative_importances(names, values):
 
 
 def plot_single_map(
-        x_int, y_int, const, pipeline, reduced_list_var_names, stamp, method,
+        x_int, y_int, const, pipeline, stamp, method,
         PES_function=lambda x: None, line_function=lambda w, x, y, z: None,
         line_formula=lambda x: np.float("NaN"), **kwargs):
     fig, ax = plt.subplots(1, 1)
-    x_name = reduced_list_var_names[x_int]
+    x_name = const.used_variable_names[x_int]
     pipeline_x_int = const.name_to_list_position[x_name]
-    y_name = reduced_list_var_names[y_int]
+    y_name = const.used_variable_names[y_int]
     pipeline_y_int = const.name_to_list_position[y_name]
     PES_function(const)
     line_function(line_formula, pipeline, pipeline_x_int, pipeline_y_int)
