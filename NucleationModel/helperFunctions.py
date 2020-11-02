@@ -225,23 +225,23 @@ def discard_unwanted_dimensions_from_pickle_files(folder_name, keep_first_n):
 
 def measure_correlation(
         snapshots, correlation_threshold):
-    strong_corr_inputs = get_list_of_correlated_inputs(
+    correlated_inputs = get_list_of_correlated_inputs(
         snapshots, correlation_threshold)
-    if len(strong_corr_inputs) > 0:
+    if len(correlated_inputs) > 0:
         print(("Caution!\nCorrelation between input data can affect the "
               + "reliability of the importance measure.\n"
               + "Correlations of more than {} "
               + "were found between {} pair(s) of input variables:\n\t{}\n")
               .format(correlation_threshold,
-              len(strong_corr_inputs),
+              len(correlated_inputs),
               "\n\t".join([": ".join([",".join(subentry)
                            if isinstance(subentry, list) else subentry
                            for subentry in entry])
-                           for entry in strong_corr_inputs])))
+                           for entry in correlated_inputs])))
     else:
         print("No correlation above {} was found between the inputs."
               .format(correlation_threshold))
-    return strong_corr_inputs
+    return correlated_inputs
 
 
 def get_list_of_correlated_inputs(snapshots, correlation_threshold):
