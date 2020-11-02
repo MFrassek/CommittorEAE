@@ -229,15 +229,15 @@ def measure_correlation(
     strong_corr_inputs = []
     weak_corr_inputs = []
     for row_nr, row in enumerate(get_covariance_matrix(snapshots)):
-        for entry_nr, entry in enumerate(row):
-            if row_nr > entry_nr:
+        for col_nr, entry in enumerate(row):
+            if row_nr > col_nr:
                 if abs(entry) >= strong_correlation_threshold:
                     strong_corr_inputs.append(
-                        [[str(row_nr), str(entry_nr)],
+                        [[str(row_nr), str(col_nr)],
                          "{:.3f}".format(entry)])
                 elif abs(entry) >= weak_correlation_threshold:
                     weak_corr_inputs.append(
-                        [[str(row_nr), str(entry_nr)],
+                        [[str(row_nr), str(col_nr)],
                          "{:.3f}".format(entry)])
     if len(strong_corr_inputs) > 0 or len(weak_corr_inputs) > 0:
         print(("Caution!\nCorrelation between input data can affect the "
