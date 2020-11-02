@@ -20,14 +20,9 @@ def plot_super_map(
     method_name = function_to_str(method)
     if "given" in method_name:
         out_size = 1
-        axis_label = "${}$"
     elif "generated" in method_name:
         model = kwargs["model"]
         out_size = model.layers[-1].output_shape[1]
-        if model.input_names[0] == "encoded_snapshots":
-            axis_label = "b{}"
-        else:
-            axis_label = "${}$"
     cmap = select_color_map(method_name, const)
     super_map = []
     for i, var_name_i in enumerate(used_variable_names):
@@ -78,14 +73,14 @@ def plot_super_map(
                     pipeline_j_int = const.name_to_list_position[j_name]
                     if i == len(used_variable_names) - 1:
                         new_axs.set_xlabel(
-                            axis_label.format(j_name),
+                            "${}$".format(j_name),
                             fontsize=const.subfig_size * 10)
                         new_axs = set_xtick_labels(
                             new_axs, lower_bound, upper_bound, pipeline_j_int,
                             const.subfig_size*6)
                     if j == 0:
                         new_axs.set_ylabel(
-                            axis_label.format(i_name),
+                            "${}$".format(i_name),
                             fontsize=const.subfig_size * 10)
                         new_axs = set_ytick_labels(
                             new_axs, lower_bound, upper_bound, pipeline_i_int,
