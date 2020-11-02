@@ -18,11 +18,7 @@ def plot_super_map(
             all values to be visited as y_pos
     """
     method_name = function_to_str(method)
-    if "given" in method_name:
-        out_size = 1
-    elif "generated" in method_name:
-        model = kwargs["model"]
-        out_size = model.layers[-1].output_shape[1]
+    out_size = get_out_size(method_name, **kwargs)
     cmap = select_color_map(method_name, const)
     super_map = []
     for i, var_name_i in enumerate(used_variable_names):
@@ -93,6 +89,13 @@ def plot_super_map(
         plt.savefig(get_output_file_name(method_name, pre_stamp, const, k))
         plt.show()
     return super_map
+
+
+def get_out_size(method_name, **kwargs):
+    if "given" in method_name:
+        return 1
+    elif "generated" in method_name:
+        return kwargs["model"].layers[-1].output_shape[1]
 
 
 def remove_all_tick_labels(subplot_axs):
