@@ -502,7 +502,7 @@ def plot_decoder(
                     model=decoder_1,
                     fill_val=1)[0])[::-1],
             const.logvmin / 2),
-        cmap=const.cmap,
+        cmap=const.label_cmap,
         interpolation='nearest',
         norm=mpl.colors.LogNorm(
             vmin=const.logvmin,
