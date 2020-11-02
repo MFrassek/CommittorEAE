@@ -248,18 +248,18 @@ def measure_correlation(
               + "were found between {} pair(s) of input variables:\n\t{}\n"
               + "Additionally, weak correlations of more than "
               + "{} were found between {} pair(s) of input variables:\n\t")
-              .format(strong_correlation_threshold),
+              .format(strong_correlation_threshold,
               len(strong_corr_inputs),
+              "\n\t".join([": ".join([",".join(subentry)
+                           if isinstance(subentry, list) else subentry
+                           for subentry in entry])
+                           for entry in strong_corr_inputs]),
               weak_correlation_threshold,
               len(weak_corr_inputs),
               "\n\t".join([": ".join([",".join(subentry)
                            if isinstance(subentry, list) else subentry
                            for subentry in entry])
-                           for entry in strong_corr_inputs]),
-              "\n\t".join([": ".join([",".join(subentry)
-                           if isinstance(subentry, list) else subentry
-                           for subentry in entry])
-                           for entry in weak_corr_inputs]))
+                           for entry in weak_corr_inputs])))
     else:
         print("No correlation above {} found between the inputs."
               .format(weak_correlation_threshold))
