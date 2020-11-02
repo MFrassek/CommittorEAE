@@ -20,21 +20,13 @@ def plot_super_map(
     method_name = function_to_str(method)
     out_size = get_out_size(method_name, **kwargs)
     cmap = select_color_map(method_name, const)
-    super_map = []
-    for i, var_name_i in enumerate(used_variable_names):
-        super_map.append([])
-        for j, var_name_j in enumerate(used_variable_names):
-            super_map[-1].append([])
-            if j < i:
-                print("{}: {}\t{}: {}".format(
-                    i, var_name_i,
-                    j, var_name_j))
-                label_map = method(
-                    x_pos=name_to_list_position[var_name_i],
-                    y_pos=name_to_list_position[var_name_j],
-                    resolution=const.resolution,
-                    **kwargs)
-                super_map[-1][-1].append(label_map)
+    super_map = [[[method(
+            x_pos=name_to_list_position[var_name_i],
+            y_pos=name_to_list_position[var_name_j],
+            resolution=const.resolution,
+            **kwargs)] if j < i else []
+          for j, var_name_j in enumerate(used_variable_names)]
+          for i, var_name_i in enumerate(used_variable_names)]
     for k in range(out_size):
         print(k)
         fig, axs = plt.subplots(
