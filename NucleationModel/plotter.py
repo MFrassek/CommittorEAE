@@ -462,9 +462,8 @@ def plot_projected_example_paths(
         get_paths_function, const, pipeline, steps, model, pre_stamp):
     paths, labels = get_paths_function(const=const)
     projected_paths = [make_projected_path_from_path(
-            pipeline=pipeline, path=path, const=const, steps=steps,
-            model=model)
-        for path in paths]
+        pipeline=pipeline, path=path, const=const, steps=steps, model=model)
+                       for path in paths]
     flattened_projected_paths = flatten_list_of_lists(projected_paths)
     projected_minimum = np.amin(
         np.transpose(flattened_projected_paths)[1], axis=0)
@@ -487,7 +486,7 @@ def make_projected_path_from_path(pipeline, path, const, steps, model):
         raise ValueError(
             "Data of dimensionality {} cannot be plotted".format(out_size))
     bn_path = pipeline.bound_normalize(path)
-    bnr_path = pipeline.reduce(bn_path, const.used_variable_names)
+    bnr_path = pipeline.reduce(bn_path)
     path_len = len(bnr_path)
     projected_path = [model.predict([[bnr_path[int(path_len*i/(steps+1))]]])[0]
                       for i in range(steps+1)]

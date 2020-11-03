@@ -60,11 +60,9 @@ class Pipeline():
         snapshots = self._normalizer.normalize_snapshots(snapshots)
         return snapshots
 
-    def reduce(self, snapshots, reduced_list_var_names):
+    def reduce(self, snapshots):
         """Reduce snapshots."""
-        reducer = Reducer(
-            reduced_list_var_names,
-            self._const.name_to_list_position)
+        reducer = Reducer(self._const)
         snapshots = reducer.reduce_snapshots(snapshots)
         return snapshots
 
@@ -138,25 +136,19 @@ class Pipeline():
             .shuffle(250000) \
             .batch(self._const.batch_size)
 
-    def prepare_groundTruth(
-            self,
-            reduced_list_var_names,
-            dataset):
+    def prepare_groundTruth(self, dataset):
         # Get bn_snapshots
         snapshots = self.bound_normalize(dataset.snapshots)
         # Get bnr_snapshots
-        snapshots = self.reduce(snapshots, reduced_list_var_names)
+        snapshots = self.reduce(snapshots)
         # Get bnrg_snapshots
         g_snapshots = self.gridify(snapshots)
         return g_snapshots, dataset.labels, dataset.weights
 
-    def prepare_trimmedGroundTruth(
-            self,
-            reduced_list_var_names,
-            dataset):
+    def prepare_trimmedGroundTruth(self,  dataset):
         # Get bnrg_snapshots
         g_snapshots, _, _ = \
-            self.prepare_groundTruth(reduced_list_var_names, dataset)
+            self.prepare_groundTruth(dataset)
         _, pBs, _ = \
             self.approximate(g_snapshots, dataset)
         # Get bnrgt_snapshots, t_labels and t_weights
@@ -164,13 +156,9 @@ class Pipeline():
             self.trim(pBs, g_snapshots, dataset.labels, dataset.weights)
         return g_snapshots, labels, weights
 
-    def prepare_dataset_from_bn(
-            self,
-            reduced_list_var_names,
-            bn_snapshots,
-            dataset):
+    def prepare_dataset_from_bn(self, bn_snapshots, dataset):
         # Get bnr_snapshots
-        snapshots = self.reduce(bn_snapshots, reduced_list_var_names)
+        snapshots = self.reduce(bn_snapshots)
         # Get bnrg_snapshots
         g_snapshots = self.gridify(snapshots)
         _, pBs, _ = self.approximate(g_snapshots, dataset)
@@ -184,40 +172,27 @@ class Pipeline():
         maxima = np.amax(snapshots, axis=0)
         return ds, minima, maxima, g_snapshots
 
-    def prepare_prediction_plotter(
-            self,
-            reduced_list_var_names,
-            dataset):
+    def prepare_prediction_plotter(self, dataset):
         bn_snapshots = self.bound_normalize(dataset.snapshots)
         ds, minima, maxima, g_snapshots = \
-            self.prepare_dataset_from_bn(
-                reduced_list_var_names, bn_snapshots, dataset)
+            self.prepare_dataset_from_bn(bn_snapshots, dataset)
         means_1D = self.get_1D_means(g_snapshots)
         means_2D = self.get_2D_means(g_snapshots)
         return ds, minima, maxima, means_1D, means_2D
 
     def prepare_stepper(
-            self,
-            reduced_list_var_names,
-            train_bn_snapshots,
-            train_dataset,
-            val_bn_snapshots,
+            self, train_bn_snapshots, train_dataset, val_bn_snapshots,
             val_dataset):
         train_ds, _, _, _ = \
-            self.prepare_dataset_from_bn(
-                reduced_list_var_names, train_bn_snapshots, train_dataset)
+            self.prepare_dataset_from_bn(train_bn_snapshots, train_dataset)
         val_ds, _, _, _ = \
-            self.prepare_dataset_from_bn(
-                reduced_list_var_names, val_bn_snapshots, val_dataset)
+            self.prepare_dataset_from_bn(val_bn_snapshots, val_dataset)
         return train_ds, val_ds
 
-    def prepare_dataset_pickle(
-            self,
-            reduced_list_var_names,
-            dataset):
+    def prepare_dataset_pickle(self, dataset):
         bn_snapshots = self.bound_normalize(dataset.snapshots)
         # Get bnr_snapshots
-        snapshots = self.reduce(bn_snapshots, reduced_list_var_names)
+        snapshots = self.reduce(bn_snapshots)
         # Get bnrg_snapshots
         g_snapshots = self.gridify(snapshots)
         _, pBs, _ = self.approximate(g_snapshots, dataset)
