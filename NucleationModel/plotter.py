@@ -8,33 +8,23 @@ from autoEncoder import AutoEncoder
 
 
 def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
-    """
-    params:
-        used_variable_names: list
-            all values to be visited as x_pos
-        used_variable_names: list
-            all values to be visited as y_pos
-    """
     method_name = function_to_str(method)
     out_size = get_out_size(method_name, **kwargs)
     cmap = select_color_map(method_name, const)
-    super_map = calculate_super_map(
-        method, const, **kwargs)
+    super_map = calculate_super_map(method, const, **kwargs)
     for k in range(out_size):
         print(k)
         fig, axs = prepare_subplots(const)
-        for i, _ in enumerate(const.used_variable_names):
-            for j, _ in enumerate(const.used_variable_names):
+        for i, sub_map_row in enumerate(super_map):
+            for j, sub_map in enumerate(sub_map_row):
                 remove_all_tick_labels(axs[i][j])
                 if j < i:
                     im = axs[i][j].imshow(
-                        np.maximum(
-                            super_map[i][j][k][::-1], const.logvmin / 2),
+                        np.maximum(sub_map[k][::-1], const.logvmin / 2),
                         cmap=cmap,
                         interpolation='nearest',
                         norm=mpl.colors.LogNorm(
-                            vmin=const.logvmin,
-                            vmax=1-const.logvmin),
+                            vmin=const.logvmin, vmax=1-const.logvmin),
                         extent=[0, 1, 0, 1])
                     set_x_axis_label_if_lowest_subplot(
                         const, i, j, axs[i][j], pipeline)
