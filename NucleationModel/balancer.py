@@ -6,13 +6,13 @@ from gridifier import Gridifier
 class Balancer():
     @staticmethod
     def hypercube_balance(snapshots, bins):
-        gridified_snapshots = gridify_snapshots(snapshots, bins)
+        gridified_snapshots = gridify_list_entries(snapshots, bins)
         tuple_gridified_snapshots = list(map(tuple, gridified_snapshots))
         return get_balanced_weights_from_list(tuple_gridified_snapshots)
 
     @staticmethod
     def multidim_balance(snapshots, bins):
-        gridified_snapshots = gridify_snapshots(snapshots, bins)
+        gridified_snapshots = gridify_list_entries(snapshots, bins)
         gridified_columns = np.transpose(gridified_snapshots)
         md_balanced_weights = np.ones(len(snapshots))
         for column in gridified_columns:
@@ -23,13 +23,13 @@ class Balancer():
 
     @staticmethod
     def pB_balance(pBs, bins):
-        gridified_pBs = gridify_snapshots(pBs, bins)
+        gridified_pBs = gridify_list_entries(pBs, bins)
         return get_balanced_weights_from_list(gridified_pBs)
 
 
-def gridify_snapshots(snapshots, bins):
-    gridifier = Gridifier(snapshots, bins)
-    return gridifier.gridify_snapshots(snapshots)
+def gridify_list_entries(lst, bins):
+    gridifier = Gridifier(lst, bins)
+    return gridifier.gridify_snapshots(lst)
 
 
 def update_balanced_weights_based_on_column(
