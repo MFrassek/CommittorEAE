@@ -3,7 +3,6 @@ import numpy as np
 
 class Gridifier():
     def __init__(self, base_snapshots, resolution):
-        self._dimensions = len(base_snapshots[0])
         self._minima = np.amin(base_snapshots, axis=0)
         self._maxima = np.amax(base_snapshots, axis=0)
         self._spans = self._maxima - self._minima
