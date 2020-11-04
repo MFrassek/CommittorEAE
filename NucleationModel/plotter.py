@@ -29,7 +29,7 @@ def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
                 if j < i:
                     im = axs[i][j].imshow(
                         np.maximum(
-                            super_map[i][j][0][k][::-1], const.logvmin / 2),
+                            super_map[i][j][k][::-1], const.logvmin / 2),
                         cmap=cmap,
                         interpolation='nearest',
                         norm=mpl.colors.LogNorm(
@@ -58,11 +58,11 @@ def get_out_size(method_name, **kwargs):
 
 
 def calculate_super_map(method, const, **kwargs):
-    return [[[method(
+    return [[method(
             x_pos=const.used_name_to_list_position[var_name_i],
             y_pos=const.used_name_to_list_position[var_name_j],
             resolution=const.resolution,
-            **kwargs)] if j < i else []
+            **kwargs) if j < i else []
           for j, var_name_j in enumerate(const.used_variable_names)]
           for i, var_name_i in enumerate(const.used_variable_names)]
 
