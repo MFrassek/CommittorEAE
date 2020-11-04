@@ -32,8 +32,11 @@ class Const():
                 "4^{1}5^{10}6^{2}": 19, "4^{1}5^{10}6^{3}": 20,
                 "4^{1}5^{10}6^{4}": 21}
             self._used_variable_names = [
-                "MCG", "5^{12}6^{2}", "5^{12}",
-                "CR", "R_g", "F4", "N_{w,3}", "5^{12}6^{4}"]
+                "MCG", "N_{w,4}", "N_{w,3}", "N_{w,2}", "N_{sw,3-4}",
+                "N_{sw,2-3}", "F4", "R_g", "5^{12}6^{2}", "5^{12}", "CR",
+                "N_{s,2}", "N_{s,3}", "N_{c,2}", "N_{c,3}", "N_{s,4}",
+                "N_{c,4}", "5^{12}6^{3}", "5^{12}6^{4}", "4^{1}5^{10}6^{2}",
+                "4^{1}5^{10}6^{3}", "4^{1}5^{10}6^{4}"]
             # Name of the folder in which the TIS data is found
             self._TIS_folder_name = "RPE_org"
             self._TIS_highest_interface_name = "mcg100"
@@ -83,7 +86,7 @@ class Const():
 
         """Model parameters"""
         # Number of bottleneck nodes
-        self._bottleneck_size = 2
+        self._bottleneck_size = 1
         # Factor of hidden layer nodes relative to input nodes
         self._node_mult = 4
         # Number ob hidden layers in the encoder
@@ -113,7 +116,7 @@ class Const():
         # Loss functions used for the autoencoder_2
         self._loss_function_2 = keras.losses.MeanAbsoluteError()
         # Number of epochs used for model training
-        self._epochs = 5
+        self._epochs = 10
 
         """Visualization parameters"""
         # Resolution for the calc_* and plot_* functions
