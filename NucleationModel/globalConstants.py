@@ -59,9 +59,6 @@ class Const():
         self._BB_label = 1.0
         # Weights assigned to the totality of each of the path types
         self._path_type_weights = [1, 1, 0, 0]
-        # If True snapshots of transition paths are assigned labels
-        # according to their position within the path
-        self._progress = False
         # Precision to which data is rounded
         self._precision = 2
         # List of labels to keep
@@ -241,10 +238,6 @@ class Const():
         return self._path_type_weights
 
     @property
-    def progress(self):
-        return self._progress
-
-    @property
     def precision(self):
         return self._precision
 
@@ -392,11 +385,8 @@ class Const():
 
     @property
     def data_stamp(self):
-        return "kl{}_p{}_oc{}"\
-            .format(
-                "_".join(self._keep_labels),
-                str(self._progress)[0],
-                self._outlier_cutoff)
+        return "kl{}_oc{}".format(
+            "_".join(self._keep_labels), self._outlier_cutoff)
 
     @property
     def model_stamp(self):
