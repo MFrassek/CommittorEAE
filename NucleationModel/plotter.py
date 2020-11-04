@@ -47,27 +47,10 @@ def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
                             vmin=const.logvmin,
                             vmax=1-const.logvmin),
                         extent=[0, 1, 0, 1])
-                    # Only sets the leftmost and lowest label.
-                    i_name = const.used_variable_names[i]
-                    pipeline_i_int = const.name_to_list_position[i_name]
-                    j_name = const.used_variable_names[j]
-                    pipeline_j_int = const.name_to_list_position[j_name]
-                    if i == len(const.used_variable_names) - 1:
-                        new_axs.set_xlabel(
-                            "${}$".format(j_name),
-                            fontsize=const.subfig_size * 10)
-                        new_axs = set_xtick_labels(
-                            new_axs, pipeline.lower_bound,
-                            pipeline.upper_bound, pipeline_j_int,
-                            const.subfig_size*6)
-                    if j == 0:
-                        new_axs.set_ylabel(
-                            "${}$".format(i_name),
-                            fontsize=const.subfig_size * 10)
-                        new_axs = set_ytick_labels(
-                            new_axs, pipeline.lower_bound,
-                            pipeline.upper_bound, pipeline_i_int,
-                            const.subfig_size*6)
+                    set_x_axis_label_if_lowest_subplot(
+                        const, i, j, new_axs, pipeline)
+                    set_y_axis_label_if_leftmost_subplot(
+                        const, i, j, new_axs, pipeline)
                 else:
                     # Remove all subplots where i >= j.
                     new_axs.axis("off")
@@ -106,6 +89,26 @@ def select_color_map(method_name, const):
         return const.label_cmap
     else:
         return const.density_cmap
+
+
+def set_x_axis_label_if_lowest_subplot(const, i, j, axs, pipeline):
+    j_name = const.used_variable_names[j]
+    pipeline_j_int = const.name_to_list_position[j_name]
+    if i == len(const.used_variable_names) - 1:
+        axs.set_xlabel("${}$".format(j_name), fontsize=const.subfig_size * 10)
+        axs = set_xtick_labels(
+            axs, pipeline.lower_bound, pipeline.upper_bound,
+            pipeline_j_int, const.subfig_size*6)
+
+
+def set_y_axis_label_if_leftmost_subplot(const, i, j, axs, pipeline):
+    i_name = const.used_variable_names[i]
+    pipeline_i_int = const.name_to_list_position[i_name]
+    if j == 0:
+        axs.set_ylabel("${}$".format(i_name), fontsize=const.subfig_size * 10)
+        axs = set_ytick_labels(
+            axs, pipeline.lower_bound, pipeline.upper_bound,
+            pipeline_i_int, const.subfig_size*6)
 
 
 def make_color_bar(axs, im, const):
