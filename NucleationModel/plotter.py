@@ -22,11 +22,7 @@ def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
         method, const, **kwargs)
     for k in range(out_size):
         print(k)
-        fig, axs = plt.subplots(
-            len(const.used_variable_names), len(const.used_variable_names),
-            figsize=(
-                const.subfig_size * len(const.used_variable_names),
-                const.subfig_size * len(const.used_variable_names)))
+        fig, axs = prepare_subplots(const)
         for i, _ in enumerate(const.used_variable_names):
             for j, _ in enumerate(const.used_variable_names):
                 # Defines new_axs to take care of different
@@ -39,8 +35,7 @@ def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
                 if j < i:
                     im = new_axs.imshow(
                         np.maximum(
-                            super_map[i][j][0][k][::-1],
-                            const.logvmin / 2),
+                            super_map[i][j][0][k][::-1], const.logvmin / 2),
                         cmap=cmap,
                         interpolation='nearest',
                         norm=mpl.colors.LogNorm(
@@ -76,6 +71,13 @@ def calculate_super_map(method, const, **kwargs):
             **kwargs)] if j < i else []
           for j, var_name_j in enumerate(const.used_variable_names)]
           for i, var_name_i in enumerate(const.used_variable_names)]
+
+
+def prepare_subplots(const):
+    dimensions_cnt = len(const.used_variable_names)
+    return plt.subplots(dimensions_cnt, dimensions_cnt, figsize=(
+        const.subfig_size * dimensions_cnt,
+        const.subfig_size * dimensions_cnt))
 
 
 def remove_all_tick_labels(subplot_axs):
