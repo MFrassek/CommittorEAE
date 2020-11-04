@@ -117,8 +117,6 @@ class Const():
         self._label_cmap = make_halfpoint_divided_label_colormap(self._logvmin)
         # Colormap used for the desnity plots
         self._density_cmap = make_density_colormap()
-        # Thresholds for correlation between dimensions
-        self._corr_thresholds = [0.5, 0.1]
         # List of colors for plt.plots
         self._plt_colors = [
             "c", "g", "r", "indigo", "y", "m",
@@ -333,10 +331,6 @@ class Const():
     @property
     def density_cmap(self):
         return self._density_cmap
-
-    @property
-    def corr_thresholds(self):
-        return self._corr_thresholds
 
     @property
     def plt_colors(self):
