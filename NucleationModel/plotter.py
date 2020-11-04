@@ -25,15 +25,9 @@ def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
         fig, axs = prepare_subplots(const)
         for i, _ in enumerate(const.used_variable_names):
             for j, _ in enumerate(const.used_variable_names):
-                # Defines new_axs to take care of different
-                # handling of only one column of subplots.
-                if len(const.used_variable_names) == 1:
-                    new_axs = axs[i]
-                else:
-                    new_axs = axs[i][j]
-                remove_all_tick_labels(new_axs)
+                remove_all_tick_labels(axs[i][j])
                 if j < i:
-                    im = new_axs.imshow(
+                    im = axs[i][j].imshow(
                         np.maximum(
                             super_map[i][j][0][k][::-1], const.logvmin / 2),
                         cmap=cmap,
@@ -43,12 +37,12 @@ def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
                             vmax=1-const.logvmin),
                         extent=[0, 1, 0, 1])
                     set_x_axis_label_if_lowest_subplot(
-                        const, i, j, new_axs, pipeline)
+                        const, i, j, axs[i][j], pipeline)
                     set_y_axis_label_if_leftmost_subplot(
-                        const, i, j, new_axs, pipeline)
+                        const, i, j, axs[i][j], pipeline)
                 else:
                     # Remove all subplots where i >= j.
-                    new_axs.axis("off")
+                    axs[i][j].axis("off")
         fig.align_labels()
         make_color_bar(axs, im, const)
         plt.savefig(get_output_file_name(method_name, pre_stamp, const, k))
