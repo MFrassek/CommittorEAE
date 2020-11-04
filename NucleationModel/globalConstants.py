@@ -60,8 +60,6 @@ class Const():
         self._AB_label = 1.0
         self._BA_label = 0.0
         self._BB_label = 1.0
-        # Weights assigned to the totality of each of the path types
-        self._path_type_weights = [1, 1, 0, 0]
         # Precision to which data is rounded
         self._precision = 2
         # List of labels to keep
@@ -132,17 +130,6 @@ class Const():
         self._density_cmap = make_density_colormap()
         # Thresholds for correlation between dimensions
         self._corr_thresholds = [0.5, 0.1]
-        if min(self._path_type_weights) >= 0 \
-                and max(self._path_type_weights) <= 1 \
-                and self._decoder_1_act_func != "sigmoid":
-            print("'sigmoid' activation function recommended"
-                  + " for label prediction.")
-        elif min(self._path_type_weights) >= -1 \
-                and min(self._path_type_weights) < 0 \
-                and max(self._path_type_weights) <= 1 \
-                and self._decoder_1_act_func != "tanh":
-            print("'tanh' activation function recommended"
-                  + "for label prediction.")
         # List of colors for plt.plots
         self._plt_colors = [
             "c", "g", "r", "indigo", "y", "m",
@@ -235,10 +222,6 @@ class Const():
             self._AB_label,
             self._BA_label,
             self._BB_label)
-
-    @property
-    def path_type_weights(self):
-        return self._path_type_weights
 
     @property
     def precision(self):
@@ -393,7 +376,7 @@ class Const():
 
     @property
     def model_stamp(self):
-        return "bn{}_{}*({}{}+{}{}|{}{})_reg{}_pw{}:{}:{}:{}_lw{}:{}_e{}" \
+        return "bn{}_{}*({}{}+{}{}|{}{})_reg{}_lw{}:{}_e{}" \
             .format(
                 str(self._bottleneck_size),
                 str(self._node_mult),
@@ -404,10 +387,6 @@ class Const():
                 str(self._decoder_2_hidden),
                 str(self._decoder_2_act_func),
                 self._regularizer,
-                self._path_type_weights[0],
-                self._path_type_weights[1],
-                self._path_type_weights[2],
-                self.path_type_weights[3],
                 self._loss_weights[0],
                 self._loss_weights[1],
                 self._epochs)
@@ -430,11 +409,6 @@ class Const():
     def TPS_folder_name(self, x):
         assert isinstance(x, str), "Can only be set to type str"
         self._TPS_folder_name = x
-
-    @path_type_weights.setter
-    def path_type_weights(self, x):
-        assert isinstance(x, list), "Can only be set to type list"
-        self._path_type_weights = x
 
     @keep_labels.setter
     def keep_labels(self, x):
