@@ -23,8 +23,8 @@ class Balancer():
 
     @staticmethod
     def pB_balance(pBs, bins):
-        round_pBs = np.ceil((np.array(pBs) * (bins + 1)))
-        return get_balanced_weights_from_list(round_pBs)
+        gridified_pBs = gridify_snapshots(pBs, bins)
+        return get_balanced_weights_from_list(gridified_pBs)
 
 
 def gridify_snapshots(snapshots, bins):
