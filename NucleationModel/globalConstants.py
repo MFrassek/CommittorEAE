@@ -46,8 +46,6 @@ class Const():
             self._mcg_A = 18
             # MCG threshold above which a snapshot belongs to state B
             self._mcg_B = 120
-            # big cage threshold under which a snapshot belongs to amorphous
-            self._big_C = 8
             # Fraction of paths used from the read files
             self._used_TIS_frac = 0.1
             self._used_TPS_frac = 0.1
@@ -172,10 +170,6 @@ class Const():
     @property
     def mcg_B(self):
         return self._mcg_B
-
-    @property
-    def big_C(self):
-        return self._big_C
 
     @property
     def used_toy_frac(self):
