@@ -10,8 +10,32 @@ from autoEncoder import AutoEncoder
 def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
     method_name = function_to_str(method)
     out_size = get_out_size(method_name, **kwargs)
-    cmap = select_color_map(method_name, const)
     super_map = calculate_super_map(method, const, **kwargs)
+    plot_k_super_maps(
+            method_name, const, out_size, super_map, pipeline, pre_stamp)
+    return super_map
+
+
+def get_out_size(method_name, **kwargs):
+    if "given" in method_name:
+        return 1
+    elif "generated" in method_name:
+        return kwargs["model"].layers[-1].output_shape[1]
+
+
+def calculate_super_map(method, const, **kwargs):
+    return [[method(
+            x_pos=const.used_name_to_list_position[var_name_i],
+            y_pos=const.used_name_to_list_position[var_name_j],
+            resolution=const.resolution,
+            **kwargs) if j < i else []
+          for j, var_name_j in enumerate(const.used_variable_names)]
+          for i, var_name_i in enumerate(const.used_variable_names)]
+
+
+def plot_k_super_maps(
+        method_name, const, out_size, super_map, pipeline, pre_stamp):
+    cmap = select_color_map(method_name, const)
     for k in range(out_size):
         print(k)
         fig, axs = prepare_subplots(const)
@@ -31,30 +55,11 @@ def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
                     set_y_axis_label_if_leftmost_subplot(
                         const, i, j, axs[i][j], pipeline)
                 else:
-                    # Remove all subplots where i >= j.
                     axs[i][j].axis("off")
         fig.align_labels()
         make_color_bar(axs, im, const)
         plt.savefig(get_output_file_name(method_name, pre_stamp, const, k))
         plt.show()
-    return super_map
-
-
-def get_out_size(method_name, **kwargs):
-    if "given" in method_name:
-        return 1
-    elif "generated" in method_name:
-        return kwargs["model"].layers[-1].output_shape[1]
-
-
-def calculate_super_map(method, const, **kwargs):
-    return [[method(
-            x_pos=const.used_name_to_list_position[var_name_i],
-            y_pos=const.used_name_to_list_position[var_name_j],
-            resolution=const.resolution,
-            **kwargs) if j < i else []
-          for j, var_name_j in enumerate(const.used_variable_names)]
-          for i, var_name_i in enumerate(const.used_variable_names)]
 
 
 def prepare_subplots(const):
