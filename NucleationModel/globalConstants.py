@@ -14,12 +14,8 @@ class Const():
                 "x_{6}": 5, "x_{7}": 6, "x_{8}": 7, "x_{9}": 8, "x_{10}": 9}
             self._used_variable_names = [
                 "x_{1}", "x_{2}", "x_{3}", "x_{4}", "x_{5}"]
-            if dataSetType == "DW":
-                # Name of the folder in which the DW data is found
-                self._toy_folder_name = "DW"
-            elif dataSetType == "ZP":
-                # Name of the folder in which the ZP data is found
-                self._toy_folder_name = "ZP"
+            # Name of the folder in which the toy data is found
+            self._toy_folder_name = dataSetType
             # Fraction of paths used from the read files
             self._used_toy_frac = 1
         elif dataSetType == "MH":
