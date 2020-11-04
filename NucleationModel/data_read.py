@@ -113,7 +113,7 @@ def make_paths_from_toy_data(const):
     origins = np.ones(len(labels))
     paths, labels = \
         shuffle(paths, labels, random_state=42)
-    frac_len = int(len(origins) * const.used_toy_frac)
+    frac_len = int(len(origins) * const.used_dataset_fraction)
     return paths[:frac_len],\
         labels[:frac_len],\
         weights[:frac_len],\
@@ -160,7 +160,7 @@ def make_paths_from_TIS_data(const):
         origin_lines, weight_lines, reweight_lines = \
             shuffle(
                 origin_lines, weight_lines, reweight_lines, random_state=42)
-        frac_len = int(len(origin_lines) * const.used_TIS_frac)
+        frac_len = int(len(origin_lines) * const.used_dataset_fraction)
         print("Total paths: {}\t Used paths: {}"
               .format(len(origin_lines), frac_len))
         origin_names = get_names_from_lines(origin_lines, frac_len, str)
@@ -220,7 +220,7 @@ def make_paths_from_TPS_data(TPS_weight, const):
             labels.append(determine_label(path, const))
             origins.append("TPS")
 
-    frac_len = int(len(paths) * const.used_TPS_frac)
+    frac_len = int(len(paths) * const.used_dataset_fraction)
     print("Total paths: {}\t Used paths: {}".format(len(paths), frac_len))
     weights = [TPS_weight for i in range(frac_len)]
     paths, labels, origins = shuffle(paths, labels, origins, random_state=42)

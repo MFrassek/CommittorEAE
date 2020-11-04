@@ -16,8 +16,6 @@ class Const():
                 "x_{1}", "x_{2}", "x_{3}", "x_{4}", "x_{5}"]
             # Name of the folder in which the toy data is found
             self._toy_folder_name = dataSetType
-            # Fraction of paths used from the read files
-            self._used_toy_frac = 1
         elif dataSetType == "MH":
             self._name_to_list_position = {
                 "MCG": 0, "N_{w,4}": 1, "N_{w,3}": 2, "N_{w,2}": 3,
@@ -42,10 +40,9 @@ class Const():
             self._mcg_A = 18
             # MCG threshold above which a snapshot belongs to state B
             self._mcg_B = 120
-            # Fraction of paths used from the read files
-            self._used_TIS_frac = 0.1
-            self._used_TPS_frac = 0.1
 
+        # Fraction of paths used from the read files
+        self._used_dataset_fraction = 1
         self._used_name_to_list_position = {
             self._used_variable_names[i]: i
             for i in range(len(self._used_variable_names))}
@@ -168,16 +165,8 @@ class Const():
         return self._mcg_B
 
     @property
-    def used_toy_frac(self):
-        return self._used_toy_frac
-
-    @property
-    def used_TIS_frac(self):
-        return self._used_TIS_frac
-
-    @property
-    def used_TPS_frac(self):
-        return self._used_TPS_frac
+    def used_dataset_fraction(self):
+        return self._used_dataset_fraction
 
     @property
     def AA_label(self):
