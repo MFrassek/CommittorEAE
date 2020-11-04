@@ -28,13 +28,7 @@ class Balancer():
     def pB_balance(pBs, bins):
         pBs_len = len(pBs)
         round_pBs = np.ceil((np.array(pBs) * (bins + 1)))
-        counter = Counter(round_pBs)
-        counter_len = len(counter)
-        balanced_counter = {key: pBs_len / (label * counter_len)
-                            for key, label in counter.items()}
-        pB_balanced_weights = np.array(
-            [balanced_counter[i] for i in round_pBs])
-        return pB_balanced_weights
+        return get_balanced_weights_from_list(pBs_len, round_pBs)
 
 
 def gridify_snapshots(snapshots, bins):
