@@ -185,18 +185,12 @@ class Const():
     @property
     def min_label(self):
         return min(
-            self._AA_label,
-            self._AB_label,
-            self._BA_label,
-            self._BB_label)
+            self._AA_label, self._AB_label, self._BA_label, self._BB_label)
 
     @property
     def max_label(self):
         return max(
-            self._AA_label,
-            self._AB_label,
-            self._BA_label,
-            self._BB_label)
+            self._AA_label, self._AB_label, self._BA_label, self._BB_label)
 
     @property
     def precision(self):
