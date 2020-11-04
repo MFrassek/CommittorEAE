@@ -4,7 +4,6 @@ from normalizer import Normalizer
 from gridifier import Gridifier
 from pB_approximator import pB_Approximator
 from trimmer import Trimmer
-from pB_balancer import pB_Balancer
 from balancer import Balancer
 from squeezer import Squeezer
 from corrector import Corrector
@@ -98,7 +97,7 @@ class Pipeline():
 
     def pB_balance(self, pBs):
         pBb_weights = \
-            pB_Balancer.balance(pBs, self._const.balance_bins)
+            Balancer.pB_balance(pBs, self._const.balance_bins)
         return pBb_weights
 
     def hypercube_balance(self, snapshots):
