@@ -6,10 +6,10 @@ from gridifier import Gridifier
 class Balancer():
     @staticmethod
     def hypercube_balance(snapshots, bins):
-        gridified_snapshots = Balancer.gridify_snapshots(snapshots, bins)
+        gridified_snapshots = gridify_snapshots(snapshots, bins)
         tuple_gridified_snapshots = list(map(tuple, gridified_snapshots))
         snapshot_len = len(snapshots)
-        return Balancer.get_balanced_weights_from_list(
+        return get_balanced_weights_from_list(
             snapshot_len, tuple_gridified_snapshots)
 
     @staticmethod
@@ -24,29 +24,34 @@ class Balancer():
         md_balanced_weights /= np.mean(md_balanced_weights)
         return md_balanced_weights
 
-    def gridify_snapshots(snapshots, bins):
-        gridifier = Gridifier(snapshots, bins)
-        return gridifier.gridify_snapshots(snapshots)
 
-    def update_balanced_weights_based_on_column(
-            balanced_weights, snapshot_len, column):
-        balanced_weights *= Balancer.get_balanced_weights_from_list(
-                snapshot_len, column)
+def gridify_snapshots(snapshots, bins):
+    gridifier = Gridifier(snapshots, bins)
+    return gridifier.gridify_snapshots(snapshots)
 
-    def get_balanced_weights_from_list(snapshot_len, list_in_need_of_weights):
-        return Balancer.get_weights_from_balanced_counter(
-            Balancer.get_balanced_counter(
-                snapshot_len, list_in_need_of_weights),
-            list_in_need_of_weights)
 
-    def get_balanced_counter(snapshot_len, list_in_need_of_weights):
-        """Balance weights such that all weight together sum to snapshot_len
-        and the weights for each key sum together to snapshot_len / counter_len
-        """
-        counter = Counter(list_in_need_of_weights)
-        counter_len = len(counter)
-        return {key: snapshot_len / (label * counter_len)
-                for key, label in counter.items()}
+def update_balanced_weights_based_on_column(
+        balanced_weights, snapshot_len, column):
+    balanced_weights *= get_balanced_weights_from_list(
+            snapshot_len, column)
 
-    def get_weights_from_balanced_counter(counter, list_in_need_of_weights):
-        return np.array([counter[i] for i in list_in_need_of_weights])
+
+def get_balanced_weights_from_list(snapshot_len, list_in_need_of_weights):
+    return get_weights_from_balanced_counter(
+        get_balanced_counter(
+            snapshot_len, list_in_need_of_weights),
+        list_in_need_of_weights)
+
+
+def get_balanced_counter(snapshot_len, list_in_need_of_weights):
+    """Balance weights such that all weight together sum to snapshot_len
+    and the weights for each key sum together to snapshot_len / counter_len
+    """
+    counter = Counter(list_in_need_of_weights)
+    counter_len = len(counter)
+    return {key: snapshot_len / (label * counter_len)
+            for key, label in counter.items()}
+
+
+def get_weights_from_balanced_counter(counter, list_in_need_of_weights):
+    return np.array([counter[i] for i in list_in_need_of_weights])
