@@ -144,13 +144,11 @@ def calc_map_given(x_pos, y_pos, resolution, grid_snapshots, labels, weights):
     for nr, snapshot in enumerate(grid_snapshots):
         x_int = int(snapshot[x_pos])
         y_int = int(snapshot[y_pos])
-        if x_int >= 0 and x_int <= resolution-1 and y_int >= 0 \
-                and y_int <= resolution-1:
-            label_map[x_int][y_int] = label_map[x_int][y_int] \
-                + labels[nr] \
-                * weights[nr]
-            weight_map[x_int][y_int] = weight_map[x_int][y_int] \
-                + weights[nr]
+        label_map[x_int][y_int] = label_map[x_int][y_int] \
+            + labels[nr] \
+            * weights[nr]
+        weight_map[x_int][y_int] = weight_map[x_int][y_int] \
+            + weights[nr]
     label_map = [[label_map[i][j] / weight_map[i][j]
                  if weight_map[i][j] > 0 else float("NaN")
                  for j in range(len(label_map[i]))]
