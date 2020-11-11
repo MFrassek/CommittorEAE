@@ -39,18 +39,9 @@ def plot_k_super_maps(
     for k in range(out_size):
         print(k)
         fig, axs = prepare_subplots(const)
-        for i, sub_map_row in enumerate(super_map):
-            for j, sub_map in enumerate(sub_map_row):
-                if j < i:
-                    im = axs[i][j].imshow(
-                        np.maximum(sub_map[k][::-1], const.logvmin / 2),
-                        cmap=cmap,
-                        interpolation='nearest',
-                        norm=mpl.colors.LogNorm(
-                            vmin=const.logvmin, vmax=1-const.logvmin),
-                        extent=[0, 1, 0, 1])
+        make_subplot_heatmaps(super_map, axs, k, const, cmap)
         make_axes_and_labels(const, axs, pipeline, fig)
-        make_color_bar(axs, im, const)
+        make_color_bar(axs, cmap, const)
         plt.savefig(get_output_file_name(method_name, pre_stamp, const, k))
         plt.show()
 
@@ -67,6 +58,25 @@ def select_color_map(method_name, const):
         return const.label_cmap
     else:
         return const.density_cmap
+
+
+def make_subplot_heatmaps(super_map, axs, k, const, cmap):
+    for i, sub_map_row in enumerate(super_map):
+        for j, sub_map in enumerate(sub_map_row):
+            if j < i:
+                imshow_heatmap(
+                    axs[i][j], np.maximum(sub_map[k][::-1], const.logvmin / 2),
+                    cmap, const)
+
+
+def imshow_heatmap(ax, sub_map_data, cmap, const):
+    return ax.imshow(
+        sub_map_data,
+        cmap=cmap,
+        interpolation='nearest',
+        norm=mpl.colors.LogNorm(
+            vmin=const.logvmin, vmax=1 - const.logvmin),
+        extent=[0, 1, 0, 1])
 
 
 def make_axes_and_labels(const, axs, pipeline, fig):
@@ -117,8 +127,9 @@ def set_y_axis_label_for_leftmost_subplots(const, axs, pipeline):
             pipeline_i_int, const.subfig_size*6)
 
 
-def make_color_bar(axs, im, const):
+def make_color_bar(axs, cmap, const):
     cax, kw = mpl.colorbar.make_axes([ax for ax in axs])
+    im = imshow_heatmap(axs[0][0], [[]], cmap, const)
     cbar = plt.colorbar(im, cax=cax, **kw, extend="both")
     cbar.ax.tick_params(labelsize=const.subfig_size * len(axs) * 2)
 
