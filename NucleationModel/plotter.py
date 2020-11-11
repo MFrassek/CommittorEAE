@@ -175,22 +175,6 @@ def calculate_label_map(weighted_label_map, weight_map):
                     in zip(weighted_label_map, weight_map)]])
 
 
-def calc_partial_map_given(
-        x_pos, y_pos, resolution, grid_snapshots, labels, weights,
-        points_of_interest):
-    xys = list(set([(int(ele[x_pos]), int(ele[y_pos]))
-                    for ele in points_of_interest]))
-    label_map = calc_map_given(
-        x_pos=x_pos, y_pos=y_pos, resolution=resolution,
-        grid_snapshots=grid_snapshots, labels=labels,
-        weights=weights)
-    partial_out_map = [[label_map[0][x][y]
-                       if (x, y) in xys else float("NaN")
-                       for y in range(resolution)]
-                       for x in range(resolution)]
-    return np.array([partial_out_map])
-
-
 def calc_map_generated(
         x_pos, y_pos, resolution, minima, maxima, model, fill_val=0):
     """
