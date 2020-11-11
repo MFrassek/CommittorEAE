@@ -139,9 +139,8 @@ def get_output_file_name(method_name, pre_stamp, const, k):
 
 
 def calc_map_given(x_pos, y_pos, resolution, grid_snapshots, labels, weights):
-    weighted_label_map = [[0 for y in range(resolution)]
-                          for x in range(resolution)]
-    weight_map = [[0 for y in range(resolution)] for x in range(resolution)]
+    weighted_label_map = make_empty_map(resolution)
+    weight_map = make_empty_map(resolution)
     grid_columns = np.transpose(grid_snapshots)
     x_ints = grid_columns[x_pos]
     y_ints = grid_columns[y_pos]
@@ -154,6 +153,10 @@ def calc_map_given(x_pos, y_pos, resolution, grid_snapshots, labels, weights):
                  for j in range(resolution)]
                  for i in range(resolution)]
     return np.array([label_map])
+
+
+def make_empty_map(resolution):
+    return [[0 for y in range(resolution)] for x in range(resolution)]
 
 
 def calc_partial_map_given(
