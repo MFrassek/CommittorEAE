@@ -142,14 +142,13 @@ def calc_map_given(x_pos, y_pos, resolution, grid_snapshots, labels, weights):
     weighted_label_map = [[0 for y in range(resolution)]
                           for x in range(resolution)]
     weight_map = [[0 for y in range(resolution)] for x in range(resolution)]
-    for nr, snapshot in enumerate(grid_snapshots):
-        x_int = int(snapshot[x_pos])
-        y_int = int(snapshot[y_pos])
-        weighted_label_map[x_int][y_int] = weighted_label_map[x_int][y_int] \
-            + labels[nr] \
-            * weights[nr]
-        weight_map[x_int][y_int] = weight_map[x_int][y_int] \
-            + weights[nr]
+    grid_columns = np.transpose(grid_snapshots)
+    x_ints = grid_columns[x_pos]
+    y_ints = grid_columns[y_pos]
+    for x_int, y_int, label, weight in zip(x_ints, y_ints, labels, weights):
+        weighted_label_map[x_int][y_int] = \
+            weighted_label_map[x_int][y_int] + label * weight
+        weight_map[x_int][y_int] = weight_map[x_int][y_int] + weight
     label_map = [[weighted_label_map[i][j] / weight_map[i][j]
                  if weight_map[i][j] > 0 else float("NaN")
                  for j in range(resolution)]
