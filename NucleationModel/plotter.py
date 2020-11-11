@@ -139,20 +139,21 @@ def get_output_file_name(method_name, pre_stamp, const, k):
 
 
 def calc_map_given(x_pos, y_pos, resolution, grid_snapshots, labels, weights):
-    label_map = [[0 for y in range(resolution)] for x in range(resolution)]
+    weighted_label_map = [[0 for y in range(resolution)]
+                          for x in range(resolution)]
     weight_map = [[0 for y in range(resolution)] for x in range(resolution)]
     for nr, snapshot in enumerate(grid_snapshots):
         x_int = int(snapshot[x_pos])
         y_int = int(snapshot[y_pos])
-        label_map[x_int][y_int] = label_map[x_int][y_int] \
+        weighted_label_map[x_int][y_int] = weighted_label_map[x_int][y_int] \
             + labels[nr] \
             * weights[nr]
         weight_map[x_int][y_int] = weight_map[x_int][y_int] \
             + weights[nr]
-    label_map = [[label_map[i][j] / weight_map[i][j]
+    label_map = [[weighted_label_map[i][j] / weight_map[i][j]
                  if weight_map[i][j] > 0 else float("NaN")
-                 for j in range(len(label_map[i]))]
-                 for i in range(len(label_map))]
+                 for j in range(resolution)]
+                 for i in range(resolution)]
     return np.array([label_map])
 
 
