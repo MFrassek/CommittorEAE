@@ -139,23 +139,31 @@ def get_output_file_name(method_name, pre_stamp, const, k):
 
 
 def calc_map_given(x_pos, y_pos, resolution, grid_snapshots, labels, weights):
-    weighted_label_map = make_empty_map(resolution)
-    weight_map = make_empty_map(resolution)
     x_ints = get_list_of_entries_at_pos(grid_snapshots, x_pos)
     y_ints = get_list_of_entries_at_pos(grid_snapshots, y_pos)
-    for x_int, y_int, label, weight in zip(x_ints, y_ints, labels, weights):
-        weighted_label_map[x_int][y_int] = \
-            weighted_label_map[x_int][y_int] + label * weight
-        weight_map[x_int][y_int] = weight_map[x_int][y_int] + weight
+    weighted_label_map, weight_map = \
+        make_weighted_label_and_weight_maps(
+            resolution, x_ints, y_ints, labels, weights)
     return calculate_label_map(weighted_label_map, weight_map)
-
-
-def make_empty_map(resolution):
-    return [[0 for y in range(resolution)] for x in range(resolution)]
 
 
 def get_list_of_entries_at_pos(grid_snapshots, pos):
     return grid_snapshots[:, pos]
+
+
+def make_weighted_label_and_weight_maps(
+        resolution, x_ints, y_ints, labels, weights):
+    weighted_label_map = make_empty_map(resolution)
+    weight_map = make_empty_map(resolution)
+    for x_int, y_int, label, weight in zip(x_ints, y_ints, labels, weights):
+        weighted_label_map[x_int][y_int] = \
+            weighted_label_map[x_int][y_int] + label * weight
+        weight_map[x_int][y_int] = weight_map[x_int][y_int] + weight
+    return weighted_label_map, weight_map
+
+
+def make_empty_map(resolution):
+    return [[0 for y in range(resolution)] for x in range(resolution)]
 
 
 def calculate_label_map(weighted_label_map, weight_map):
