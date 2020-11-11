@@ -41,7 +41,7 @@ def plot_k_super_maps(
         fig, axs = prepare_subplots(const)
         make_subplot_heatmaps(super_map, axs, k, const, cmap)
         make_axes_and_labels(const, axs, pipeline, fig)
-        make_color_bar(axs, cmap, const)
+        make_color_bar(axs, const)
         plt.savefig(get_output_file_name(method_name, pre_stamp, const, k))
         plt.show()
 
@@ -64,19 +64,13 @@ def make_subplot_heatmaps(super_map, axs, k, const, cmap):
     for i, sub_map_row in enumerate(super_map):
         for j, sub_map in enumerate(sub_map_row):
             if j < i:
-                imshow_heatmap(
-                    axs[i][j], np.maximum(sub_map[k][::-1], const.logvmin / 2),
-                    cmap, const)
-
-
-def imshow_heatmap(ax, sub_map_data, cmap, const):
-    return ax.imshow(
-        sub_map_data,
-        cmap=cmap,
-        interpolation='nearest',
-        norm=mpl.colors.LogNorm(
-            vmin=const.logvmin, vmax=1 - const.logvmin),
-        extent=[0, 1, 0, 1])
+                axs[i][j].imshow(
+                        np.maximum(sub_map[k][::-1], const.logvmin / 2),
+                        cmap=cmap,
+                        interpolation='nearest',
+                        norm=mpl.colors.LogNorm(
+                            vmin=const.logvmin, vmax=1 - const.logvmin),
+                        extent=[0, 1, 0, 1])
 
 
 def make_axes_and_labels(const, axs, pipeline, fig):
@@ -127,9 +121,9 @@ def set_y_axis_label_for_leftmost_subplots(const, axs, pipeline):
             pipeline_i_int, const.subfig_size*6)
 
 
-def make_color_bar(axs, cmap, const):
+def make_color_bar(axs, const):
     cax, kw = mpl.colorbar.make_axes([ax for ax in axs])
-    im = imshow_heatmap(axs[0][0], [[]], cmap, const)
+    im = axs[1][0].get_images()[0]
     cbar = plt.colorbar(im, cax=cax, **kw, extend="both")
     cbar.ax.tick_params(labelsize=const.subfig_size * len(axs) * 2)
 
