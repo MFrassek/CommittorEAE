@@ -147,10 +147,7 @@ def calc_map_given(x_pos, y_pos, resolution, grid_snapshots, labels, weights):
         weighted_label_map[x_int][y_int] = \
             weighted_label_map[x_int][y_int] + label * weight
         weight_map[x_int][y_int] = weight_map[x_int][y_int] + weight
-    label_map = [[weighted_label_map[i][j] / weight_map[i][j]
-                 if weight_map[i][j] > 0 else float("NaN")
-                 for j in range(resolution)]
-                 for i in range(resolution)]
+    label_map = calculate_label_map(weighted_label_map, weight_map)
     return np.array([label_map])
 
 
@@ -160,6 +157,15 @@ def make_empty_map(resolution):
 
 def get_list_of_entries_at_pos(grid_snapshots, pos):
     return grid_snapshots[:, pos]
+
+
+def calculate_label_map(weighted_label_map, weight_map):
+    return [[weighted_label_entry / weight_entry
+            if weight_entry > 0 else float("NaN")
+            for weighted_label_entry, weight_entry
+            in zip(weighted_label_row, weigth_row)]
+            for weighted_label_row, weigth_row
+            in zip(weighted_label_map, weight_map)]
 
 
 def calc_partial_map_given(
