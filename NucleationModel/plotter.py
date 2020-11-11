@@ -41,7 +41,6 @@ def plot_k_super_maps(
         fig, axs = prepare_subplots(const)
         for i, sub_map_row in enumerate(super_map):
             for j, sub_map in enumerate(sub_map_row):
-                remove_all_tick_labels(axs[i][j])
                 if j < i:
                     im = axs[i][j].imshow(
                         np.maximum(sub_map[k][::-1], const.logvmin / 2),
@@ -50,13 +49,7 @@ def plot_k_super_maps(
                         norm=mpl.colors.LogNorm(
                             vmin=const.logvmin, vmax=1-const.logvmin),
                         extent=[0, 1, 0, 1])
-                    set_x_axis_label_if_lowest_subplot(
-                        const, i, j, axs[i][j], pipeline)
-                    set_y_axis_label_if_leftmost_subplot(
-                        const, i, j, axs[i][j], pipeline)
-                else:
-                    axs[i][j].axis("off")
-        fig.align_labels()
+        make_axes_and_labels(const, axs, pipeline, fig)
         make_color_bar(axs, im, const)
         plt.savefig(get_output_file_name(method_name, pre_stamp, const, k))
         plt.show()
@@ -69,12 +62,6 @@ def prepare_subplots(const):
         const.subfig_size * dimensions_cnt))
 
 
-def remove_all_tick_labels(subplot_axs):
-    subplot_axs.tick_params(
-        axis='both', which='both', top=False, labelleft=False, left=False,
-        labelbottom=False, bottom=False)
-
-
 def select_color_map(method_name, const):
     if "density" not in method_name:
         return const.label_cmap
@@ -82,23 +69,51 @@ def select_color_map(method_name, const):
         return const.density_cmap
 
 
-def set_x_axis_label_if_lowest_subplot(const, i, j, axs, pipeline):
-    j_name = const.used_variable_names[j]
-    pipeline_j_int = const.name_to_list_position[j_name]
-    if i == len(const.used_variable_names) - 1:
-        axs.set_xlabel("${}$".format(j_name), fontsize=const.subfig_size * 10)
-        axs = set_xtick_labels(
-            axs, pipeline.lower_bound, pipeline.upper_bound,
+def make_axes_and_labels(const, axs, pipeline, fig):
+    remove_all_axis_labels(axs)
+    remove_empty_subplot_axes(axs)
+    set_x_axis_label_for_lowest_subplots(const, axs, pipeline)
+    set_y_axis_label_for_leftmost_subplots(const, axs, pipeline)
+    fig.align_labels()
+
+
+def remove_all_axis_labels(axs):
+    for i in range(len(axs)):
+        for j in range(len(axs)):
+            axs[i][j].tick_params(
+                axis='both', which='both', top=False, labelleft=False,
+                left=False, labelbottom=False, bottom=False)
+
+
+def remove_empty_subplot_axes(axs):
+    for i in range(len(axs)):
+        for j in range(len(axs)):
+            if j >= i:
+                axs[i][j].axis("off")
+
+
+def set_x_axis_label_for_lowest_subplots(const, axs, pipeline):
+    i = len(const.used_variable_names) - 1
+    for j in range(i):
+        print(i, j)
+        j_name = const.used_variable_names[j]
+        pipeline_j_int = const.name_to_list_position[j_name]
+        axs[i][j].set_xlabel(
+            "${}$".format(j_name), fontsize=const.subfig_size * 10)
+        set_xtick_labels(
+            axs[i][j], pipeline.lower_bound, pipeline.upper_bound,
             pipeline_j_int, const.subfig_size*6)
 
 
-def set_y_axis_label_if_leftmost_subplot(const, i, j, axs, pipeline):
-    i_name = const.used_variable_names[i]
-    pipeline_i_int = const.name_to_list_position[i_name]
-    if j == 0:
-        axs.set_ylabel("${}$".format(i_name), fontsize=const.subfig_size * 10)
-        axs = set_ytick_labels(
-            axs, pipeline.lower_bound, pipeline.upper_bound,
+def set_y_axis_label_for_leftmost_subplots(const, axs, pipeline):
+    j = 0
+    for i in range(len(const.used_variable_names)):
+        i_name = const.used_variable_names[i]
+        pipeline_i_int = const.name_to_list_position[i_name]
+        axs[i][j].set_ylabel(
+            "${}$".format(i_name), fontsize=const.subfig_size * 10)
+        set_ytick_labels(
+            axs[i][j], pipeline.lower_bound, pipeline.upper_bound,
             pipeline_i_int, const.subfig_size*6)
 
 
