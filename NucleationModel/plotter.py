@@ -138,11 +138,9 @@ def get_output_file_name(method_name, pre_stamp, const, k):
             k, const.resolution)
 
 
-def calc_map_given(
-        x_pos, y_pos, resolution, grid_snapshots, labels, weights, fill_val=0):
+def calc_map_given(x_pos, y_pos, resolution, grid_snapshots, labels, weights):
     label_map = [[0 for y in range(resolution)] for x in range(resolution)]
-    weight_map = [[0 for y in range(resolution)]
-                  for x in range(resolution)]
+    weight_map = [[0 for y in range(resolution)] for x in range(resolution)]
     for nr, snapshot in enumerate(grid_snapshots):
         x_int = int(snapshot[x_pos])
         y_int = int(snapshot[y_pos])
@@ -162,13 +160,13 @@ def calc_map_given(
 
 def calc_partial_map_given(
         x_pos, y_pos, resolution, grid_snapshots, labels, weights,
-        points_of_interest, fill_val=0):
+        points_of_interest):
     xys = list(set([(int(ele[x_pos]), int(ele[y_pos]))
                     for ele in points_of_interest]))
     label_map = calc_map_given(
         x_pos=x_pos, y_pos=y_pos, resolution=resolution,
         grid_snapshots=grid_snapshots, labels=labels,
-        weights=weights, fill_val=fill_val)
+        weights=weights)
     partial_out_map = [[label_map[0][x][y]
                        if (x, y) in xys else float("NaN")
                        for y in range(resolution)]
