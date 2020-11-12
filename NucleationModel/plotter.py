@@ -414,63 +414,6 @@ def plot_ground_truth(
         labels=labels, weights=weights)
 
 
-def plot_encoder_decoder(const, train_ds, val_ds, pipeline):
-    autoencoder, autoencoder_1, autoencoder_2, \
-        encoder, decoder_1, decoder_2 = \
-        AutoEncoder.make_models(const)
-    autoencoder.fit(
-        x=train_ds,
-        epochs=const.epochs,
-        validation_data=val_ds,
-        callbacks=[tf.keras.callbacks.EarlyStopping(
-            monitor="val_loss", patience=3)])
-    plot_encoder(pipeline=pipeline, const=const, encoder=encoder)
-    plot_decoder(const=const, decoder_1=decoder_1)
-
-
-def plot_encoder(pipeline, const, encoder):
-    plot_super_map(
-        pipeline=pipeline, const=const, pre_stamp="EncoderTest",
-        method=calc_map_generated, model=encoder,
-        minima=pipeline.minima, maxima=pipeline.maxima)
-
-
-def plot_decoder(const, decoder_1):
-    x_int = 0
-    y_int = 1
-    minima = [-10, -10]
-    maxima = [10, 10]
-    fig, ax = plt.subplots(1, 1)
-    plt.imshow(
-        np.maximum(
-            np.transpose(
-                calc_map_generated(
-                    x_pos=x_int, y_pos=y_int, minima=minima, maxima=maxima,
-                    resolution=const.resolution, model=decoder_1,
-                    fill_val=1)[0])[::-1],
-            const.logvmin / 2),
-        cmap=const.label_cmap,
-        interpolation='nearest',
-        norm=mpl.colors.LogNorm(
-            vmin=const.logvmin,
-            vmax=1.0-const.logvmin),
-        extent=[0, 1, 0, 1])
-    ax = set_xtick_labels(
-        ax, minima, maxima, x_int, const.subfig_size*6)
-    ax.set_xlabel(
-        "$bn{}$".format(x_int),
-        fontsize=const.subfig_size * 10)
-    ax = set_ytick_labels(
-        ax, minima, maxima, y_int, const.subfig_size*6)
-    ax.set_ylabel(
-        "$bn{}$".format(y_int),
-        fontsize=const.subfig_size * 10)
-    plt.colorbar(extend="both")
-    plt.tight_layout()
-    plt.savefig("results/Decoder_{}.png".format(const.model_stamp))
-    plt.show()
-
-
 def plot_projected_example_paths(
         get_paths_function, const, pipeline, steps, model, pre_stamp):
     paths, labels = get_paths_function(const=const)
