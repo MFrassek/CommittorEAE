@@ -5,7 +5,8 @@ class Gridifier():
     def __init__(self, base_snapshots, resolution):
         self._minima = np.amin(base_snapshots, axis=0)
         self._maxima = np.amax(base_snapshots, axis=0)
-        self._spans = self._maxima - self._minima
+        self._spans = np.array(
+            [span if span != 0 else 1 for span in self._maxima - self._minima])
         self._resolution = resolution
         self._inverse_spans_times_resolution = \
             1 / self._spans * (self._resolution - 1)
