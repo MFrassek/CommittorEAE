@@ -561,7 +561,7 @@ def plot_input_distribution(
         row_cnt, max_row_len,
         figsize=(
             const.subfig_size*max_row_len,
-            const.subfig_size*row_cnt*1.3))
+            const.subfig_size*row_cnt))
     for i in range(dimensions):
         if row_cnt > 1:
             new_axs = axs[i//max_row_len]
@@ -571,19 +571,48 @@ def plot_input_distribution(
         new_axs[i % max_row_len].set_xlim(0, const.resolution-1)
         new_axs[i % max_row_len].set_xlabel(
                 "${}$".format(const.used_variable_names[i]),
-                fontsize=const.subfig_size * 10)
+                fontsize=const.subfig_size * 8)
         i_name = const.used_variable_names[i]
         pipeline_i_int = const.name_to_list_position[i_name]
         new_axs[i % max_row_len].tick_params(
-            axis="y", labelsize=const.subfig_size * 6)
+            axis="y", labelsize=const.subfig_size * 4)
         set_xtick_labels(
                 new_axs[i % max_row_len], pipeline.lower_bound,
-                pipeline.upper_bound, pipeline_i_int, const.subfig_size*6)
+                pipeline.upper_bound, pipeline_i_int, const.subfig_size*4)
     # if not all rows are filled
     # remove the remaining empty subplots in the last row
     if dimensions % max_row_len != 0:
         for i in range(dimensions % max_row_len, max_row_len):
             new_axs[i].axis("off")
     fig.align_labels()
-    plt.tight_layout(rect=[0, 0, 1, 0.8])
+    plt.tight_layout(rect=[0, 0, 1, 1])
     plt.savefig(f"results/input_distribution_{const.data_stamp}.png")
+
+
+def plot_histogram_with_broken_axes(
+        xs, bins, y_lower_1, y_upper_1, y_lower_2, y_upper_2, filename):
+    f, (ax, ax2) = plt.subplots(2, 1, sharex=True)
+    ax.hist(xs, bins)
+    ax2.hist(xs, bins)
+    ax.set_ylim(y_lower_2, y_upper_2)  # outliers only
+    ax2.set_ylim(y_lower_1, y_upper_1)  # most of the data
+    # hide the spines between ax and ax2
+    ax.spines['bottom'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax.xaxis.tick_top()
+    ax.tick_params(labeltop=False)  # don't put tick labels at the top
+    ax2.xaxis.tick_bottom()
+    ax2.set_xlabel("$p_B$", fontsize=12)
+    ax2.set_ylabel("                              Count", fontsize=12)
+
+    d = .015  # how big to make the diagonal lines in axes coordinates
+    # arguments to pass to plot, just so we don't keep repeating them
+    kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+    ax.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+    ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+
+    kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
+    ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+    ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+    plt.savefig(filename)
+    plt.show()
