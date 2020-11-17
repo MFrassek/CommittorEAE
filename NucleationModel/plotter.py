@@ -178,6 +178,7 @@ def calculate_label_map(weighted_label_map, weight_map):
 def calc_represented_map_generated(
         x_pos, y_pos, resolution, minima, maxima, model, representations):
     assert x_pos != y_pos, "x_pos and y_pos need to differ"
+    print(x_pos, y_pos)
     out_size = model.layers[-1].output_shape[1]
     xy_representations = representations[(x_pos, y_pos)]
     out_map = [[[float("NaN") for i in range(resolution)]
@@ -521,11 +522,9 @@ def plot_reconstruction_from_latent_space(
 
 def set_xtick_labels(ax, minima, maxima, x_int, fontsize):
     ax.tick_params(labelbottom=True, bottom=True,)
-    ax.set_xticks(np.linspace(0, 1, 3))
+    ax.set_xticks(np.linspace(ax.dataLim.x0, ax.dataLim.x1, 3))
     ax.set_xticklabels(
-        np.around(
-            np.linspace(minima[x_int], maxima[x_int], 3),
-            2),
+        np.around(np.linspace(minima[x_int], maxima[x_int], 3), 2),
         rotation=60,
         fontsize=fontsize)
     return ax
@@ -533,10 +532,9 @@ def set_xtick_labels(ax, minima, maxima, x_int, fontsize):
 
 def set_ytick_labels(ax, minima, maxima, y_int, fontsize):
     ax.tick_params(labelleft=True, left=True)
-    ax.set_yticks(np.linspace(0, 1, 3))
-    ax.set_yticklabels(np.around(
-        np.linspace(minima[y_int], maxima[y_int], 3),
-        2),
+    ax.set_yticks(np.linspace(ax.dataLim.y0, ax.dataLim.y1, 3))
+    ax.set_yticklabels(
+        np.around(np.linspace(minima[y_int], maxima[y_int], 3), 2),
         fontsize=fontsize)
     return ax
 
@@ -554,39 +552,38 @@ def scatter_toy_path_with_potential(const, pipeline, path, label):
         const.dataSetType, label))
 
 
-def plot_distribution(
-        grid_snapshots, max_row_len, subfig_size, var_names,
-        file_name, resolution):
+def plot_input_distribution(
+        const, grid_snapshots, max_row_len, pipeline):
     cols = np.transpose(grid_snapshots)
     dimensions = len(grid_snapshots[0])
-    suptitle = "Distribution of input"
     row_cnt = ((dimensions-1)//max_row_len)+1
     fig, axs = plt.subplots(
         row_cnt, max_row_len,
         figsize=(
-            subfig_size*max_row_len,
-            subfig_size*row_cnt*1.3))
-    fig.suptitle(
-        suptitle,
-        fontsize=subfig_size*max_row_len*2,
-        y=1.04 - 0.04*row_cnt)
-
+            const.subfig_size*max_row_len,
+            const.subfig_size*row_cnt*1.3))
     for i in range(dimensions):
         if row_cnt > 1:
             new_axs = axs[i//max_row_len]
         else:
             new_axs = axs
-        remove_all_tick_labels(new_axs[i % max_row_len])
-        im = new_axs[i % max_row_len]\
-            .hist(cols[i], resolution)
-        new_axs[i % max_row_len]\
-            .set_xlabel("${}$".format(var_names[i]),
-                        fontsize=subfig_size*10)
+        new_axs[i % max_row_len].hist(cols[i], const.resolution)
+        new_axs[i % max_row_len].set_xlim(0, const.resolution-1)
+        new_axs[i % max_row_len].set_xlabel(
+                "${}$".format(const.used_variable_names[i]),
+                fontsize=const.subfig_size * 10)
+        i_name = const.used_variable_names[i]
+        pipeline_i_int = const.name_to_list_position[i_name]
+        new_axs[i % max_row_len].tick_params(
+            axis="y", labelsize=const.subfig_size * 6)
+        set_xtick_labels(
+                new_axs[i % max_row_len], pipeline.lower_bound,
+                pipeline.upper_bound, pipeline_i_int, const.subfig_size*6)
     # if not all rows are filled
     # remove the remaining empty subplots in the last row
     if dimensions % max_row_len != 0:
         for i in range(dimensions % max_row_len, max_row_len):
             new_axs[i].axis("off")
+    fig.align_labels()
     plt.tight_layout(rect=[0, 0, 1, 0.8])
-    plt.savefig("hist_{}_{}.png".format(file_name, resolution))
-    plt.show()
+    plt.savefig(f"results/input_distribution_{const.data_stamp}.png")
