@@ -332,24 +332,16 @@ class Const():
 
     @property
     def data_stamp(self):
-        return "kl{}_oc{}".format(
-            "_".join(self._keep_labels), self._outlier_cutoff)
+        return f"kl{'_'.join(self._keep_labels)}_oc{self._outlier_cutoff}"
 
     @property
     def model_stamp(self):
-        return "bn{}_{}*({}{}+{}{}|{}{})_lw{}:{}_e{}" \
-            .format(
-                str(self._bottleneck_size),
-                str(self._node_mult),
-                str(self._encoder_hidden),
-                str(self._encoder_act_func),
-                str(self._decoder_1_hidden),
-                str(self._decoder_1_act_func),
-                str(self._decoder_2_hidden),
-                str(self._decoder_2_act_func),
-                self._loss_weights[0],
-                self._loss_weights[1],
-                self._epochs)
+        return f"bn{self._bottleneck_size}_{self._node_mult}*"\
+            + f"({self._encoder_hidden}{self._encoder_act_func}+"\
+            + f"{self._decoder_1_hidden}{self._decoder_1_act_func}|"\
+            + f"{self._decoder_2_hidden}{self._decoder_2_act_func})_"\
+            + f"lw{self._loss_weights[0]}:{self._loss_weights[1]}_"\
+            + f"e{self._epochs}"
 
     # Define setter methods for all variables that can be changed.
     @used_variable_names.setter
