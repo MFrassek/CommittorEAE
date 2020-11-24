@@ -199,19 +199,18 @@ def calculate_label_map(weighted_label_map, weight_map):
 def calc_represented_map_generated(
         dim_position, minima, maxima, model, representations):
     print(dim_position.x_pos, dim_position.y_pos)
-    xy_representations = representations[
+    xy_dimension_means = representations[
         (dim_position.x_pos, dim_position.y_pos)]
     out_map = [[float("NaN") for i in range(dim_position.resolution)]
                for j in range(dim_position.resolution)]
-    span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
-    norm_xy_representations = \
-        (xy_representations * span_inv_resolution) + minima
-    for i, norm_representation in enumerate(norm_xy_representations):
-        prediction = model.predict([[norm_representation]])[0][0]
-        # Take x and y positions from the original xy_representation
-        # to assort the prediction to the right grid point
-        out_map[int(xy_representations[i][dim_position.x_pos])]\
-            [int(xy_representations[i][dim_position.y_pos])] = prediction
+
+    def rescale_grid_point_means(grid_point_means):
+        span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
+        return (grid_point_means * span_inv_resolution) + minima
+
+    for grid_point, grid_point_means in xy_dimension_means.items():
+        out_map[grid_point[0]][grid_point[1]] = \
+            model.predict([[rescale_grid_point_means(grid_point_means)]])[0][0]
     return np.array([out_map])
 
 
@@ -320,18 +319,19 @@ def plot_super_scatter(
 
 def calc_represented_scatter_generated(
         dim_position, model, minima, maxima, representations):
-    x_representations = representations[dim_position.x_pos]
+    x_dimension_means = representations[dim_position.x_pos]
     xs = np.linspace(
         minima[dim_position.x_pos], maxima[dim_position.x_pos],
         dim_position.resolution)
     ys = [float("NaN") for i in range(dim_position.resolution)]
-    span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
-    norm_x_representations = \
-        (x_representations * span_inv_resolution) + minima
-    for i, norm_representation in enumerate(norm_x_representations):
-        prediction = model.predict([[norm_representation]])[0]
-        ys[int(x_representations[i][dim_position.x_pos])] = \
-            prediction[dim_position.x_pos]
+
+    def rescale_grid_point_means(grid_point_means):
+        span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
+        return (grid_point_means * span_inv_resolution) + minima
+
+    for grid_point, grid_point_means in x_dimension_means.items():
+        ys[grid_point[0]] = \
+            model.predict([[rescale_grid_point_means(grid_point_means)]])[0][0]
     return np.array(xs), np.array(ys)
 
 

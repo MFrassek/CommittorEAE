@@ -6,6 +6,7 @@ class Corrector():
     def get_means_for_1D_row(self, grid_snapshots):
         all_representations = {}
         for x in range(len(grid_snapshots[0])):
+            print(x)
             x_representation = self.get_mean_values_per_point(
                 grid_snapshots=grid_snapshots,
                 x_int=x)
@@ -17,6 +18,7 @@ class Corrector():
         all_representations = {}
         for x in range(len(grid_snapshots[0])):
             for y in range(0, x):
+                print(x, y)
                 xy_representation = self.get_mean_values_per_point(
                     grid_snapshots=grid_snapshots,
                     x_int=x,
@@ -29,9 +31,7 @@ class Corrector():
     def get_mean_values_per_point(self, grid_snapshots, **kwargs):
         snapshots_per_position = self.get_position_snapshot_dictionary(
             grid_snapshots, **kwargs)
-        means_per_position = self.get_position_means_dictionary(
-            snapshots_per_position)
-        return self.get_position_means_array(means_per_position)
+        return self.get_position_means_dictionary(snapshots_per_position)
 
     @classmethod
     def get_position_snapshot_dictionary(self, grid_snapshots, **kwargs):
