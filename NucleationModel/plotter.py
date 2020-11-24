@@ -11,22 +11,22 @@ class DimensionalPosition():
     def __init__(self, const, i_int, j_int=None):
         self._resolution = const.resolution
         self._x_var_name = const.used_variable_names[i_int]
-        self._x_pos = const.used_name_to_list_position[self._x_var_name]
+        self._x_dim = const.used_name_to_list_position[self._x_var_name]
         if isinstance(j_int, int):
             self._y_var_name = const.used_variable_names[j_int]
-            self._y_pos = const.used_name_to_list_position[self._y_var_name]
+            self._y_dim = const.used_name_to_list_position[self._y_var_name]
 
     @property
     def resolution(self):
         return self._resolution
 
     @property
-    def x_pos(self):
-        return self._x_pos
+    def x_dim(self):
+        return self._x_dim
 
     @property
-    def y_pos(self):
-        return self._y_pos
+    def y_dim(self):
+        return self._y_dim
 
 
 def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
@@ -159,9 +159,9 @@ def get_output_file_name(method_name, pre_stamp, const, k):
 
 
 def calc_map_given(dim_position, grid_snapshots, labels, weights):
-    print(dim_position.x_pos, dim_position.y_pos)
-    x_ints = get_list_of_entries_at_pos(grid_snapshots, dim_position.x_pos)
-    y_ints = get_list_of_entries_at_pos(grid_snapshots, dim_position.y_pos)
+    print(dim_position.x_dim, dim_position.y_dim)
+    x_ints = get_list_of_entries_at_pos(grid_snapshots, dim_position.x_dim)
+    y_ints = get_list_of_entries_at_pos(grid_snapshots, dim_position.y_dim)
     weighted_label_map, weight_map = \
         make_weighted_label_and_weight_maps(
             dim_position.resolution, x_ints, y_ints, labels, weights)
@@ -198,9 +198,9 @@ def calculate_label_map(weighted_label_map, weight_map):
 
 def calc_represented_map_generated(
         dim_position, minima, maxima, model, representations):
-    print(dim_position.x_pos, dim_position.y_pos)
+    print(dim_position.x_dim, dim_position.y_dim)
     xy_dimension_means = representations[
-        (dim_position.x_pos, dim_position.y_pos)]
+        (dim_position.x_dim, dim_position.y_dim)]
     out_map = [[float("NaN") for i in range(dim_position.resolution)]
                for j in range(dim_position.resolution)]
 
@@ -219,8 +219,8 @@ def calc_map_given_configurational_density(
     weight_map = [[0 for y in range(dim_position.resolution)]
                   for x in range(dim_position.resolution)]
     for nr, snapshot in enumerate(grid_snapshots):
-        x_int = int(snapshot[dim_position.x_pos])
-        y_int = int(snapshot[dim_position.y_pos])
+        x_int = int(snapshot[dim_position.x_dim])
+        y_int = int(snapshot[dim_position.y_dim])
         if x_int >= 0 and x_int <= dim_position.resolution - 1 and y_int >= 0\
                 and y_int <= dim_position.resolution - 1:
             weight_map[x_int][y_int] = weight_map[x_int][y_int] \
@@ -319,9 +319,9 @@ def plot_super_scatter(
 
 def calc_represented_scatter_generated(
         dim_position, model, minima, maxima, representations):
-    x_dimension_means = representations[dim_position.x_pos]
+    x_dimension_means = representations[dim_position.x_dim]
     xs = np.linspace(
-        minima[dim_position.x_pos], maxima[dim_position.x_pos],
+        minima[dim_position.x_dim], maxima[dim_position.x_dim],
         dim_position.resolution)
     ys = [float("NaN") for i in range(dim_position.resolution)]
 
