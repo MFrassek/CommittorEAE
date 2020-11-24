@@ -7,6 +7,28 @@ from helperFunctions import *
 from autoEncoder import AutoEncoder
 
 
+class GridPosition():
+    def __init__(self, const, i_int, j_int=None):
+        self._resolution = const.resolution
+        self._x_var_name = const.used_variable_names[i_int]
+        self._x_pos = const.used_name_to_list_position[self._x_var_name]
+        if isinstance(j_int, int):
+            self._y_var_name = const.used_variable_names[j_int]
+            self._y_pos = const.used_name_to_list_position[self._y_var_name]
+
+    @property
+    def resolution(self):
+        return self._resolution
+
+    @property
+    def x_pos(self):
+        return self._x_pos
+
+    @property
+    def y_pos(self):
+        return self._y_pos
+
+
 def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
     method_name = function_to_str(method)
     out_size = get_out_size(method_name, **kwargs)
@@ -25,12 +47,10 @@ def get_out_size(method_name, **kwargs):
 
 def calculate_super_map(method, const, **kwargs):
     return [[method(
-            x_pos=const.used_name_to_list_position[var_name_i],
-            y_pos=const.used_name_to_list_position[var_name_j],
-            resolution=const.resolution,
+            GridPosition(const, i, j),
             **kwargs) if j < i else []
-          for j, var_name_j in enumerate(const.used_variable_names)]
-          for i, var_name_i in enumerate(const.used_variable_names)]
+          for j, _ in enumerate(const.used_variable_names)]
+          for i, _ in enumerate(const.used_variable_names)]
 
 
 def plot_k_super_maps(
@@ -138,12 +158,13 @@ def get_output_file_name(method_name, pre_stamp, const, k):
             k, const.resolution)
 
 
-def calc_map_given(x_pos, y_pos, resolution, grid_snapshots, labels, weights):
-    x_ints = get_list_of_entries_at_pos(grid_snapshots, x_pos)
-    y_ints = get_list_of_entries_at_pos(grid_snapshots, y_pos)
+def calc_map_given(grid_position, grid_snapshots, labels, weights):
+    print(grid_position.x_pos, grid_position.y_pos)
+    x_ints = get_list_of_entries_at_pos(grid_snapshots, grid_position.x_pos)
+    y_ints = get_list_of_entries_at_pos(grid_snapshots, grid_position.y_pos)
     weighted_label_map, weight_map = \
         make_weighted_label_and_weight_maps(
-            resolution, x_ints, y_ints, labels, weights)
+            grid_position.resolution, x_ints, y_ints, labels, weights)
     return calculate_label_map(weighted_label_map, weight_map)
 
 
@@ -176,15 +197,15 @@ def calculate_label_map(weighted_label_map, weight_map):
 
 
 def calc_represented_map_generated(
-        x_pos, y_pos, resolution, minima, maxima, model, representations):
-    assert x_pos != y_pos, "x_pos and y_pos need to differ"
-    print(x_pos, y_pos)
+        grid_position, minima, maxima, model, representations):
+    print(grid_position.x_pos, grid_position.y_pos)
     out_size = model.layers[-1].output_shape[1]
-    xy_representations = representations[(x_pos, y_pos)]
-    out_map = [[[float("NaN") for i in range(resolution)]
-               for j in range(resolution)]
+    xy_representations = representations[
+        (grid_position.x_pos, grid_position.y_pos)]
+    out_map = [[[float("NaN") for i in range(grid_position.resolution)]
+               for j in range(grid_position.resolution)]
                for k in range(out_size)]
-    span_inv_resolution = (maxima - minima) / (resolution - 1)
+    span_inv_resolution = (maxima - minima) / (grid_position.resolution - 1)
     norm_xy_representations = \
         (xy_representations * span_inv_resolution) + minima
     for i, norm_representation in enumerate(norm_xy_representations):
@@ -192,20 +213,20 @@ def calc_represented_map_generated(
         for j in range(out_size):
             # Take x and y positions from the original xy_representation
             # to assort the prediction to the right grid point
-            out_map[j][int(xy_representations[i][x_pos])]\
-                [int(xy_representations[i][y_pos])] = prediction[j]
+            out_map[j][int(xy_representations[i][grid_position.x_pos])]\
+                [int(xy_representations[i][grid_position.y_pos])] = prediction[j]
     return np.array(out_map)
 
 
 def calc_map_given_configurational_density(
-        x_pos, y_pos, resolution, grid_snapshots, weights, fill_val=0):
-    weight_map = [[0 for y in range(resolution)]
-                  for x in range(resolution)]
+        grid_position, grid_snapshots, weights, fill_val=0):
+    weight_map = [[0 for y in range(grid_position.resolution)]
+                  for x in range(grid_position.resolution)]
     for nr, snapshot in enumerate(grid_snapshots):
-        x_int = int(snapshot[x_pos])
-        y_int = int(snapshot[y_pos])
-        if x_int >= 0 and x_int <= resolution-1 and y_int >= 0 \
-                and y_int <= resolution-1:
+        x_int = int(snapshot[grid_position.x_pos])
+        y_int = int(snapshot[grid_position.y_pos])
+        if x_int >= 0 and x_int <= grid_position.resolution - 1 and y_int >= 0\
+                and y_int <= grid_position.resolution - 1:
             weight_map[x_int][y_int] = weight_map[x_int][y_int] \
                 + weights[nr]
     max_weight = np.amax(weight_map)
@@ -236,8 +257,7 @@ def plot_super_scatter(
     fig.align_labels()
     for i, var_name in enumerate(const.used_variable_names):
         xs, ys = method(
-            x_pos=const.used_name_to_list_position[var_name],
-            resolution=const.resolution, minima=minima, maxima=maxima,
+            GridPosition(const, i), minima=minima, maxima=maxima,
             **kwargs)
         if row_cnt > 1:
             new_axs = axs[i//max_row_len]
@@ -302,28 +322,33 @@ def plot_super_scatter(
 
 
 def calc_scatter_generated(
-        x_pos, resolution, model, minima, maxima, fill_val=0):
+        grid_position, model, minima, maxima, fill_val=0):
     in_size = model.layers[0].output_shape[0][1]
-    xs = np.linspace(minima[x_pos], maxima[x_pos], resolution)
+    xs = np.linspace(
+        minima[grid_position.x_pos], maxima[grid_position.x_pos],
+        grid_position.resolution)
     ys = []
     for x in xs:
-        prediction = model.predict([[x if x_pos == pos_nr else fill_val
+        prediction = model.predict([[x if grid_position.x_pos == pos_nr else fill_val
                                     for pos_nr in range(in_size)]])[0]
-        ys.append(prediction[x_pos])
+        ys.append(prediction[grid_position.x_pos])
     return xs, ys
 
 
 def calc_represented_scatter_generated(
-        x_pos, resolution, model, minima, maxima, representations):
-    x_representations = representations[x_pos]
-    xs = np.linspace(minima[x_pos], maxima[x_pos], resolution)
-    ys = [float("NaN") for i in range(resolution)]
-    span_inv_resolution = (maxima - minima) / (resolution - 1)
+        grid_position, model, minima, maxima, representations):
+    x_representations = representations[grid_position.x_pos]
+    xs = np.linspace(
+        minima[grid_position.x_pos], maxima[grid_position.x_pos],
+        grid_position.resolution)
+    ys = [float("NaN") for i in range(grid_position.resolution)]
+    span_inv_resolution = (maxima - minima) / (grid_position.resolution - 1)
     norm_x_representations = \
         (x_representations * span_inv_resolution) + minima
     for i, norm_representation in enumerate(norm_x_representations):
         prediction = model.predict([[norm_representation]])[0]
-        ys[int(x_representations[i][x_pos])] = prediction[x_pos]
+        ys[int(x_representations[i][grid_position.x_pos])] = \
+            prediction[grid_position.x_pos]
     return np.array(xs), np.array(ys)
 
 
