@@ -213,22 +213,17 @@ def calc_represented_map_generated(
 
 
 def calc_map_given_configurational_density(
-        dim_position, grid_snapshots, weights, fill_val=0):
-    weight_map = [[0 for y in range(dim_position.resolution)]
-                  for x in range(dim_position.resolution)]
-    for nr, snapshot in enumerate(grid_snapshots):
-        x_int = int(snapshot[dim_position.x_dim])
-        y_int = int(snapshot[dim_position.y_dim])
-        if x_int >= 0 and x_int <= dim_position.resolution - 1 and y_int >= 0\
-                and y_int <= dim_position.resolution - 1:
-            weight_map[x_int][y_int] = weight_map[x_int][y_int] \
-                + weights[nr]
+        dim_position, grid_snapshots, weights):
+    weight_map = make_empty_map(dim_position.resolution)
+    x_ints = get_list_of_entries_at_pos(grid_snapshots, dim_position.x_dim)
+    y_ints = get_list_of_entries_at_pos(grid_snapshots, dim_position.y_dim)
+    for x_int, y_int, weight in zip(x_ints, y_ints, weights):
+        weight_map[x_int][y_int] = weight_map[x_int][y_int] + weight
     max_weight = np.amax(weight_map)
-    weight_map = [[weight_map[i][j] / max_weight
-                  if weight_map[i][j] > 0 else float("NaN")
-                  for j in range(len(weight_map[i]))]
-                  for i in range(len(weight_map))]
-    return np.array([weight_map])
+    return np.array([[[weight / max_weight
+                      if weight > 0 else float("NaN")
+                      for weight in weight_row]
+                     for weight_row in weight_map]])
 
 
 def plot_super_scatter(
