@@ -198,14 +198,13 @@ def calculate_label_map(weighted_label_map, weight_map):
 
 def calc_represented_map_generated(
         dim_position, minima, maxima, model, representations):
-    print(dim_position.x_dim, dim_position.y_dim)
-    xy_dimension_means = representations[
-        (dim_position.x_dim, dim_position.y_dim)]
-
     def rescale_grid_point_means(grid_point_means):
         span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
         return (grid_point_means * span_inv_resolution) + minima
 
+    print(dim_position.x_dim, dim_position.y_dim)
+    xy_dimension_means = representations[
+        (dim_position.x_dim, dim_position.y_dim)]
     return np.array([[[model.predict(
         [[rescale_grid_point_means(xy_dimension_means[(j, i)])]])[0][0]
          if (j, i) in xy_dimension_means else float("NaN")
@@ -318,15 +317,15 @@ def plot_super_scatter(
 
 def calc_represented_scatter_generated(
         dim_position, model, minima, maxima, representations):
-    xs = np.linspace(
-        minima[dim_position.x_dim], maxima[dim_position.x_dim],
-        dim_position.resolution)
-    x_dimension_means = representations[dim_position.x_dim]
-
     def rescale_grid_point_means(grid_point_means):
         span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
         return (grid_point_means * span_inv_resolution) + minima
 
+    print(dim_position.x_dim)
+    xs = np.linspace(
+        minima[dim_position.x_dim], maxima[dim_position.x_dim],
+        dim_position.resolution)
+    x_dimension_means = representations[dim_position.x_dim]
     ys = np.array([model.predict(
         [[rescale_grid_point_means(x_dimension_means[(i,)])]])[0][0]
          if (i,) in x_dimension_means else float("NaN")
