@@ -212,88 +212,75 @@ def calc_map_given_configurational_density(
                      for weight_row in weight_map])
 
 
-def plot_super_scatter(
-        pipeline, const, pre_stamp, method,
-        minima, maxima, max_row_len=6, **kwargs):
-    """Generates a superfigure of scater plots.
-    Iterates over the different dimensions and based on
-    different input values for one dimensions
-    as well as a fixed value fr all other dimensions,
-    predicts the reconstructed value for that dimension.
-    An optimal encoding and decoding will yield a diagonal
-    line for each dimension indifferent of the value
-    chosen for the other dimensions.
-    """
+def make_super_scatter_plot(
+        pipeline, const, pre_stamp, method, max_row_len=6, **kwargs):
+    super_scatter = calculate_super_scatter(
+        method, const, **kwargs)
+    plot_super_scatter(const, max_row_len, super_scatter, pipeline, pre_stamp)
+
+
+def calculate_super_scatter(method, const, **kwargs):
+    return [method(
+        DimensionalPosition(const, i), **kwargs)
+        for i, _ in enumerate(const.used_variable_names)]
+
+
+def plot_super_scatter(const, max_row_len, super_scatter, pipeline, pre_stamp):
+    fig, axs = prepare_subscatters(const, max_row_len)
+    fig.align_labels()
+    for i in range(len(const.used_variable_names)):
+        axs[i//max_row_len][i % max_row_len].scatter(
+            super_scatter[i][0], super_scatter[i][1], s=const.subfig_size * 20)
+    set_labels_and_title_for_subscatters(const, axs, pipeline, max_row_len)
+    set_x_axis_label_for_lowest_subscatters(const, axs, max_row_len)
+    set_y_axis_label_for_leftmost_subscatters(const, axs, max_row_len)
+    remove_empty_scatter_axes(const, axs, max_row_len)
+    plt.tight_layout(rect=[0, 0, 1, 0.8])
+    plt.savefig(f"results/{pre_stamp}_{const.data_stamp}_{const.model_stamp}_"
+                + f"r{const.resolution}_scat.png")
+    plt.show()
+
+
+def prepare_subscatters(const, max_row_len):
     row_cnt = ((len(const.used_variable_names)-1)//max_row_len)+1
     fig, axs = plt.subplots(
         row_cnt, max_row_len,
-        figsize=(
-            const.subfig_size*max_row_len, const.subfig_size*row_cnt*1.3))
-    fig.align_labels()
-    for i, var_name in enumerate(const.used_variable_names):
-        xs, ys = method(
-            DimensionalPosition(const, i), minima=minima, maxima=maxima,
-            **kwargs)
-        if row_cnt > 1:
-            new_axs = axs[i//max_row_len]
-        else:
-            new_axs = axs
-        new_axs[i % max_row_len]\
-            .scatter(xs, ys, s=const.subfig_size*20)
-        new_axs[i % max_row_len]\
-            .set_xlim(
-                [minima[const.used_name_to_list_position[var_name]],
-                 maxima[const.used_name_to_list_position[var_name]]])
-        new_axs[i % max_row_len]\
-            .set_ylim(
-                [minima[const.used_name_to_list_position[var_name]],
-                 maxima[const.used_name_to_list_position[var_name]]])
-        new_axs[i % max_row_len]\
-            .set_title(
-                "${}$".format(var_name),
-                fontsize=const.subfig_size*10)
-        if i // max_row_len == (len(const.used_variable_names)-1) \
-                // max_row_len:
-            new_axs[i % max_row_len]\
-                .set_xlabel(
-                    "$Input$",
-                    fontsize=const.subfig_size*5)
-        if i % max_row_len == 0:
-            new_axs[i % max_row_len]\
-                .set_ylabel(
-                    "$Reconstruction$",
-                    fontsize=const.subfig_size*5)
-        new_axs[i % max_row_len].tick_params(
-            axis='both', which='both', top=False, labelbottom=True,
-            bottom=True, left=True, labelleft=True)
-        new_axs[i % max_row_len].set_xticks(
-            np.linspace(min(xs), max(xs), 3))
-        new_axs[i % max_row_len].set_yticks(
-            np.linspace(min(xs), max(xs), 3))
-        pipeline_var_int = const.name_to_list_position[var_name]
-        axis_tick_labels = np.around(
-            np.linspace(
-                pipeline.lower_bound[pipeline_var_int],
-                pipeline.upper_bound[pipeline_var_int],
-                3),
-            2)
-        new_axs[i % max_row_len].set_xticklabels(
-            axis_tick_labels, rotation=60, fontsize=const.subfig_size*4)
-        new_axs[i % max_row_len].set_yticklabels(
-            axis_tick_labels, fontsize=const.subfig_size*4)
-    # if not all rows are filled
-    # remove the remaining empty subplots in the last row
+        figsize=(const.subfig_size*max_row_len, const.subfig_size*row_cnt*1.3))
+    if not isinstance(axs[0], np.ndarray):
+        axs = [axs]
+    return fig, axs
+
+
+def set_labels_and_title_for_subscatters(const, axs, pipeline, max_row_len):
+    for i in range(len(const.used_variable_names)):
+        print(i)
+        i_name = const.used_variable_names[i]
+        pipeline_i_int = const.name_to_list_position[i_name]
+        axs[i // max_row_len][i % max_row_len].set_title(
+            "${}$".format(i_name), fontsize=const.subfig_size * 10)
+        set_xtick_labels(
+            axs[i // max_row_len][i % max_row_len], pipeline.lower_bound,
+            pipeline.upper_bound, pipeline_i_int, const.subfig_size * 6)
+        set_ytick_labels(
+            axs[i // max_row_len][i % max_row_len], pipeline.lower_bound,
+            pipeline.upper_bound, pipeline_i_int, const.subfig_size * 6)
+
+
+def set_x_axis_label_for_lowest_subscatters(const, axs, max_row_len):
+    for i in range(max_row_len):
+        axs[-1][i].set_xlabel("$Input$", fontsize=const.subfig_size * 5)
+
+
+def set_y_axis_label_for_leftmost_subscatters(const, axs, max_row_len):
+    for i in range((len(const.used_variable_names) + 1) // max_row_len):
+        axs[i][0].set_ylabel("$Reconstruction$", fontsize=const.subfig_size * 5)
+
+
+def remove_empty_scatter_axes(const, axs, max_row_len):
     if len(const.used_variable_names) % max_row_len != 0:
-        for i in range(len(const.used_variable_names)
-                       % max_row_len, max_row_len):
-            new_axs[i].axis("off")
-    plt.tight_layout(rect=[0, 0, 1, 0.8])
-    plt.savefig("results/{}_{}_{}_r{}_scat.png"
-                .format(
-                    pre_stamp, const.data_stamp, const.model_stamp,
-                    const.resolution))
-    plt.show()
-    return
+        for i in range(
+                len(const.used_variable_names) % max_row_len, max_row_len):
+            axs[-1][i].axis("off")
 
 
 def calc_represented_scatter_generated(
