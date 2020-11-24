@@ -201,17 +201,16 @@ def calc_represented_map_generated(
     print(dim_position.x_dim, dim_position.y_dim)
     xy_dimension_means = representations[
         (dim_position.x_dim, dim_position.y_dim)]
-    out_map = [[float("NaN") for i in range(dim_position.resolution)]
-               for j in range(dim_position.resolution)]
 
     def rescale_grid_point_means(grid_point_means):
         span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
         return (grid_point_means * span_inv_resolution) + minima
 
-    for grid_point, grid_point_means in xy_dimension_means.items():
-        out_map[grid_point[0]][grid_point[1]] = \
-            model.predict([[rescale_grid_point_means(grid_point_means)]])[0][0]
-    return np.array([out_map])
+    return np.array([[[model.predict(
+        [[rescale_grid_point_means(xy_dimension_means[(j, i)])]])[0][0]
+         if (j, i) in xy_dimension_means else float("NaN")
+         for i in range(dim_position.resolution)]
+        for j in range(dim_position.resolution)]])
 
 
 def calc_map_given_configurational_density(
@@ -319,20 +318,20 @@ def plot_super_scatter(
 
 def calc_represented_scatter_generated(
         dim_position, model, minima, maxima, representations):
-    x_dimension_means = representations[dim_position.x_dim]
     xs = np.linspace(
         minima[dim_position.x_dim], maxima[dim_position.x_dim],
         dim_position.resolution)
-    ys = [float("NaN") for i in range(dim_position.resolution)]
+    x_dimension_means = representations[dim_position.x_dim]
 
     def rescale_grid_point_means(grid_point_means):
         span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
         return (grid_point_means * span_inv_resolution) + minima
 
-    for grid_point, grid_point_means in x_dimension_means.items():
-        ys[grid_point[0]] = \
-            model.predict([[rescale_grid_point_means(grid_point_means)]])[0][0]
-    return np.array(xs), np.array(ys)
+    ys = np.array([model.predict(
+        [[rescale_grid_point_means(x_dimension_means[(i,)])]])[0][0]
+         if (i,) in x_dimension_means else float("NaN")
+         for i in range(dim_position.resolution)])
+    return xs, ys
 
 
 def plot_loss_history(history, file_name):
