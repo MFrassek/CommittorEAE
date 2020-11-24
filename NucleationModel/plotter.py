@@ -29,12 +29,10 @@ class DimensionalPosition():
         return self._y_dim
 
 
-def plot_super_map(pipeline, const, pre_stamp, method, **kwargs):
+def make_super_map_plot(pipeline, const, pre_stamp, method, **kwargs):
     method_name = function_to_str(method)
-    out_size = get_out_size(method_name, **kwargs)
     super_map = calculate_super_map(method, const, **kwargs)
-    plot_k_super_maps(
-            method_name, const, out_size, super_map, pipeline, pre_stamp)
+    plot_super_map(method_name, const, super_map, pipeline, pre_stamp)
     return super_map
 
 
@@ -53,17 +51,14 @@ def calculate_super_map(method, const, **kwargs):
           for i, _ in enumerate(const.used_variable_names)]
 
 
-def plot_k_super_maps(
-        method_name, const, out_size, super_map, pipeline, pre_stamp):
+def plot_super_map(method_name, const, super_map, pipeline, pre_stamp):
     cmap = select_color_map(method_name, const)
-    for k in range(out_size):
-        print(k)
-        fig, axs = prepare_subplots(const)
-        make_subplot_heatmaps(super_map, axs, k, const, cmap)
-        make_axes_and_labels(const, axs, pipeline, fig)
-        make_color_bar(axs, const)
-        plt.savefig(get_output_file_name(method_name, pre_stamp, const, k))
-        plt.show()
+    fig, axs = prepare_subplots(const)
+    make_subplot_heatmaps(super_map, axs, const, cmap)
+    make_axes_and_labels(const, axs, pipeline, fig)
+    make_color_bar(axs, const)
+    plt.savefig(get_output_file_name(method_name, pre_stamp, const))
+    plt.show()
 
 
 def prepare_subplots(const):
@@ -80,12 +75,12 @@ def select_color_map(method_name, const):
         return const.density_cmap
 
 
-def make_subplot_heatmaps(super_map, axs, k, const, cmap):
+def make_subplot_heatmaps(super_map, axs, const, cmap):
     for i, sub_map_row in enumerate(super_map):
         for j, sub_map in enumerate(sub_map_row):
             if j < i:
                 axs[i][j].imshow(
-                        np.maximum(sub_map[k][::-1], const.logvmin / 2),
+                        np.maximum(sub_map[::-1], const.logvmin / 2),
                         cmap=cmap,
                         interpolation='nearest',
                         norm=mpl.colors.LogNorm(
@@ -148,14 +143,13 @@ def make_color_bar(axs, const):
     cbar.ax.tick_params(labelsize=const.subfig_size * len(axs) * 2)
 
 
-def get_output_file_name(method_name, pre_stamp, const, k):
+def get_output_file_name(method_name, pre_stamp, const):
     if "given" in method_name:
         return "results/{}_giv_{}_r{}_map.png".format(
             pre_stamp, const.data_stamp, const.resolution)
     elif "generated" in method_name:
-        return "results/{}_gen_{}_{}_outN{}_r{}_map.png".format(
-            pre_stamp, const.data_stamp, const.model_stamp,
-            k, const.resolution)
+        return "results/{}_gen_{}_{}_r{}_map.png".format(
+            pre_stamp, const.data_stamp, const.model_stamp, const.resolution)
 
 
 def calc_map_given(dim_position, grid_snapshots, labels, weights):
@@ -188,12 +182,12 @@ def make_empty_map(resolution):
 
 
 def calculate_label_map(weighted_label_map, weight_map):
-    return np.array([[[weighted_label_entry / weight_entry
+    return np.array([[weighted_label_entry / weight_entry
                      if weight_entry > 0 else float("NaN")
                      for weighted_label_entry, weight_entry
                      in zip(weighted_label_row, weigth_row)]
                     for weighted_label_row, weigth_row
-                    in zip(weighted_label_map, weight_map)]])
+                    in zip(weighted_label_map, weight_map)])
 
 
 def calc_represented_map_generated(
@@ -205,11 +199,11 @@ def calc_represented_map_generated(
     print(dim_position.x_dim, dim_position.y_dim)
     xy_dimension_means = representations[
         (dim_position.x_dim, dim_position.y_dim)]
-    return np.array([[[model.predict(
+    return np.array([[model.predict(
         [[rescale_grid_point_means(xy_dimension_means[(j, i)])]])[0][0]
          if (j, i) in xy_dimension_means else float("NaN")
          for i in range(dim_position.resolution)]
-        for j in range(dim_position.resolution)]])
+        for j in range(dim_position.resolution)])
 
 
 def calc_map_given_configurational_density(
@@ -220,10 +214,10 @@ def calc_map_given_configurational_density(
     for x_int, y_int, weight in zip(x_ints, y_ints, weights):
         weight_map[x_int][y_int] = weight_map[x_int][y_int] + weight
     max_weight = np.amax(weight_map)
-    return np.array([[[weight / max_weight
+    return np.array([[weight / max_weight
                       if weight > 0 else float("NaN")
                       for weight in weight_row]
-                     for weight_row in weight_map]])
+                     for weight_row in weight_map])
 
 
 def plot_super_scatter(
@@ -343,7 +337,7 @@ def plot_loss_history(history, file_name):
 
 def plot_ground_truth(
         pipeline, const, grid_snapshots, labels, weights, pre_stamp):
-    plot_super_map(
+    make_super_map_plot(
         pipeline=pipeline, const=const, pre_stamp=pre_stamp,
         method=calc_map_given, grid_snapshots=grid_snapshots,
         labels=labels, weights=weights)
