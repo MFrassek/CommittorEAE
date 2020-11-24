@@ -33,14 +33,6 @@ def make_super_map_plot(pipeline, const, pre_stamp, method, **kwargs):
     method_name = function_to_str(method)
     super_map = calculate_super_map(method, const, **kwargs)
     plot_super_map(method_name, const, super_map, pipeline, pre_stamp)
-    return super_map
-
-
-def get_out_size(method_name, **kwargs):
-    if "given" in method_name:
-        return 1
-    elif "generated" in method_name:
-        return kwargs["model"].layers[-1].output_shape[1]
 
 
 def calculate_super_map(method, const, **kwargs):
