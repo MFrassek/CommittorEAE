@@ -443,7 +443,7 @@ def plot_single_map(
         np.maximum(
             np.transpose(
                 method(
-                    x_pos=x_int, y_pos=y_int, resolution=const.resolution,
+                    DimensionalPosition(const, x_int, y_int),
                     **kwargs)[0])[::-1],
             const.logvmin / 2),
         cmap=cmap,
