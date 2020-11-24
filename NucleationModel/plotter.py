@@ -321,20 +321,6 @@ def plot_super_scatter(
     return
 
 
-def calc_scatter_generated(
-        grid_position, model, minima, maxima, fill_val=0):
-    in_size = model.layers[0].output_shape[0][1]
-    xs = np.linspace(
-        minima[grid_position.x_pos], maxima[grid_position.x_pos],
-        grid_position.resolution)
-    ys = []
-    for x in xs:
-        prediction = model.predict([[x if grid_position.x_pos == pos_nr else fill_val
-                                    for pos_nr in range(in_size)]])[0]
-        ys.append(prediction[grid_position.x_pos])
-    return xs, ys
-
-
 def calc_represented_scatter_generated(
         grid_position, model, minima, maxima, representations):
     x_representations = representations[grid_position.x_pos]
