@@ -199,23 +199,20 @@ def calculate_label_map(weighted_label_map, weight_map):
 def calc_represented_map_generated(
         grid_position, minima, maxima, model, representations):
     print(grid_position.x_pos, grid_position.y_pos)
-    out_size = model.layers[-1].output_shape[1]
     xy_representations = representations[
         (grid_position.x_pos, grid_position.y_pos)]
-    out_map = [[[float("NaN") for i in range(grid_position.resolution)]
+    out_map = [[float("NaN") for i in range(grid_position.resolution)]
                for j in range(grid_position.resolution)]
-               for k in range(out_size)]
     span_inv_resolution = (maxima - minima) / (grid_position.resolution - 1)
     norm_xy_representations = \
         (xy_representations * span_inv_resolution) + minima
     for i, norm_representation in enumerate(norm_xy_representations):
-        prediction = model.predict([[norm_representation]])[0]
-        for j in range(out_size):
-            # Take x and y positions from the original xy_representation
-            # to assort the prediction to the right grid point
-            out_map[j][int(xy_representations[i][grid_position.x_pos])]\
-                [int(xy_representations[i][grid_position.y_pos])] = prediction[j]
-    return np.array(out_map)
+        prediction = model.predict([[norm_representation]])[0][0]
+        # Take x and y positions from the original xy_representation
+        # to assort the prediction to the right grid point
+        out_map[int(xy_representations[i][grid_position.x_pos])]\
+            [int(xy_representations[i][grid_position.y_pos])] = prediction
+    return np.array([out_map])
 
 
 def calc_map_given_configurational_density(
