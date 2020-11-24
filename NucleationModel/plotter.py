@@ -7,7 +7,7 @@ from helperFunctions import *
 from autoEncoder import AutoEncoder
 
 
-class GridPosition():
+class DimensionalPosition():
     def __init__(self, const, i_int, j_int=None):
         self._resolution = const.resolution
         self._x_var_name = const.used_variable_names[i_int]
@@ -47,7 +47,7 @@ def get_out_size(method_name, **kwargs):
 
 def calculate_super_map(method, const, **kwargs):
     return [[method(
-            GridPosition(const, i, j),
+            DimensionalPosition(const, i, j),
             **kwargs) if j < i else []
           for j, _ in enumerate(const.used_variable_names)]
           for i, _ in enumerate(const.used_variable_names)]
@@ -158,13 +158,13 @@ def get_output_file_name(method_name, pre_stamp, const, k):
             k, const.resolution)
 
 
-def calc_map_given(grid_position, grid_snapshots, labels, weights):
-    print(grid_position.x_pos, grid_position.y_pos)
-    x_ints = get_list_of_entries_at_pos(grid_snapshots, grid_position.x_pos)
-    y_ints = get_list_of_entries_at_pos(grid_snapshots, grid_position.y_pos)
+def calc_map_given(dim_position, grid_snapshots, labels, weights):
+    print(dim_position.x_pos, dim_position.y_pos)
+    x_ints = get_list_of_entries_at_pos(grid_snapshots, dim_position.x_pos)
+    y_ints = get_list_of_entries_at_pos(grid_snapshots, dim_position.y_pos)
     weighted_label_map, weight_map = \
         make_weighted_label_and_weight_maps(
-            grid_position.resolution, x_ints, y_ints, labels, weights)
+            dim_position.resolution, x_ints, y_ints, labels, weights)
     return calculate_label_map(weighted_label_map, weight_map)
 
 
@@ -197,33 +197,33 @@ def calculate_label_map(weighted_label_map, weight_map):
 
 
 def calc_represented_map_generated(
-        grid_position, minima, maxima, model, representations):
-    print(grid_position.x_pos, grid_position.y_pos)
+        dim_position, minima, maxima, model, representations):
+    print(dim_position.x_pos, dim_position.y_pos)
     xy_representations = representations[
-        (grid_position.x_pos, grid_position.y_pos)]
-    out_map = [[float("NaN") for i in range(grid_position.resolution)]
-               for j in range(grid_position.resolution)]
-    span_inv_resolution = (maxima - minima) / (grid_position.resolution - 1)
+        (dim_position.x_pos, dim_position.y_pos)]
+    out_map = [[float("NaN") for i in range(dim_position.resolution)]
+               for j in range(dim_position.resolution)]
+    span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
     norm_xy_representations = \
         (xy_representations * span_inv_resolution) + minima
     for i, norm_representation in enumerate(norm_xy_representations):
         prediction = model.predict([[norm_representation]])[0][0]
         # Take x and y positions from the original xy_representation
         # to assort the prediction to the right grid point
-        out_map[int(xy_representations[i][grid_position.x_pos])]\
-            [int(xy_representations[i][grid_position.y_pos])] = prediction
+        out_map[int(xy_representations[i][dim_position.x_pos])]\
+            [int(xy_representations[i][dim_position.y_pos])] = prediction
     return np.array([out_map])
 
 
 def calc_map_given_configurational_density(
-        grid_position, grid_snapshots, weights, fill_val=0):
-    weight_map = [[0 for y in range(grid_position.resolution)]
-                  for x in range(grid_position.resolution)]
+        dim_position, grid_snapshots, weights, fill_val=0):
+    weight_map = [[0 for y in range(dim_position.resolution)]
+                  for x in range(dim_position.resolution)]
     for nr, snapshot in enumerate(grid_snapshots):
-        x_int = int(snapshot[grid_position.x_pos])
-        y_int = int(snapshot[grid_position.y_pos])
-        if x_int >= 0 and x_int <= grid_position.resolution - 1 and y_int >= 0\
-                and y_int <= grid_position.resolution - 1:
+        x_int = int(snapshot[dim_position.x_pos])
+        y_int = int(snapshot[dim_position.y_pos])
+        if x_int >= 0 and x_int <= dim_position.resolution - 1 and y_int >= 0\
+                and y_int <= dim_position.resolution - 1:
             weight_map[x_int][y_int] = weight_map[x_int][y_int] \
                 + weights[nr]
     max_weight = np.amax(weight_map)
@@ -254,7 +254,7 @@ def plot_super_scatter(
     fig.align_labels()
     for i, var_name in enumerate(const.used_variable_names):
         xs, ys = method(
-            GridPosition(const, i), minima=minima, maxima=maxima,
+            DimensionalPosition(const, i), minima=minima, maxima=maxima,
             **kwargs)
         if row_cnt > 1:
             new_axs = axs[i//max_row_len]
@@ -319,19 +319,19 @@ def plot_super_scatter(
 
 
 def calc_represented_scatter_generated(
-        grid_position, model, minima, maxima, representations):
-    x_representations = representations[grid_position.x_pos]
+        dim_position, model, minima, maxima, representations):
+    x_representations = representations[dim_position.x_pos]
     xs = np.linspace(
-        minima[grid_position.x_pos], maxima[grid_position.x_pos],
-        grid_position.resolution)
-    ys = [float("NaN") for i in range(grid_position.resolution)]
-    span_inv_resolution = (maxima - minima) / (grid_position.resolution - 1)
+        minima[dim_position.x_pos], maxima[dim_position.x_pos],
+        dim_position.resolution)
+    ys = [float("NaN") for i in range(dim_position.resolution)]
+    span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
     norm_x_representations = \
         (x_representations * span_inv_resolution) + minima
     for i, norm_representation in enumerate(norm_x_representations):
         prediction = model.predict([[norm_representation]])[0]
-        ys[int(x_representations[i][grid_position.x_pos])] = \
-            prediction[grid_position.x_pos]
+        ys[int(x_representations[i][dim_position.x_pos])] = \
+            prediction[dim_position.x_pos]
     return np.array(xs), np.array(ys)
 
 
