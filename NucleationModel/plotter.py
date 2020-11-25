@@ -108,24 +108,18 @@ def set_x_axis_label_for_lowest_subplots(const, axs, pipeline):
     for j in range(i):
         print(i, j)
         j_name = const.used_variable_names[j]
-        pipeline_j_int = const.name_to_list_position[j_name]
         axs[i][j].set_xlabel(
             "${}$".format(j_name), fontsize=const.subfig_size * 10)
-        set_xtick_labels(
-            axs[i][j], pipeline.lower_bound, pipeline.upper_bound,
-            pipeline_j_int, const.subfig_size*6)
+        set_xtick_labels(axs[i][j], pipeline, j)
 
 
 def set_y_axis_label_for_leftmost_subplots(const, axs, pipeline):
     j = 0
     for i in range(len(const.used_variable_names)):
         i_name = const.used_variable_names[i]
-        pipeline_i_int = const.name_to_list_position[i_name]
         axs[i][j].set_ylabel(
             "${}$".format(i_name), fontsize=const.subfig_size * 10)
-        set_ytick_labels(
-            axs[i][j], pipeline.lower_bound, pipeline.upper_bound,
-            pipeline_i_int, const.subfig_size*6)
+        set_ytick_labels(axs[i][j], pipeline, i)
 
 
 def make_color_bar(axs, const):
@@ -259,15 +253,10 @@ def set_labels_and_title_for_subscatters(const, axs, pipeline, max_row_len):
     for i in range(len(const.used_variable_names)):
         print(i)
         i_name = const.used_variable_names[i]
-        pipeline_i_int = const.name_to_list_position[i_name]
         axs[i // max_row_len][i % max_row_len].set_title(
             "${}$".format(i_name), fontsize=const.subfig_size * 10)
-        set_xtick_labels(
-            axs[i // max_row_len][i % max_row_len], pipeline.lower_bound,
-            pipeline.upper_bound, pipeline_i_int, const.subfig_size * 6)
-        set_ytick_labels(
-            axs[i // max_row_len][i % max_row_len], pipeline.lower_bound,
-            pipeline.upper_bound, pipeline_i_int, const.subfig_size * 6)
+        set_xtick_labels(axs[i // max_row_len][i % max_row_len], pipeline, i)
+        set_ytick_labels(axs[i // max_row_len][i % max_row_len], pipeline, i)
 
 
 def set_x_axis_label_for_lowest_subscatters(const, axs, max_row_len):
@@ -425,15 +414,11 @@ def plot_single_map(
             vmax=1.0-const.logvmin),
         extent=[0, 1, 0, 1],
         zorder=1)
-    ax = set_xtick_labels(
-        ax, pipeline.lower_bound, pipeline.upper_bound, pipeline_x_int,
-        fontsize=const.subfig_size * 6)
+    set_xtick_labels(ax, pipeline, x_int)
     ax.set_xlabel(
         "${}$".format(x_name),
         fontsize=const.subfig_size * 10)
-    ax = set_ytick_labels(
-        ax, pipeline.lower_bound, pipeline.upper_bound, pipeline_y_int,
-        fontsize=const.subfig_size * 6)
+    set_ytick_labels(ax, pipeline, y_int)
     ax.set_ylabel(
         "${}$".format(y_name),
         fontsize=const.subfig_size * 10)
@@ -498,23 +483,25 @@ def plot_reconstruction_from_latent_space(
     fig.show()
 
 
-def set_xtick_labels(ax, minima, maxima, x_int, fontsize):
+def set_xtick_labels(ax, pipeline, index):
     ax.tick_params(labelbottom=True, bottom=True,)
     ax.set_xticks(np.linspace(ax.dataLim.x0, ax.dataLim.x1, 3))
     ax.set_xticklabels(
-        np.around(np.linspace(minima[x_int], maxima[x_int], 3), 2),
+        np.around(np.linspace(
+            pipeline.r_lower_bound[index], pipeline.r_upper_bound[index], 3),
+            2),
         rotation=60,
-        fontsize=fontsize)
-    return ax
+        fontsize=pipeline.const.subfig_size * 6)
 
 
-def set_ytick_labels(ax, minima, maxima, y_int, fontsize):
+def set_ytick_labels(ax, pipeline, index):
     ax.tick_params(labelleft=True, left=True)
     ax.set_yticks(np.linspace(ax.dataLim.y0, ax.dataLim.y1, 3))
     ax.set_yticklabels(
-        np.around(np.linspace(minima[y_int], maxima[y_int], 3), 2),
-        fontsize=fontsize)
-    return ax
+        np.around(np.linspace(
+            pipeline.r_lower_bound[index], pipeline.r_upper_bound[index], 3),
+            2),
+        fontsize=pipeline.const.subfig_size * 6)
 
 
 def scatter_toy_path_with_potential(const, pipeline, path, label):
@@ -550,13 +537,9 @@ def plot_input_distribution(
         new_axs[i % max_row_len].set_xlabel(
                 "${}$".format(const.used_variable_names[i]),
                 fontsize=const.subfig_size * 8)
-        i_name = const.used_variable_names[i]
-        pipeline_i_int = const.name_to_list_position[i_name]
         new_axs[i % max_row_len].tick_params(
             axis="y", labelsize=const.subfig_size * 4)
-        set_xtick_labels(
-                new_axs[i % max_row_len], pipeline.lower_bound,
-                pipeline.upper_bound, pipeline_i_int, const.subfig_size*4)
+        set_xtick_labels(new_axs[i % max_row_len], pipeline, i)
     # if not all rows are filled
     # remove the remaining empty subplots in the last row
     if dimensions % max_row_len != 0:
