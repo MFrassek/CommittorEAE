@@ -29,27 +29,27 @@ class DimensionalPosition():
         return self._y_dim
 
 
-def make_super_map_plot(pipeline, const, pre_stamp, method, **kwargs):
+def make_super_map_plot(method, pipeline, pre_stamp, **kwargs):
     method_name = function_to_str(method)
-    super_map = calculate_super_map(method, const, **kwargs)
-    plot_super_map(method_name, const, super_map, pipeline, pre_stamp)
+    super_map = calculate_super_map(method, pipeline, **kwargs)
+    plot_super_map(method_name, pipeline, super_map, pre_stamp)
 
 
-def calculate_super_map(method, const, **kwargs):
+def calculate_super_map(method, pipeline, **kwargs):
     return [[method(
-            DimensionalPosition(const, i, j),
+            DimensionalPosition(pipeline.const, i, j),
             **kwargs) if j < i else []
-          for j, _ in enumerate(const.used_variable_names)]
-          for i, _ in enumerate(const.used_variable_names)]
+          for j, _ in enumerate(pipeline.const.used_variable_names)]
+          for i, _ in enumerate(pipeline.const.used_variable_names)]
 
 
-def plot_super_map(method_name, const, super_map, pipeline, pre_stamp):
-    cmap = select_color_map(method_name, const)
-    fig, axs = prepare_subplots(const)
-    make_subplot_heatmaps(super_map, axs, const, cmap)
-    make_axes_and_labels(const, axs, pipeline, fig)
-    make_color_bar(axs, const)
-    plt.savefig(get_output_file_name(method_name, pre_stamp, const))
+def plot_super_map(method_name, pipeline, super_map, pre_stamp):
+    cmap = select_color_map(method_name, pipeline.const)
+    fig, axs = prepare_subplots(pipeline.const)
+    make_subplot_heatmaps(super_map, axs, pipeline.const, cmap)
+    make_axes_and_labels(pipeline, axs, fig)
+    make_color_bar(axs, pipeline.const)
+    plt.savefig(get_output_file_name(method_name, pre_stamp, pipeline.const))
     plt.show()
 
 
@@ -80,11 +80,11 @@ def make_subplot_heatmaps(super_map, axs, const, cmap):
                         extent=[0, 1, 0, 1])
 
 
-def make_axes_and_labels(const, axs, pipeline, fig):
+def make_axes_and_labels(pipeline, axs, fig):
     remove_all_axis_labels(axs)
     remove_empty_subplot_axes(axs)
-    set_x_axis_label_for_lowest_subplots(const, axs, pipeline)
-    set_y_axis_label_for_leftmost_subplots(const, axs, pipeline)
+    set_x_axis_label_for_lowest_subplots(pipeline, axs)
+    set_y_axis_label_for_leftmost_subplots(pipeline, axs)
     fig.align_labels()
 
 
@@ -103,22 +103,22 @@ def remove_empty_subplot_axes(axs):
                 axs[i][j].axis("off")
 
 
-def set_x_axis_label_for_lowest_subplots(const, axs, pipeline):
-    i = len(const.used_variable_names) - 1
+def set_x_axis_label_for_lowest_subplots(pipeline, axs):
+    i = len(pipeline.const.used_variable_names) - 1
     for j in range(i):
         print(i, j)
         axs[i][j].set_xlabel(
-            f"${const.used_variable_names[j]}$",
-            fontsize=const.subfig_size * 10)
+            f"${pipeline.const.used_variable_names[j]}$",
+            fontsize=pipeline.const.subfig_size * 10)
         set_xtick_labels(axs[i][j], pipeline, j)
 
 
-def set_y_axis_label_for_leftmost_subplots(const, axs, pipeline):
+def set_y_axis_label_for_leftmost_subplots(pipeline, axs):
     j = 0
-    for i in range(len(const.used_variable_names)):
+    for i in range(len(pipeline.const.used_variable_names)):
         axs[i][j].set_ylabel(
-            f"${const.used_variable_names[i]}$",
-            fontsize=const.subfig_size * 10)
+            f"${pipeline.const.used_variable_names[i]}$",
+            fontsize=pipeline.const.subfig_size * 10)
         set_ytick_labels(axs[i][j], pipeline, i)
 
 
@@ -307,12 +307,10 @@ def plot_loss_history(history, file_name):
     plt.show()
 
 
-def plot_ground_truth(
-        pipeline, const, grid_snapshots, labels, weights, pre_stamp):
+def plot_ground_truth(pipeline, grid_snapshots, labels, weights, pre_stamp):
     make_super_map_plot(
-        pipeline=pipeline, const=const, pre_stamp=pre_stamp,
-        method=calc_map_given, grid_snapshots=grid_snapshots,
-        labels=labels, weights=weights)
+        method=calc_map_given, pipeline=pipeline, pre_stamp=pre_stamp,
+        grid_snapshots=grid_snapshots, labels=labels, weights=weights)
 
 
 def plot_projected_example_paths(
