@@ -25,6 +25,10 @@ class Pipeline():
         self._maxima = np.amax(base_snapshots, axis=0)
 
     @property
+    def const(self):
+        return self._const
+
+    @property
     def lower_bound(self):
         return self._bounder.lower_bound
 
@@ -47,6 +51,34 @@ class Pipeline():
     @property
     def maxima(self):
         return self._maxima
+
+    def reduce_property(self, property_list):
+        return np.array([property_list[used_position]
+                        for used_position in self._const._used_list_positions])
+
+    @property
+    def r_lower_bound(self):
+        return self.reduce_property(self.lower_bound)
+
+    @property
+    def r_upper_bound(self):
+        return self.reduce_property(self.upper_bound)
+
+    @property
+    def r_mean(self):
+        return self.reduce_property(self.mean)
+
+    @property
+    def r_std(self):
+        return self.reduce_property(self.std)
+
+    @property
+    def r_minima(self):
+        return self.reduce_property(self.minima)
+
+    @property
+    def r_maxima(self):
+        return self.reduce_property(self.maxima)
 
     @property
     def snapshot_cnt(self):

@@ -46,6 +46,9 @@ class Const():
         self._used_name_to_list_position = {
             self._used_variable_names[i]: i
             for i in range(len(self._used_variable_names))}
+        self._used_list_positions = [
+            self._name_to_list_position[name]
+            for name in self._used_variable_names]
         # Labels assigned to the four types of paths
         self._AA_label = 0.0
         self._AB_label = 1.0
@@ -137,6 +140,10 @@ class Const():
     @property
     def used_name_to_list_position(self):
         return self._used_name_to_list_position
+
+    @property
+    def used_list_positions(self):
+        return self._used_list_positions
 
     @property
     def toy_folder_name(self):
@@ -351,6 +358,9 @@ class Const():
         self._used_name_to_list_position = {
             self._used_list_var_names[i]: i
             for i in range(len(self._used_list_var_names))}
+        self._used_list_positions = [
+            self._name_to_list_position[name]
+            for name in self._used_variable_names]
 
     @TIS_folder_name.setter
     def TIS_folder_name(self, x):
