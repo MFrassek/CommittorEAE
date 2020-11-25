@@ -228,9 +228,7 @@ def calculate_super_scatter(method, const, **kwargs):
 def plot_super_scatter(const, max_row_len, super_scatter, pipeline, pre_stamp):
     fig, axs = prepare_subscatters(const, max_row_len)
     fig.align_labels()
-    for i in range(len(const.used_variable_names)):
-        axs[i//max_row_len][i % max_row_len].scatter(
-            super_scatter[i][0], super_scatter[i][1], s=const.subfig_size * 20)
+    make_subplot_scatters(super_scatter, axs, const, max_row_len)
     set_labels_and_title_for_subscatters(const, axs, pipeline, max_row_len)
     set_x_axis_label_for_lowest_subscatters(const, axs, max_row_len)
     set_y_axis_label_for_leftmost_subscatters(const, axs, max_row_len)
@@ -249,6 +247,12 @@ def prepare_subscatters(const, max_row_len):
     if not isinstance(axs[0], np.ndarray):
         axs = [axs]
     return fig, axs
+
+
+def make_subplot_scatters(super_scatter, axs, const, max_row_len):
+    for i in range(len(const.used_variable_names)):
+        axs[i//max_row_len][i % max_row_len].scatter(
+            super_scatter[i][0], super_scatter[i][1], s=const.subfig_size * 20)
 
 
 def set_labels_and_title_for_subscatters(const, axs, pipeline, max_row_len):
