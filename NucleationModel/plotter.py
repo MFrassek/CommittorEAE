@@ -207,29 +207,30 @@ def calc_map_given_configurational_density(
 
 
 def make_super_scatter_plot(
-        pipeline, const, pre_stamp, method, max_row_len=6, **kwargs):
+        method, pipeline, pre_stamp, max_row_len=6, **kwargs):
     super_scatter = calculate_super_scatter(
-        method, const, **kwargs)
-    plot_super_scatter(const, max_row_len, super_scatter, pipeline, pre_stamp)
+        method, pipeline, **kwargs)
+    plot_super_scatter(pipeline, max_row_len, super_scatter, pre_stamp)
 
 
-def calculate_super_scatter(method, const, **kwargs):
+def calculate_super_scatter(method, pipeline, **kwargs):
     return [method(
-        DimensionalPosition(const, i), **kwargs)
-        for i, _ in enumerate(const.used_variable_names)]
+        DimensionalPosition(pipeline.const, i), **kwargs)
+        for i, _ in enumerate(pipeline.const.used_variable_names)]
 
 
-def plot_super_scatter(const, max_row_len, super_scatter, pipeline, pre_stamp):
-    fig, axs = prepare_subscatters(const, max_row_len)
+def plot_super_scatter(pipeline, max_row_len, super_scatter, pre_stamp):
+    fig, axs = prepare_subscatters(pipeline.const, max_row_len)
     fig.align_labels()
-    make_subplot_scatters(super_scatter, axs, const, max_row_len)
-    set_labels_and_title_for_subscatters(const, axs, pipeline, max_row_len)
-    set_x_axis_label_for_lowest_subscatters(const, axs, max_row_len)
-    set_y_axis_label_for_leftmost_subscatters(const, axs, max_row_len)
-    remove_empty_scatter_axes(const, axs, max_row_len)
+    make_subplot_scatters(super_scatter, axs, pipeline.const, max_row_len)
+    set_labels_and_title_for_subscatters(pipeline, axs, max_row_len)
+    set_x_axis_label_for_lowest_subscatters(pipeline.const, axs, max_row_len)
+    set_y_axis_label_for_leftmost_subscatters(pipeline.const, axs, max_row_len)
+    remove_empty_scatter_axes(pipeline.const, axs, max_row_len)
     plt.tight_layout(rect=[0, 0, 1, 0.8])
-    plt.savefig(f"results/{pre_stamp}_{const.data_stamp}_{const.model_stamp}_"
-                + f"r{const.resolution}_scat.png")
+    plt.savefig(f"results/{pre_stamp}_{pipeline.const.data_stamp}_"
+                + f"{pipeline.const.model_stamp}_"
+                + f"r{pipeline.const.resolution}_scat.png")
     plt.show()
 
 
@@ -249,12 +250,12 @@ def make_subplot_scatters(super_scatter, axs, const, max_row_len):
             super_scatter[i][0], super_scatter[i][1], s=const.subfig_size * 20)
 
 
-def set_labels_and_title_for_subscatters(const, axs, pipeline, max_row_len):
-    for i in range(len(const.used_variable_names)):
+def set_labels_and_title_for_subscatters(pipeline, axs, max_row_len):
+    for i in range(len(pipeline.const.used_variable_names)):
         print(i)
         axs[i // max_row_len][i % max_row_len].set_title(
-            f"${const.used_variable_names[i]}$",
-            fontsize=const.subfig_size * 10)
+            f"${pipeline.const.used_variable_names[i]}$",
+            fontsize=pipeline.const.subfig_size * 10)
         set_xtick_labels(axs[i // max_row_len][i % max_row_len], pipeline, i)
         set_ytick_labels(axs[i // max_row_len][i % max_row_len], pipeline, i)
 
