@@ -107,18 +107,18 @@ def set_x_axis_label_for_lowest_subplots(const, axs, pipeline):
     i = len(const.used_variable_names) - 1
     for j in range(i):
         print(i, j)
-        j_name = const.used_variable_names[j]
         axs[i][j].set_xlabel(
-            "${}$".format(j_name), fontsize=const.subfig_size * 10)
+            f"${const.used_variable_names[j]}$",
+            fontsize=const.subfig_size * 10)
         set_xtick_labels(axs[i][j], pipeline, j)
 
 
 def set_y_axis_label_for_leftmost_subplots(const, axs, pipeline):
     j = 0
     for i in range(len(const.used_variable_names)):
-        i_name = const.used_variable_names[i]
         axs[i][j].set_ylabel(
-            "${}$".format(i_name), fontsize=const.subfig_size * 10)
+            f"${const.used_variable_names[i]}$",
+            fontsize=const.subfig_size * 10)
         set_ytick_labels(axs[i][j], pipeline, i)
 
 
@@ -252,9 +252,9 @@ def make_subplot_scatters(super_scatter, axs, const, max_row_len):
 def set_labels_and_title_for_subscatters(const, axs, pipeline, max_row_len):
     for i in range(len(const.used_variable_names)):
         print(i)
-        i_name = const.used_variable_names[i]
         axs[i // max_row_len][i % max_row_len].set_title(
-            "${}$".format(i_name), fontsize=const.subfig_size * 10)
+            f"${const.used_variable_names[i]}$",
+            fontsize=const.subfig_size * 10)
         set_xtick_labels(axs[i // max_row_len][i % max_row_len], pipeline, i)
         set_ytick_labels(axs[i // max_row_len][i % max_row_len], pipeline, i)
 
