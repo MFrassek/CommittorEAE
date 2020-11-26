@@ -192,30 +192,27 @@ class Pipeline():
         # Get bnrg_snapshots
         g_snapshots = self.gridify(snapshots)
         _, pBs, _ = self.approximate(g_snapshots, dataset)
-        hcb_weights = self.hypercube_balance(snapshots)
         ds = self.pack_tf_dataset(
             snapshots=snapshots,
             labels=pBs,
-            prediction_weights=hcb_weights,
-            reconstruction_weights=hcb_weights)
-        minima = np.amin(snapshots, axis=0)
-        maxima = np.amax(snapshots, axis=0)
-        return ds, minima, maxima, g_snapshots
+            prediction_weights=np.ones(len(snapshots)),
+            reconstruction_weights=np.ones(len(snapshots)))
+        return ds, g_snapshots
 
     def prepare_prediction_plotter(self, dataset):
         bn_snapshots = self.bound_normalize(dataset.snapshots)
-        ds, minima, maxima, g_snapshots = \
+        ds, g_snapshots = \
             self.prepare_dataset_from_bn(bn_snapshots, dataset)
         means_1D = self.get_1D_means(g_snapshots)
         means_2D = self.get_2D_means(g_snapshots)
-        return ds, minima, maxima, means_1D, means_2D
+        return ds, means_1D, means_2D
 
     def prepare_stepper(
             self, train_bn_snapshots, train_dataset, val_bn_snapshots,
             val_dataset):
-        train_ds, _, _, _ = \
+        train_ds, _ = \
             self.prepare_dataset_from_bn(train_bn_snapshots, train_dataset)
-        val_ds, _, _, _ = \
+        val_ds, _ = \
             self.prepare_dataset_from_bn(val_bn_snapshots, val_dataset)
         return train_ds, val_ds
 
@@ -226,7 +223,4 @@ class Pipeline():
         # Get bnrg_snapshots
         g_snapshots = self.gridify(snapshots)
         _, pBs, _ = self.approximate(g_snapshots, dataset)
-        hcb_weights = self.hypercube_balance(snapshots)
-        minima = np.amin(snapshots, axis=0)
-        maxima = np.amax(snapshots, axis=0)
-        return snapshots, pBs, hcb_weights, minima, maxima, g_snapshots
+        return snapshots, pBs, g_snapshots
