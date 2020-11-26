@@ -208,8 +208,7 @@ def calc_map_given_configurational_density(
 
 def make_super_scatter_plot(
         method, pipeline, pre_stamp, max_row_len=6, **kwargs):
-    super_scatter = calculate_super_scatter(
-        method, pipeline, **kwargs)
+    super_scatter = calculate_super_scatter(method, pipeline, **kwargs)
     plot_super_scatter(pipeline, max_row_len, super_scatter, pre_stamp)
 
 
@@ -404,7 +403,7 @@ def plot_single_map(
             np.transpose(
                 method(
                     DimensionalPosition(const, x_int, y_int),
-                    **kwargs)[0])[::-1],
+                    **kwargs))[::-1],
             const.logvmin / 2),
         cmap=cmap,
         interpolation='nearest',
