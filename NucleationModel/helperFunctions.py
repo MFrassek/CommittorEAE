@@ -108,54 +108,6 @@ def print_coverage(list_var_names, dataset):
         print("{}: {}".format(list_var_names[i], AACoverageOfABRange[i]))
 
 
-def get_relative_encoder_importances(encoder, reduced_list_var_names):
-    """Return the relative importances of inputs in a linear encoder."""
-    formula_components = \
-        get_encoder_formula_components(encoder, reduced_list_var_names)
-    absolute_formula_components = \
-        make_components_absolute(formula_components)
-    normalized_absolute_formula_component = \
-        make_components_normalized(absolute_formula_components)
-    return normalized_absolute_formula_component
-
-
-def get_encoder_formula_components(encoder, reduced_list_var_names):
-    """Calculates the linear formula represented by the encoder."""
-    bn_size = encoder.layers[-1].output_shape[1]
-    formula_components = [[] for _ in range(bn_size)]
-    in_size = encoder.layers[0].output_shape[0][1]
-    base_predictions = encoder.predict([[np.zeros(in_size)]])[0]
-    for dimension in range(in_size):
-        mod_list = np.zeros(in_size)
-        mod_list[dimension] = 1
-        mod_predictions = encoder.predict([[mod_list]])[0]
-        for i, _ in enumerate(mod_predictions):
-            formula_components[i].append(
-                mod_predictions[i] - base_predictions[i])
-    return list(zip(reduced_list_var_names, *formula_components))
-
-
-def make_components_absolute(formula_components):
-    absolute_components = []
-    for component in formula_components:
-        absolute_components.append((
-            component[0],
-            *list(map(abs, component[1:]))))
-    return absolute_components
-
-
-def make_components_normalized(formula_components):
-    normalized_components = []
-    sum_list = []
-    for column in np.transpose(formula_components)[1:]:
-        sum_list.append(sum(list(map(float, column))))
-    for component in formula_components:
-        normalized_components.append((
-            component[0],
-            *list(map(lambda x: (x / sum_list)[0], component[1:]))))
-    return normalized_components
-
-
 def flatten_list_of_lists(list_of_lists):
     return [y for x in list_of_lists for y in x]
 

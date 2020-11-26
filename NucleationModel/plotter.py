@@ -376,11 +376,45 @@ def get_low_and_high_point_of_projected_paths(paths):
     return low_point, high_point
 
 
-def plot_relative_importances(names, values):
-    dollar_names = ["$"+name+"$" for name in names]
-    precentages = [value * 100 for value in values]
-    plt.bar(dollar_names, precentages)
-    plt.ylabel("Relatve importance [%]")
+def make_relative_importance_plot(encoder, const):
+    relative_importances = get_relative_encoder_importances(encoder)
+    plot_relative_importances(const.used_variable_names, relative_importances)
+
+
+def get_relative_encoder_importances(encoder):
+    return make_components_normalized(
+        make_components_one_dimensional(
+            make_components_absolute(
+                get_encoder_formula_components(encoder))))
+
+
+def get_encoder_formula_components(encoder):
+    """Calculates the linear formula represented by the encoder."""
+    in_size = encoder.layers[0].output_shape[0][1]
+    base_predictions = encoder.predict([[np.zeros(in_size)]])[0]
+    return np.transpose(np.array([encoder.predict([
+                   [1 if i == dim else 0 for i in range(in_size)]])[0]
+                   for dim in range(in_size)]) - base_predictions)
+
+
+def make_components_absolute(formula_components):
+    return np.array([list(map(abs, component))
+                    for component in formula_components])
+
+
+def make_components_one_dimensional(formula_components):
+    return np.sum(formula_components, axis=0)
+
+
+def make_components_normalized(formula_components):
+    return formula_components / sum(formula_components)
+
+
+def plot_relative_importances(variable_names, importances):
+    dollar_names = [f"${variable_name}$" for variable_name in variable_names]
+    importance_precentages = [importance * 100 for importance in importances]
+    plt.bar(dollar_names, importance_precentages)
+    plt.ylabel("Relative importance [%]")
     plt.ylim(0, 100)
     plt.xticks(rotation=60)
     plt.savefig("results/LinearComponents.png")
