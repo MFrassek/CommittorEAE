@@ -314,12 +314,6 @@ def plot_loss_history(history, pre_stamp):
     plt.show()
 
 
-def plot_ground_truth(pipeline, grid_snapshots, labels, weights, pre_stamp):
-    make_super_map_plot(
-        method=calc_map_given, pipeline=pipeline, pre_stamp=pre_stamp,
-        grid_snapshots=grid_snapshots, labels=labels, weights=weights)
-
-
 def plot_projected_example_paths(
         get_paths_function, const, pipeline, steps, model, pre_stamp):
     paths, labels = get_paths_function(const=const)
