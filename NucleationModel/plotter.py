@@ -314,35 +314,29 @@ def plot_loss_history(history, pre_stamp):
     plt.show()
 
 
-def plot_projected_example_paths(
-        get_paths_function, const, pipeline, steps, model, pre_stamp):
-    paths, labels = get_paths_function(const=const)
-    projected_paths = [make_projected_path_from_path(
-        pipeline=pipeline, path=path, const=const, steps=steps, model=model)
-                       for path in paths]
-    flattened_projected_paths = flatten_list_of_lists(projected_paths)
-    projected_minimum = np.amin(
-        np.transpose(flattened_projected_paths)[1], axis=0)
-    projected_maximum = np.amax(
-        np.transpose(flattened_projected_paths)[1], axis=0)
+def make_projected_path_plot(pipeline, model, steps, pre_stamp):
+    projected_paths, labels = \
+        get_projected_paths_and_labels(pipeline, model, steps)
     model_output_name = model.output_names[0]
-    ylim_bot = np.floor(projected_minimum)-0.1
-    ylim_top = np.ceil(projected_maximum)+0.1
-    for i in range(len(labels)):
-        plot_projected_paths(
-            projected_paths=projected_paths, labels=labels[:i+1],
-            model_output_name=model_output_name, steps=steps,
-            pre_stamp=pre_stamp, const=const, ylims=(ylim_bot, ylim_top))
-    return projected_minimum, projected_maximum
+    plot_projected_paths(
+        projected_paths=projected_paths, labels=labels,
+        model_output_name=model_output_name, steps=steps,
+        pre_stamp=pre_stamp, const=pipeline.const)
 
 
-def make_projected_path_from_path(pipeline, path, const, steps, model):
+def get_projected_paths_and_labels(pipeline, model, steps):
+    paths, labels = pipeline.const.path_getter_function(const=pipeline.const)
+    projected_paths = [make_projected_path_from_path(
+        model, pipeline, path, steps) for path in paths]
+    return projected_paths, labels
+
+
+def make_projected_path_from_path(model, pipeline, path, steps):
     out_size = model.layers[-1].output_shape[1]
     if out_size > 1:
         raise ValueError(
             "Data of dimensionality {} cannot be plotted".format(out_size))
-    bn_path = pipeline.bound_normalize(path)
-    bnr_path = pipeline.reduce(bn_path)
+    bnr_path = pipeline.reduce(pipeline.bound_normalize(path))
     path_len = len(bnr_path)
     projected_path = [model.predict([[bnr_path[int(path_len*i/(steps+1))]]])[0]
                       for i in range(steps+1)]
@@ -350,26 +344,36 @@ def make_projected_path_from_path(pipeline, path, const, steps, model):
 
 
 def plot_projected_paths(
-        projected_paths, labels, model_output_name,
-        steps, pre_stamp, const, ylims=(None, None)):
-    for plot_path, label, i in zip(
-            projected_paths, labels, range(len(labels))):
-        plt.plot(
-            *np.transpose(plot_path),
-            label=str(label),
-            color=const.plt_colors[i % len(labels)])
+        projected_paths, labels, model_output_name, steps, pre_stamp, const):
+    label_cnt = len(labels)
+    for plot_path, label, color in zip(projected_paths, labels, const.plt_colors):
+        plt.plot(*np.transpose(plot_path), label=str(label), color=color)
     plt.ylabel(model_output_name + " output")
     plt.xlabel(r"Progress along path [%]")
-    plt.xticks(
-        [steps*i/10 for i in range(11)],
-        [100*i/10 for i in range(11)])
+    plt.xticks([steps*i/10 for i in range(11)], [100*i/10 for i in range(11)])
     plt.xlim(0, steps)
-    plt.ylim(ylims)
+    projected_minimum, projected_maximum = \
+        get_low_and_high_point_of_projected_paths(projected_paths)
+    plt.ylim(np.floor(projected_minimum)-0.1, np.ceil(projected_maximum)+0.1)
     plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
     plt.subplots_adjust(right=0.82)
-    plt.savefig("results/{}_LatentSpacePath_plot_{}_{}D_{}.png".format(
-        pre_stamp, const.model_stamp, const.bottleneck_size, len(labels)))
+    plt.savefig(f"results/{pre_stamp}_LatentSpacePath_plot_{const.model_stamp}"
+                + f"_{const.bottleneck_size}D_{label_cnt}.png")
     plt.show()
+
+
+def get_projected_minimum_and_maximum(pipeline, model, steps):
+    projected_paths, _ = get_projected_paths_and_labels(pipeline, model, steps)
+    return get_low_and_high_point_of_projected_paths(projected_paths)
+
+
+def get_low_and_high_point_of_projected_paths(paths):
+    flattened_paths = flatten_list_of_lists(paths)
+    low_point = np.amin(
+        np.transpose(flattened_paths)[1], axis=0)
+    high_point = np.amax(
+        np.transpose(flattened_paths)[1], axis=0)
+    return low_point, high_point
 
 
 def plot_relative_importances(names, values):

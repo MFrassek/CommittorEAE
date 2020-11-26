@@ -3,6 +3,7 @@ from helperFunctions import \
     make_density_colormap
 from losses import *
 from tensorflow import keras
+from data_read import get_toy_paths, get_TPS_and_TIS_paths
 
 
 class Const():
@@ -16,6 +17,7 @@ class Const():
                 "x_{1}", "x_{2}", "x_{3}", "x_{4}", "x_{5}"]
             # Name of the folder in which the toy data is found
             self._toy_folder_name = dataSetType
+            self._path_getter_function = get_toy_paths
         elif dataSetType == "MH":
             self._name_to_list_position = {
                 "MCG": 0, "N_{w,4}": 1, "N_{w,3}": 2, "N_{w,2}": 3,
@@ -40,6 +42,7 @@ class Const():
             self._mcg_A = 18
             # MCG threshold above which a snapshot belongs to state B
             self._mcg_B = 120
+            self._path_getter_function = get_TPS_and_TIS_paths
 
         # Fraction of paths used from the read files
         self._used_dataset_fraction = 1
@@ -123,7 +126,7 @@ class Const():
         # List of colors for plt.plots
         self._plt_colors = [
             "c", "g", "r", "indigo", "y", "m",
-            "k", "lightpink", "orange", "olive", "b"]
+            "k", "lightpink", "orange", "olive", "b", "darkviolet"]
 
     @property
     def dataSetType(self):
@@ -144,6 +147,10 @@ class Const():
     @property
     def used_list_positions(self):
         return self._used_list_positions
+
+    @property
+    def path_getter_function(self):
+        return self._path_getter_function
 
     @property
     def toy_folder_name(self):
