@@ -301,7 +301,7 @@ def calc_represented_scatter_generated(
     return xs, ys
 
 
-def plot_loss_history(history, file_name):
+def plot_loss_history(history, pre_stamp):
     plt.figure(figsize=(8, 8))
     for key, log_loss in history.history.items():
         plt.plot(range(1, 1+len(log_loss)), log_loss, label=key)
@@ -310,7 +310,7 @@ def plot_loss_history(history, file_name):
     plt.xlim(1, len(log_loss))
     plt.xticks(range(1, 1+len(log_loss)))
     plt.legend(loc="lower right")
-    plt.savefig(file_name)
+    plt.savefig(f"results/{pre_stamp}_loss_history.png")
     plt.show()
 
 
