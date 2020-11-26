@@ -177,10 +177,13 @@ def calculate_label_map(weighted_label_map, weight_map):
 
 
 def calc_represented_map_generated(
-        dim_position, minima, maxima, model, representations):
+        dim_position, minmax_container, model, representations):
     def rescale_grid_point_means(grid_point_means):
-        span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
-        return (grid_point_means * span_inv_resolution) + minima
+        span_inv_resolution = \
+            (minmax_container.r_maxima - minmax_container.r_minima) \
+            / (dim_position.resolution - 1)
+        return (grid_point_means * span_inv_resolution) \
+            + minmax_container.r_minima
 
     print(dim_position.x_dim, dim_position.y_dim)
     xy_dimension_means = representations[
@@ -277,14 +280,18 @@ def remove_empty_scatter_axes(const, axs, max_row_len):
 
 
 def calc_represented_scatter_generated(
-        dim_position, model, minima, maxima, representations):
+        dim_position, model, minmax_container, representations):
     def rescale_grid_point_means(grid_point_means):
-        span_inv_resolution = (maxima - minima) / (dim_position.resolution - 1)
-        return (grid_point_means * span_inv_resolution) + minima
+        span_inv_resolution = \
+            (minmax_container.r_maxima - minmax_container.r_minima) \
+            / (dim_position.resolution - 1)
+        return (grid_point_means * span_inv_resolution) \
+            + minmax_container.r_minima
 
     print(dim_position.x_dim)
     xs = np.linspace(
-        minima[dim_position.x_dim], maxima[dim_position.x_dim],
+        minmax_container.r_minima[dim_position.x_dim],
+        minmax_container.r_maxima[dim_position.x_dim],
         dim_position.resolution)
     x_dimension_means = representations[dim_position.x_dim]
     ys = np.array([model.predict(
