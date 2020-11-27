@@ -477,30 +477,30 @@ def make_single_map_labels_and_tick_labels(ax, pipeline, dim_position):
 
 def plot_reconstruction_from_latent_space(
         const, latent_minimum, latent_maximum,
-        steps, recon_decoder, pre_stamp):
+        steps, reconstruction_decoder, pre_stamp):
+    def add_trace(prediction, i):
+        return go.Scatterpolar(
+            r=np.append(prediction, prediction[0]),
+            theta=var_names+[var_names[0]],
+            name=f"{latent_linspace[i]:.1f}",
+            showlegend=True,
+            line=dict(color="rgb({},{},{})".format(
+                0.8 - 0.6 * i / steps,
+                0.2 + 0.6 * i / steps,
+                0.2 + 0.6 * i / steps)))
+
+    latent_linspace = np.linspace(
+        np.floor(latent_minimum), np.ceil(latent_maximum), steps)
+    var_names = [f"${name}$" for name in const.used_variable_names]
+    predictions = [reconstruction_decoder.predict([latent_value])[0]
+                   for latent_value in latent_linspace]
     fig = go.Figure()
-    var_names = ["$"+name+"$" for name
-                 in const.used_variable_names
-                 + [const.used_variable_names[0]]]
-    for i, val in enumerate(np.linspace(np.floor(
-            latent_minimum), np.ceil(latent_maximum), steps)):
-        prediction = recon_decoder.predict([val])[0]
-        prediction = np.append(prediction, prediction[0])
-        fig.add_trace(
-            go.Scatterpolar(
-                r=prediction,
-                theta=var_names,
-                name="{:.1f}".format(val),
-                showlegend=True,
-                line=dict(color="rgb({},{},{})".format(
-                    0.8 - 0.6 * i / steps,
-                    0.2 + 0.6 * i / steps,
-                    0.2 + 0.6 * i / steps))))
+    for i, prediction in enumerate(predictions):
+        fig.add_trace(add_trace(prediction, i))
     fig.update_layout(
         polar=dict(
             radialaxis=dict(visible=True, tickangle=0),
             angularaxis=dict(tickfont=dict(size=18))),
-        title_text="Path reconstruction from latent space", title_x=0.5,
         legend_title_text="$\ BN_1 input$")
     fig.write_image("results/{}_PathReconstruction.png".format(pre_stamp))
     fig.show()
