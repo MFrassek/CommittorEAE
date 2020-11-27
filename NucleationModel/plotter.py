@@ -457,16 +457,14 @@ def plot_single_map(
 
 def inject_dividing_line(function, pipeline, x_int, y_int):
     xs = np.linspace(
-        pipeline.r_lower_bound[x_int],
-        pipeline.r_upper_bound[x_int],
-        11)
+        pipeline.r_lower_bound[x_int], pipeline.r_upper_bound[x_int], 100)
     ys = np.array([function(x) for x in xs])
     xs = (xs - pipeline.r_lower_bound[x_int]) \
         / (pipeline.r_upper_bound[x_int] - pipeline.r_lower_bound[x_int])
     ys = (ys - pipeline.r_lower_bound[y_int]) \
         / (pipeline.r_upper_bound[y_int] - pipeline.r_lower_bound[y_int])
-    plt.plot(
-        np.array(xs), np.array(ys), c="r")
+    where_y_within_range = np.where((ys >= 0) & (ys <= 1))
+    plt.plot(xs[where_y_within_range], ys[where_y_within_range], c="r")
 
 
 def plot_reconstruction_from_latent_space(
