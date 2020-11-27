@@ -430,10 +430,12 @@ def plot_relative_importances(variable_names, importances):
 
 
 def plot_single_map(
-        dim_position, pipeline, stamp, method,
-        line_formula=lambda x: np.float("NaN"), **kwargs):
+        dim_position, pipeline, stamp, method, line_formula=None, **kwargs):
     fig, ax = plt.subplots(1, 1)
-    inject_dividing_line(line_formula, pipeline, dim_position)
+    try:
+        inject_dividing_line(line_formula, pipeline, dim_position)
+    except TypeError:
+        pass
     cmap = select_color_map(function_to_str(method), pipeline.const)
     plt.imshow(
         np.maximum(
