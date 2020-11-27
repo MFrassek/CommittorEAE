@@ -430,47 +430,47 @@ def plot_relative_importances(variable_names, importances):
 
 
 def plot_single_map(
-        x_int, y_int, const, pipeline, stamp, method,
+        dim_position, pipeline, stamp, method,
         line_formula=lambda x: np.float("NaN"), **kwargs):
     fig, ax = plt.subplots(1, 1)
-    inject_dividing_line(line_formula, pipeline, x_int, y_int)
+    inject_dividing_line(line_formula, pipeline, dim_position)
     cmap = select_color_map(function_to_str(method), pipeline.const)
     plt.imshow(
         np.maximum(
-            np.transpose(
-                method(
-                    DimensionalPosition(const, x_int, y_int),
-                    **kwargs))[::-1],
-            const.logvmin / 2),
+            np.transpose(method(dim_position, **kwargs))[::-1],
+            pipeline.const.logvmin / 2),
         cmap=cmap,
         interpolation='nearest',
         norm=mpl.colors.LogNorm(
-            vmin=const.logvmin,
-            vmax=1.0-const.logvmin),
+            vmin=pipeline.const.logvmin,
+            vmax=1.0 - pipeline.const.logvmin),
         extent=[0, 1, 0, 1],
         zorder=1)
-    set_xtick_labels(ax, pipeline, x_int)
+    set_xtick_labels(ax, pipeline, dim_position.x_dim)
     ax.set_xlabel(
-        f"${const.used_variable_names[x_int]}$",
-        fontsize=const.subfig_size * 10)
-    set_ytick_labels(ax, pipeline, y_int)
+        f"${dim_position.x_var_name}$",
+        fontsize=pipeline.const.subfig_size * 10)
+    set_ytick_labels(ax, pipeline, dim_position.y_dim)
     ax.set_ylabel(
-        f"${const.used_variable_names[y_int]}$",
-        fontsize=const.subfig_size * 10)
+        f"${dim_position.y_var_name}$",
+        fontsize=pipeline.const.subfig_size * 10)
     plt.colorbar(extend="both")
     plt.tight_layout()
-    plt.savefig("results/{}_x{}_y_{}.png".format(stamp, x_int, y_int))
+    plt.savefig(
+        f"results/{stamp}_x{dim_position.x_dim}_y_{dim_position.y_dim}.png")
     plt.show()
 
 
-def inject_dividing_line(function, pipeline, x_int, y_int):
+def inject_dividing_line(function, pipeline, dim_position):
+    x_dim = dim_position.x_dim
+    y_dim = dim_position.y_dim
     xs = np.linspace(
-        pipeline.r_lower_bound[x_int], pipeline.r_upper_bound[x_int], 100)
+        pipeline.r_lower_bound[x_dim], pipeline.r_upper_bound[x_dim], 100)
     ys = np.array([function(x) for x in xs])
-    xs = (xs - pipeline.r_lower_bound[x_int]) \
-        / (pipeline.r_upper_bound[x_int] - pipeline.r_lower_bound[x_int])
-    ys = (ys - pipeline.r_lower_bound[y_int]) \
-        / (pipeline.r_upper_bound[y_int] - pipeline.r_lower_bound[y_int])
+    xs = (xs - pipeline.r_lower_bound[x_dim]) \
+        / (pipeline.r_upper_bound[x_dim] - pipeline.r_lower_bound[x_dim])
+    ys = (ys - pipeline.r_lower_bound[y_dim]) \
+        / (pipeline.r_upper_bound[y_dim] - pipeline.r_lower_bound[y_dim])
     where_y_within_range = np.where((ys >= 0) & (ys <= 1))
     plt.plot(xs[where_y_within_range], ys[where_y_within_range], c="r")
 
