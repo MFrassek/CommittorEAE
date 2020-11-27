@@ -79,13 +79,17 @@ def make_subplot_heatmaps(super_map, axs, const, cmap):
     for i, sub_map_row in enumerate(super_map):
         for j, sub_map in enumerate(sub_map_row):
             if j < i:
-                axs[i][j].imshow(
-                        np.maximum(sub_map[::-1], const.logvmin / 2),
-                        cmap=cmap,
-                        interpolation='nearest',
-                        norm=mpl.colors.LogNorm(
-                            vmin=const.logvmin, vmax=1 - const.logvmin),
-                        extent=[0, 1, 0, 1])
+                make_subplot_heatmap(axs[i][j], sub_map, const, cmap)
+
+
+def make_subplot_heatmap(ax, heatmap, const, cmap):
+    ax.imshow(
+        np.maximum(heatmap[::-1], const.logvmin / 2),
+        cmap=cmap,
+        interpolation='nearest',
+        norm=mpl.colors.LogNorm(
+            vmin=const.logvmin, vmax=1 - const.logvmin),
+        extent=[0, 1, 0, 1])
 
 
 def make_axes_and_labels(pipeline, axs, fig):
@@ -437,27 +441,10 @@ def plot_single_map(
     except TypeError:
         pass
     cmap = select_color_map(function_to_str(method), pipeline.const)
-    plt.imshow(
-        np.maximum(
-            np.transpose(method(dim_position, **kwargs))[::-1],
-            pipeline.const.logvmin / 2),
-        cmap=cmap,
-        interpolation='nearest',
-        norm=mpl.colors.LogNorm(
-            vmin=pipeline.const.logvmin,
-            vmax=1.0 - pipeline.const.logvmin),
-        extent=[0, 1, 0, 1],
-        zorder=1)
-    set_xtick_labels(ax, pipeline, dim_position.x_dim)
-    ax.set_xlabel(
-        f"${dim_position.x_var_name}$",
-        fontsize=pipeline.const.subfig_size * 10)
-    set_ytick_labels(ax, pipeline, dim_position.y_dim)
-    ax.set_ylabel(
-        f"${dim_position.y_var_name}$",
-        fontsize=pipeline.const.subfig_size * 10)
-    plt.colorbar(extend="both")
-    plt.tight_layout()
+    heatmap = np.transpose(method(dim_position, **kwargs))
+    make_subplot_heatmap(ax, heatmap, pipeline.const, cmap)
+    make_single_map_labels_and_tick_labels(ax, pipeline, dim_position)
+    make_color_bar([[ax], [ax]], pipeline.const)
     plt.savefig(
         f"results/{stamp}_x{dim_position.x_dim}_y_{dim_position.y_dim}.png")
     plt.show()
@@ -475,6 +462,17 @@ def inject_dividing_line(function, pipeline, dim_position):
         / (pipeline.r_upper_bound[y_dim] - pipeline.r_lower_bound[y_dim])
     where_y_within_range = np.where((ys >= 0) & (ys <= 1))
     plt.plot(xs[where_y_within_range], ys[where_y_within_range], c="r")
+
+
+def make_single_map_labels_and_tick_labels(ax, pipeline, dim_position):
+    set_xtick_labels(ax, pipeline, dim_position.x_dim)
+    ax.set_xlabel(
+        f"${dim_position.x_var_name}$",
+        fontsize=pipeline.const.subfig_size * 10)
+    set_ytick_labels(ax, pipeline, dim_position.y_dim)
+    ax.set_ylabel(
+        f"${dim_position.y_var_name}$",
+        fontsize=pipeline.const.subfig_size * 10)
 
 
 def plot_reconstruction_from_latent_space(
