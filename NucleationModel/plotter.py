@@ -28,6 +28,14 @@ class DimensionalPosition():
     def y_dim(self):
         return self._y_dim
 
+    @property
+    def x_var_name(self):
+        return self._x_var_name
+
+    @property
+    def y_var_name(self):
+        return self._y_var_name
+
 
 def make_super_map_plot(method, pipeline, pre_stamp, **kwargs):
     method_name = function_to_str(method)
