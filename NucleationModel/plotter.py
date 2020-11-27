@@ -433,7 +433,7 @@ def plot_relative_importances(variable_names, importances):
     plt.show()
 
 
-def plot_single_map(
+def make_single_map_plot(
         dim_position, pipeline, stamp, method, line_formula=None, **kwargs):
     fig, ax = plt.subplots(1, 1)
     try:
