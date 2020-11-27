@@ -475,7 +475,7 @@ def make_single_map_labels_and_tick_labels(ax, pipeline, dim_position):
         fontsize=pipeline.const.subfig_size * 10)
 
 
-def plot_reconstruction_from_latent_space(
+def make_representative_path_plot(
         const, latent_minimum, latent_maximum,
         steps, reconstruction_decoder, pre_stamp):
     def add_trace(prediction, i):
