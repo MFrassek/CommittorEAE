@@ -423,14 +423,13 @@ def plot_relative_importances(variable_names, importances):
 
 def plot_single_map(
         x_int, y_int, const, pipeline, stamp, method,
-        PES_function=lambda x: None, line_function=lambda w, x, y, z: None,
+        line_function=lambda w, x, y, z: None,
         line_formula=lambda x: np.float("NaN"), **kwargs):
     fig, ax = plt.subplots(1, 1)
     x_name = const.used_variable_names[x_int]
     pipeline_x_int = const.name_to_list_position[x_name]
     y_name = const.used_variable_names[y_int]
     pipeline_y_int = const.name_to_list_position[y_name]
-    PES_function(const)
     line_function(line_formula, pipeline, pipeline_x_int, pipeline_y_int)
     method_name = function_to_str(method)
     if "density" not in method_name:
@@ -463,16 +462,6 @@ def plot_single_map(
     plt.tight_layout()
     plt.savefig("results/{}_x{}_y_{}.png".format(stamp, x_int, y_int))
     plt.show()
-
-
-def inject_PES(const):
-    PES = plt.imread("PES_{}.png".format(const.dataSetType))
-    PES[PES < 0.1] = np.nan
-    plt.imshow(
-        PES,
-        extent=(0, 1, 0, 1),
-        cmap=make_png_with_bad_as_transparent_colormap(),
-        zorder=2)
 
 
 def inject_dividing_line(function, pipeline, x_int, y_int):
