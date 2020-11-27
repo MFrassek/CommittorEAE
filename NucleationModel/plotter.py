@@ -423,19 +423,10 @@ def plot_relative_importances(variable_names, importances):
 
 def plot_single_map(
         x_int, y_int, const, pipeline, stamp, method,
-        line_function=lambda w, x, y, z: None,
         line_formula=lambda x: np.float("NaN"), **kwargs):
     fig, ax = plt.subplots(1, 1)
-    x_name = const.used_variable_names[x_int]
-    pipeline_x_int = const.name_to_list_position[x_name]
-    y_name = const.used_variable_names[y_int]
-    pipeline_y_int = const.name_to_list_position[y_name]
-    line_function(line_formula, pipeline, pipeline_x_int, pipeline_y_int)
-    method_name = function_to_str(method)
-    if "density" not in method_name:
-        cmap = const.label_cmap
-    else:
-        cmap = const.density_cmap
+    inject_dividing_line(line_formula, pipeline, x_int, y_int)
+    cmap = select_color_map(function_to_str(method), pipeline.const)
     plt.imshow(
         np.maximum(
             np.transpose(
@@ -452,11 +443,11 @@ def plot_single_map(
         zorder=1)
     set_xtick_labels(ax, pipeline, x_int)
     ax.set_xlabel(
-        "${}$".format(x_name),
+        f"${const.used_variable_names[x_int]}$",
         fontsize=const.subfig_size * 10)
     set_ytick_labels(ax, pipeline, y_int)
     ax.set_ylabel(
-        "${}$".format(y_name),
+        f"${const.used_variable_names[y_int]}$",
         fontsize=const.subfig_size * 10)
     plt.colorbar(extend="both")
     plt.tight_layout()
@@ -466,14 +457,14 @@ def plot_single_map(
 
 def inject_dividing_line(function, pipeline, x_int, y_int):
     xs = np.linspace(
-        pipeline.lower_bound[x_int],
-        pipeline.upper_bound[x_int],
+        pipeline.r_lower_bound[x_int],
+        pipeline.r_upper_bound[x_int],
         11)
     ys = np.array([function(x) for x in xs])
-    xs = (xs - pipeline.lower_bound[x_int]) \
-        / (pipeline.upper_bound[x_int] - pipeline.lower_bound[x_int])
-    ys = (ys - pipeline.lower_bound[y_int]) \
-        / (pipeline.upper_bound[y_int] - pipeline.lower_bound[y_int])
+    xs = (xs - pipeline.r_lower_bound[x_int]) \
+        / (pipeline.r_upper_bound[x_int] - pipeline.r_lower_bound[x_int])
+    ys = (ys - pipeline.r_lower_bound[y_int]) \
+        / (pipeline.r_upper_bound[y_int] - pipeline.r_lower_bound[y_int])
     plt.plot(
         np.array(xs), np.array(ys), c="r")
 
