@@ -537,30 +537,19 @@ def set_ytick_labels(ax, pipeline, index):
 
 def plot_input_distribution(grid_snapshots, max_row_len, pipeline):
     cols = np.transpose(grid_snapshots)
-    dimensions = len(grid_snapshots[0])
-    row_cnt = ((dimensions-1)//max_row_len)+1
-    fig, axs = plt.subplots(
-        row_cnt, max_row_len, figsize=(
-            pipeline.const.subfig_size*max_row_len,
-            pipeline.const.subfig_size*row_cnt))
-    for i in range(dimensions):
-        if row_cnt > 1:
-            new_axs = axs[i//max_row_len]
-        else:
-            new_axs = axs
-        new_axs[i % max_row_len].hist(cols[i], pipeline.const.resolution)
-        new_axs[i % max_row_len].set_xlim(0, pipeline.const.resolution-1)
-        new_axs[i % max_row_len].set_xlabel(
+    fig, axs = prepare_subscatters(pipeline.const, max_row_len)
+    for i in range(len(pipeline.const.used_variable_names)):
+        axs[i//max_row_len][i % max_row_len].hist(
+            cols[i], pipeline.const.resolution)
+        axs[i//max_row_len][i % max_row_len].set_xlim(
+            0, pipeline.const.resolution-1)
+        axs[i//max_row_len][i % max_row_len].set_xlabel(
                 f"${pipeline.const.used_variable_names[i]}$",
                 fontsize=pipeline.const.subfig_size * 8)
-        new_axs[i % max_row_len].tick_params(
+        axs[i//max_row_len][i % max_row_len].tick_params(
             axis="y", labelsize=pipeline.const.subfig_size * 4)
-        set_xtick_labels(new_axs[i % max_row_len], pipeline, i)
-    # if not all rows are filled
-    # remove the remaining empty subplots in the last row
-    if dimensions % max_row_len != 0:
-        for i in range(dimensions % max_row_len, max_row_len):
-            new_axs[i].axis("off")
+        set_xtick_labels(axs[i//max_row_len][i % max_row_len], pipeline, i)
+    remove_empty_scatter_axes(pipeline.const, axs, max_row_len)
     fig.align_labels()
     plt.tight_layout(rect=[0, 0, 1, 1])
     plt.savefig(f"results/input_distribution_{pipeline.const.data_stamp}.png")
