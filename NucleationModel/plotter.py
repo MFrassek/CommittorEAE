@@ -535,28 +535,26 @@ def set_ytick_labels(ax, pipeline, index):
         fontsize=pipeline.const.subfig_size * 6)
 
 
-def plot_input_distribution(
-        const, grid_snapshots, max_row_len, pipeline):
+def plot_input_distribution(grid_snapshots, max_row_len, pipeline):
     cols = np.transpose(grid_snapshots)
     dimensions = len(grid_snapshots[0])
     row_cnt = ((dimensions-1)//max_row_len)+1
     fig, axs = plt.subplots(
-        row_cnt, max_row_len,
-        figsize=(
-            const.subfig_size*max_row_len,
-            const.subfig_size*row_cnt))
+        row_cnt, max_row_len, figsize=(
+            pipeline.const.subfig_size*max_row_len,
+            pipeline.const.subfig_size*row_cnt))
     for i in range(dimensions):
         if row_cnt > 1:
             new_axs = axs[i//max_row_len]
         else:
             new_axs = axs
-        new_axs[i % max_row_len].hist(cols[i], const.resolution)
-        new_axs[i % max_row_len].set_xlim(0, const.resolution-1)
+        new_axs[i % max_row_len].hist(cols[i], pipeline.const.resolution)
+        new_axs[i % max_row_len].set_xlim(0, pipeline.const.resolution-1)
         new_axs[i % max_row_len].set_xlabel(
-                "${}$".format(const.used_variable_names[i]),
-                fontsize=const.subfig_size * 8)
+                f"${pipeline.const.used_variable_names[i]}$",
+                fontsize=pipeline.const.subfig_size * 8)
         new_axs[i % max_row_len].tick_params(
-            axis="y", labelsize=const.subfig_size * 4)
+            axis="y", labelsize=pipeline.const.subfig_size * 4)
         set_xtick_labels(new_axs[i % max_row_len], pipeline, i)
     # if not all rows are filled
     # remove the remaining empty subplots in the last row
@@ -565,7 +563,7 @@ def plot_input_distribution(
             new_axs[i].axis("off")
     fig.align_labels()
     plt.tight_layout(rect=[0, 0, 1, 1])
-    plt.savefig(f"results/input_distribution_{const.data_stamp}.png")
+    plt.savefig(f"results/input_distribution_{pipeline.const.data_stamp}.png")
 
 
 def plot_histogram_with_broken_axes(
