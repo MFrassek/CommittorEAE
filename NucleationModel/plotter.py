@@ -567,19 +567,9 @@ def set_axis_labels_and_tick_labels_for_superhist(pipeline, axs, max_row_len):
 def plot_histogram_with_broken_axes(
         xs, bins, lower_range, upper_range, filename):
     f, (upper_ax, lower_ax) = plt.subplots(2, 1, sharex=True)
-
     make_broken_hist_upper_half(upper_ax, xs, bins, upper_range)
     make_broken_hist_lower_half(lower_ax, xs, bins, lower_range)
-
-    d = .015  # how big to make the diagonal lines in axes coordinates
-    # arguments to pass to plot, just so we don't keep repeating them
-    kwargs = dict(transform=upper_ax.transAxes, color='k', clip_on=False)
-    upper_ax.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-    upper_ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
-
-    kwargs.update(transform=lower_ax.transAxes)  # switch to the bottom axes
-    lower_ax.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
-    lower_ax.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+    make_diagonal_break_lines(upper_ax, lower_ax)
     plt.savefig(filename)
     plt.show()
 
@@ -597,3 +587,13 @@ def make_broken_hist_lower_half(lower_ax, xs, bins, lower_range):
     lower_ax.spines['top'].set_visible(False)
     lower_ax.set_xlabel("$p_B$", fontsize=12)
     lower_ax.set_ylabel(30 * " " + "Count", fontsize=12)
+
+
+def make_diagonal_break_lines(upper_ax, lower_ax):
+    line_len = 0.015
+    kwargs = dict(transform=upper_ax.transAxes, color='k', clip_on=False)
+    upper_ax.plot((-line_len, +line_len), (-line_len, +line_len), **kwargs)
+    upper_ax.plot((1 - line_len, 1 + line_len), (-line_len, +line_len), **kwargs)
+    kwargs = dict(transform=lower_ax.transAxes, color='k', clip_on=False)
+    lower_ax.plot((-line_len, +line_len), (1 - line_len, 1 + line_len), **kwargs)
+    lower_ax.plot((1 - line_len, 1 + line_len), (1 - line_len, 1 + line_len), **kwargs)
