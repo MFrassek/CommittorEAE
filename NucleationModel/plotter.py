@@ -564,7 +564,7 @@ def set_axis_labels_and_tick_labels_for_superhist(pipeline, axs, max_row_len):
         set_xtick_labels(axs[i//max_row_len][i % max_row_len], pipeline, i)
 
 
-def plot_histogram_with_broken_axes(
+def make_histogram_with_broken_axis_plot(
         xs, bins, lower_range, upper_range, filename):
     f, (upper_ax, lower_ax) = plt.subplots(2, 1, sharex=True)
     make_broken_hist_upper_half(upper_ax, xs, bins, upper_range)
