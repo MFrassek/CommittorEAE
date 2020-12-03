@@ -37,10 +37,10 @@ class DimensionalPosition():
         return self._y_var_name
 
 
-def make_super_map_plot(method, pipeline, pre_stamp, **kwargs):
+def make_super_map_plot(method, pipeline, **kwargs):
     method_name = function_to_str(method)
     super_map = calculate_super_map(method, pipeline, **kwargs)
-    plot_super_map(method_name, pipeline, super_map, pre_stamp)
+    plot_super_map(method_name, pipeline, super_map)
 
 
 def calculate_super_map(method, pipeline, **kwargs):
@@ -51,13 +51,13 @@ def calculate_super_map(method, pipeline, **kwargs):
           for i, _ in enumerate(pipeline.const.used_variable_names)]
 
 
-def plot_super_map(method_name, pipeline, super_map, pre_stamp):
+def plot_super_map(method_name, pipeline, super_map):
     cmap = select_color_map(method_name, pipeline.const)
     fig, axs = prepare_subplots(pipeline.const)
     make_subplot_heatmaps(super_map, axs, pipeline.const, cmap)
     make_axes_and_labels(pipeline, axs, fig)
     make_color_bar(axs, pipeline.const)
-    plt.savefig(get_output_file_name(method_name, pre_stamp, pipeline.const))
+    plt.savefig(get_output_file_name(method_name, pipeline.const))
     plt.show()
 
 
@@ -141,13 +141,17 @@ def make_color_bar(axs, const):
     cbar.ax.tick_params(labelsize=const.subfig_size * len(axs) * 2)
 
 
-def get_output_file_name(method_name, pre_stamp, const):
+def get_output_file_name(method_name, const):
     if "given" in method_name:
-        return "results/{}_giv_{}_r{}_map.png".format(
-            pre_stamp, const.data_stamp, const.resolution)
+        if "configurational" in method_name:
+            return f"results/{const.dataSetType}_confgiv_{const.data_stamp}_" \
+                + f"r{const.resolution}_map.png"
+        else:
+            return f"results/{const.dataSetType}_giv_{const.data_stamp}_" \
+                + f"r{const.resolution}_map.png"
     elif "generated" in method_name:
-        return "results/{}_gen_{}_{}_r{}_map.png".format(
-            pre_stamp, const.data_stamp, const.model_stamp, const.resolution)
+        return f"results/{const.dataSetType}_gen_{const.data_stamp}_" \
+            + f"{const.model_stamp}_r{const.resolution}_map.png"
 
 
 def calc_map_given(dim_position, grid_snapshots, labels, weights):
