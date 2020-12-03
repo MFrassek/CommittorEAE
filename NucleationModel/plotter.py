@@ -535,7 +535,7 @@ def set_ytick_labels(ax, pipeline, index):
         fontsize=pipeline.const.subfig_size * 6)
 
 
-def plot_input_distribution(grid_snapshots, max_row_len, pipeline):
+def make_input_distribution_plot(grid_snapshots, max_row_len, pipeline):
     fig, axs = prepare_max_row_subplots(pipeline.const, max_row_len)
     make_subplot_hists(grid_snapshots, pipeline, axs, max_row_len)
     set_axis_labels_and_tick_labels_for_superhist(pipeline, axs, max_row_len)
