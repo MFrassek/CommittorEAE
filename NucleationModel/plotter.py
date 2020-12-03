@@ -541,6 +541,15 @@ def plot_input_distribution(grid_snapshots, max_row_len, pipeline):
     for i in range(len(pipeline.const.used_variable_names)):
         axs[i//max_row_len][i % max_row_len].hist(
             cols[i], pipeline.const.resolution)
+    set_axis_labels_and_tick_labels_for_superhist(pipeline, axs, max_row_len)
+    remove_empty_max_row_subplot_axes(pipeline.const, axs, max_row_len)
+    fig.align_labels()
+    plt.tight_layout(rect=[0, 0, 1, 0.8])
+    plt.savefig(f"results/input_distribution_{pipeline.const.data_stamp}.png")
+
+
+def set_axis_labels_and_tick_labels_for_superhist(pipeline, axs, max_row_len):
+    for i in range(len(pipeline.const.used_variable_names)):
         axs[i//max_row_len][i % max_row_len].set_xlim(
             0, pipeline.const.resolution-1)
         axs[i//max_row_len][i % max_row_len].set_xlabel(
@@ -549,10 +558,6 @@ def plot_input_distribution(grid_snapshots, max_row_len, pipeline):
         axs[i//max_row_len][i % max_row_len].tick_params(
             axis="y", labelsize=pipeline.const.subfig_size * 4)
         set_xtick_labels(axs[i//max_row_len][i % max_row_len], pipeline, i)
-    remove_empty_max_row_subplot_axes(pipeline.const, axs, max_row_len)
-    fig.align_labels()
-    plt.tight_layout(rect=[0, 0, 1, 1])
-    plt.savefig(f"results/input_distribution_{pipeline.const.data_stamp}.png")
 
 
 def plot_histogram_with_broken_axes(
