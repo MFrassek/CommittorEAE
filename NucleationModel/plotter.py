@@ -225,10 +225,9 @@ def calc_map_given_configurational_density(
                      for weight_row in weight_map])
 
 
-def make_super_scatter_plot(
-        method, pipeline, pre_stamp, max_row_len=6, **kwargs):
+def make_super_scatter_plot(method, pipeline, max_row_len=6, **kwargs):
     super_scatter = calculate_super_scatter(method, pipeline, **kwargs)
-    plot_super_scatter(pipeline, max_row_len, super_scatter, pre_stamp)
+    plot_super_scatter(pipeline, max_row_len, super_scatter)
 
 
 def calculate_super_scatter(method, pipeline, **kwargs):
@@ -237,7 +236,7 @@ def calculate_super_scatter(method, pipeline, **kwargs):
         for i, _ in enumerate(pipeline.const.used_variable_names)]
 
 
-def plot_super_scatter(pipeline, max_row_len, super_scatter, pre_stamp):
+def plot_super_scatter(pipeline, max_row_len, super_scatter):
     fig, axs = prepare_max_row_subplots(pipeline.const, max_row_len)
     fig.align_labels()
     make_subplot_scatters(super_scatter, axs, pipeline.const, max_row_len)
@@ -246,8 +245,8 @@ def plot_super_scatter(pipeline, max_row_len, super_scatter, pre_stamp):
     set_y_axis_label_for_leftmost_subscatters(pipeline.const, axs, max_row_len)
     remove_empty_max_row_subplot_axes(pipeline.const, axs, max_row_len)
     plt.tight_layout(rect=[0, 0, 1, 0.8])
-    plt.savefig(f"results/{pre_stamp}_{pipeline.const.data_stamp}_"
-                + f"{pipeline.const.model_stamp}_"
+    plt.savefig(f"results/{pipeline.const.dataSetType}_"
+                + f"{pipeline.const.data_stamp}_{pipeline.const.model_stamp}_"
                 + f"r{pipeline.const.resolution}_scat.png")
     plt.show()
 
