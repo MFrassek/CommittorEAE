@@ -565,29 +565,27 @@ def set_axis_labels_and_tick_labels_for_superhist(pipeline, axs, max_row_len):
 
 
 def plot_histogram_with_broken_axes(
-        xs, bins, y_lower_1, y_upper_1, y_lower_2, y_upper_2, filename):
-    f, (ax, ax2) = plt.subplots(2, 1, sharex=True)
-    ax.hist(xs, bins)
-    ax2.hist(xs, bins)
-    ax.set_ylim(y_lower_2, y_upper_2)  # outliers only
-    ax2.set_ylim(y_lower_1, y_upper_1)  # most of the data
-    # hide the spines between ax and ax2
-    ax.spines['bottom'].set_visible(False)
-    ax2.spines['top'].set_visible(False)
-    ax.xaxis.tick_top()
-    ax.tick_params(labeltop=False)  # don't put tick labels at the top
-    ax2.xaxis.tick_bottom()
-    ax2.set_xlabel("$p_B$", fontsize=12)
-    ax2.set_ylabel("                              Count", fontsize=12)
+        xs, bins, lower_range, upper_range, filename):
+    f, (upper_ax, lower_ax) = plt.subplots(2, 1, sharex=True)
+    upper_ax.hist(xs, bins)
+    upper_ax.set_ylim(upper_range)
+    upper_ax.spines['bottom'].set_visible(False)
+    upper_ax.tick_params(labelbottom=False, bottom=False)
+
+    lower_ax.hist(xs, bins)
+    lower_ax.set_ylim(lower_range)
+    lower_ax.spines['top'].set_visible(False)
+    lower_ax.set_xlabel("$p_B$", fontsize=12)
+    lower_ax.set_ylabel(30 * " " + "Count", fontsize=12)
 
     d = .015  # how big to make the diagonal lines in axes coordinates
     # arguments to pass to plot, just so we don't keep repeating them
-    kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
-    ax.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
-    ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+    kwargs = dict(transform=upper_ax.transAxes, color='k', clip_on=False)
+    upper_ax.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+    upper_ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
 
-    kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
-    ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
-    ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+    kwargs.update(transform=lower_ax.transAxes)  # switch to the bottom axes
+    lower_ax.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+    lower_ax.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
     plt.savefig(filename)
     plt.show()
