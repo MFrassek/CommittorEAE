@@ -536,16 +536,20 @@ def set_ytick_labels(ax, pipeline, index):
 
 
 def plot_input_distribution(grid_snapshots, max_row_len, pipeline):
-    cols = np.transpose(grid_snapshots)
     fig, axs = prepare_max_row_subplots(pipeline.const, max_row_len)
-    for i in range(len(pipeline.const.used_variable_names)):
-        axs[i//max_row_len][i % max_row_len].hist(
-            cols[i], pipeline.const.resolution)
+    make_subplot_hists(grid_snapshots, pipeline, axs, max_row_len)
     set_axis_labels_and_tick_labels_for_superhist(pipeline, axs, max_row_len)
     remove_empty_max_row_subplot_axes(pipeline.const, axs, max_row_len)
     fig.align_labels()
     plt.tight_layout(rect=[0, 0, 1, 0.8])
     plt.savefig(f"results/input_distribution_{pipeline.const.data_stamp}.png")
+
+
+def make_subplot_hists(grid_snapshots, pipeline, axs, max_row_len):
+    cols = np.transpose(grid_snapshots)
+    for i in range(len(pipeline.const.used_variable_names)):
+        axs[i//max_row_len][i % max_row_len].hist(
+            cols[i], pipeline.const.resolution)
 
 
 def set_axis_labels_and_tick_labels_for_superhist(pipeline, axs, max_row_len):
