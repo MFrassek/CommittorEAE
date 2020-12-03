@@ -136,14 +136,6 @@ def load_model_weights(
         encoder, decoder_1, decoder_2
 
 
-def calculate_slope_MCG_BigCage(x):
-    return 68.14 - 0.4286*x
-
-
-def calculate_slope_now_BigCage(x):
-    return 30 - 0.0553*x
-
-
 def merge_all_OPS_simulation_pickle_files(folder_name):
     file_names = listdir(folder_name)
     all_paths = []

@@ -464,6 +464,14 @@ def inject_dividing_line(function, pipeline, dim_position):
     plt.plot(xs[where_y_within_range], ys[where_y_within_range], c="r")
 
 
+def calculate_slope_MCG_BigCage(x):
+    return 68.14 - 0.4286*x
+
+
+def calculate_slope_now_BigCage(x):
+    return 30 - 0.0553*x
+
+
 def make_single_map_labels_and_tick_labels(ax, pipeline, dim_position):
     set_xtick_labels(ax, pipeline, dim_position.x_dim)
     ax.set_xlabel(
