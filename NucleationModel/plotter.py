@@ -234,13 +234,13 @@ def calculate_super_scatter(method, pipeline, **kwargs):
 
 
 def plot_super_scatter(pipeline, max_row_len, super_scatter, pre_stamp):
-    fig, axs = prepare_subscatters(pipeline.const, max_row_len)
+    fig, axs = prepare_max_row_subplots(pipeline.const, max_row_len)
     fig.align_labels()
     make_subplot_scatters(super_scatter, axs, pipeline.const, max_row_len)
     set_labels_and_title_for_subscatters(pipeline, axs, max_row_len)
     set_x_axis_label_for_lowest_subscatters(pipeline.const, axs, max_row_len)
     set_y_axis_label_for_leftmost_subscatters(pipeline.const, axs, max_row_len)
-    remove_empty_scatter_axes(pipeline.const, axs, max_row_len)
+    remove_empty_max_row_subplot_axes(pipeline.const, axs, max_row_len)
     plt.tight_layout(rect=[0, 0, 1, 0.8])
     plt.savefig(f"results/{pre_stamp}_{pipeline.const.data_stamp}_"
                 + f"{pipeline.const.model_stamp}_"
@@ -248,7 +248,7 @@ def plot_super_scatter(pipeline, max_row_len, super_scatter, pre_stamp):
     plt.show()
 
 
-def prepare_subscatters(const, max_row_len):
+def prepare_max_row_subplots(const, max_row_len):
     row_cnt = ((len(const.used_variable_names)-1)//max_row_len)+1
     fig, axs = plt.subplots(
         row_cnt, max_row_len,
@@ -284,7 +284,7 @@ def set_y_axis_label_for_leftmost_subscatters(const, axs, max_row_len):
         axs[i][0].set_ylabel("$Reconstruction$", fontsize=const.subfig_size * 5)
 
 
-def remove_empty_scatter_axes(const, axs, max_row_len):
+def remove_empty_max_row_subplot_axes(const, axs, max_row_len):
     if len(const.used_variable_names) % max_row_len != 0:
         for i in range(
                 len(const.used_variable_names) % max_row_len, max_row_len):
@@ -537,7 +537,7 @@ def set_ytick_labels(ax, pipeline, index):
 
 def plot_input_distribution(grid_snapshots, max_row_len, pipeline):
     cols = np.transpose(grid_snapshots)
-    fig, axs = prepare_subscatters(pipeline.const, max_row_len)
+    fig, axs = prepare_max_row_subplots(pipeline.const, max_row_len)
     for i in range(len(pipeline.const.used_variable_names)):
         axs[i//max_row_len][i % max_row_len].hist(
             cols[i], pipeline.const.resolution)
@@ -549,7 +549,7 @@ def plot_input_distribution(grid_snapshots, max_row_len, pipeline):
         axs[i//max_row_len][i % max_row_len].tick_params(
             axis="y", labelsize=pipeline.const.subfig_size * 4)
         set_xtick_labels(axs[i//max_row_len][i % max_row_len], pipeline, i)
-    remove_empty_scatter_axes(pipeline.const, axs, max_row_len)
+    remove_empty_max_row_subplot_axes(pipeline.const, axs, max_row_len)
     fig.align_labels()
     plt.tight_layout(rect=[0, 0, 1, 1])
     plt.savefig(f"results/input_distribution_{pipeline.const.data_stamp}.png")
