@@ -330,37 +330,38 @@ def make_loss_history_plot(history):
     plt.show()
 
 
-def make_projected_path_plot(pipeline, model, steps):
+def make_projected_path_plot(pipeline, model):
     projected_paths, labels = \
-        get_projected_paths_and_labels(pipeline, model, steps)
+        get_projected_paths_and_labels(pipeline, model)
     model_output_name = model.output_names[0]
     plot_projected_paths(
         projected_paths=projected_paths, labels=labels,
-        model_output_name=model_output_name, steps=steps, const=pipeline.const)
+        model_output_name=model_output_name, const=pipeline.const)
 
 
-def get_projected_paths_and_labels(pipeline, model, steps):
+def get_projected_paths_and_labels(pipeline, model):
     paths, labels = pipeline.const.path_getter_function(const=pipeline.const)
-    projected_paths = [make_projected_path_from_path(
-        model, pipeline, path, steps) for path in paths]
+    projected_paths = [make_projected_path_from_path(model, pipeline, path)
+                       for path in paths]
     return projected_paths, labels
 
 
-def make_projected_path_from_path(model, pipeline, path, steps):
+def make_projected_path_from_path(model, pipeline, path):
     out_size = model.layers[-1].output_shape[1]
     if out_size > 1:
         raise ValueError(
             "Data of dimensionality {} cannot be plotted".format(out_size))
     bnr_path = pipeline.reduce(pipeline.bound_normalize(path))
     path_len = len(bnr_path)
+    steps = pipeline.const.projection_steps
     projected_path = [model.predict([[bnr_path[int(path_len*i/(steps+1))]]])[0]
                       for i in range(steps+1)]
     return [[i, path[0]] for i, path in enumerate(projected_path)]
 
 
-def plot_projected_paths(
-        projected_paths, labels, model_output_name, steps, const):
+def plot_projected_paths(projected_paths, labels, model_output_name, const):
     label_cnt = len(labels)
+    steps = const.projection_steps
     for plot_path, label, color in zip(projected_paths, labels, const.plt_colors):
         plt.plot(*np.transpose(plot_path), label=str(label), color=color)
     plt.ylabel(model_output_name + " output")
@@ -372,13 +373,13 @@ def plot_projected_paths(
     plt.ylim(np.floor(projected_minimum)-0.1, np.ceil(projected_maximum)+0.1)
     plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
     plt.subplots_adjust(right=0.82)
-    plt.savefig(f"results/{const.dataSetType}_LatentSpacePath_plot_{const.model_stamp}"
-                + f"_{const.bottleneck_size}D_{label_cnt}.png")
+    plt.savefig(f"results/{const.dataSetType}_{model_output_name}Projection_"
+                + f"{const.model_stamp}_{const.bottleneck_size}D_{label_cnt}.png")
     plt.show()
 
 
-def get_projected_minimum_and_maximum(pipeline, model, steps):
-    projected_paths, _ = get_projected_paths_and_labels(pipeline, model, steps)
+def get_projected_minimum_and_maximum(pipeline, model):
+    projected_paths, _ = get_projected_paths_and_labels(pipeline, model)
     return get_low_and_high_point_of_projected_paths(projected_paths)
 
 

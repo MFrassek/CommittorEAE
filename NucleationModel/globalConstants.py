@@ -127,6 +127,7 @@ class Const():
         self._plt_colors = [
             "c", "g", "r", "indigo", "y", "m",
             "k", "lightpink", "orange", "olive", "b", "darkviolet"]
+        self._projection_steps = 20
 
     @property
     def dataSetType(self):
@@ -343,6 +344,10 @@ class Const():
     @property
     def plt_colors(self):
         return self._plt_colors
+
+    @property
+    def projection_steps(self):
+        return self._projection_steps
 
     @property
     def data_stamp(self):
