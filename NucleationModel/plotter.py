@@ -490,8 +490,7 @@ def make_single_map_labels_and_tick_labels(ax, pipeline, dim_position):
 
 
 def make_representative_path_plot(
-        const, latent_minimum, latent_maximum,
-        steps, reconstruction_decoder, pre_stamp):
+        const, latent_minimum, latent_maximum, steps, reconstruction_decoder):
     def add_trace(prediction, i):
         return go.Scatterpolar(
             r=np.append(prediction, prediction[0]),
@@ -516,7 +515,8 @@ def make_representative_path_plot(
             radialaxis=dict(visible=True, tickangle=0),
             angularaxis=dict(tickfont=dict(size=18))),
         legend_title_text="$\ BN_1 input$")
-    fig.write_image("results/{}_PathReconstruction.png".format(pre_stamp))
+    fig.write_image(f"results/{const.dataSetType}_PathReconstruction_"
+                    + f"{const.model_stamp}.png")
     fig.show()
 
 
