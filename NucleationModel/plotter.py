@@ -57,7 +57,7 @@ def plot_super_map(method_name, pipeline, super_map):
     make_subplot_heatmaps(super_map, axs, pipeline.const, cmap)
     make_axes_and_labels(pipeline, axs, fig)
     make_color_bar(axs, pipeline.const)
-    plt.savefig(get_output_file_name(method_name, pipeline.const))
+    plt.savefig(get_output_basename(method_name, pipeline.const) + ".png")
     plt.show()
 
 
@@ -141,17 +141,17 @@ def make_color_bar(axs, const):
     cbar.ax.tick_params(labelsize=const.subfig_size * len(axs) * 2)
 
 
-def get_output_file_name(method_name, const):
+def get_output_basename(method_name, const):
     if "given" in method_name:
         if "configurational" in method_name:
             return f"results/{const.dataSetType}_confgiv_{const.data_stamp}_" \
-                + f"r{const.resolution}_map.png"
+                + f"r{const.resolution}_map"
         else:
             return f"results/{const.dataSetType}_giv_{const.data_stamp}_" \
-                + f"r{const.resolution}_map.png"
+                + f"r{const.resolution}_map"
     elif "generated" in method_name:
         return f"results/{const.dataSetType}_gen_{const.data_stamp}_" \
-            + f"{const.model_stamp}_r{const.resolution}_map.png"
+            + f"{const.model_stamp}_r{const.resolution}_map"
 
 
 def calc_map_given(dim_position, grid_snapshots, labels, weights):
@@ -438,19 +438,21 @@ def plot_relative_importances(variable_names, importances):
 
 
 def make_single_map_plot(
-        dim_position, pipeline, stamp, method, line_formula=None, **kwargs):
+        dim_position, pipeline, method, line_formula=None, **kwargs):
     fig, ax = plt.subplots(1, 1)
     try:
         inject_dividing_line(line_formula, pipeline, dim_position)
     except TypeError:
         pass
-    cmap = select_color_map(function_to_str(method), pipeline.const)
+    method_name = function_to_str(method)
+    cmap = select_color_map(method_name, pipeline.const)
     heatmap = np.transpose(method(dim_position, **kwargs))
     make_subplot_heatmap(ax, heatmap, pipeline.const, cmap)
     make_single_map_labels_and_tick_labels(ax, pipeline, dim_position)
     make_color_bar([[ax], [ax]], pipeline.const)
     plt.savefig(
-        f"results/{stamp}_x{dim_position.x_dim}_y_{dim_position.y_dim}.png")
+        get_output_basename(method_name, pipeline.const)
+        + f"_x{dim_position.x_dim}_y_{dim_position.y_dim}.png")
     plt.show()
 
 
