@@ -23,7 +23,7 @@ class Stepper:
         for i in range(max(0, len(used) - param_limit)):
             losses = []
             for j, excludee in enumerate(used):
-                print("Leaving out {}".format(excludee))
+                print(f"Leaving out {excludee}")
                 reduced_used = used[:j]+used[j+1:]
                 train_ds, val_ds = pipeline.prepare_stepper(
                     reduced_list_var_names=reduced_used,
@@ -33,21 +33,17 @@ class Stepper:
                     val_dataset=val_dataset)
                 losses.append(
                     Stepper.get_score(
-                        len(reduced_used),
-                        train_ds, val_ds,
-                        repetitions,
+                        len(reduced_used), train_ds, val_ds, repetitions,
                         pipeline.const))
-                print("  Mean label loss: {:.3f}".format(losses[-1]))
+                print(f"  Mean label loss: {losses[-1]:.3f}")
             min_index = losses.index(min(losses))
-            print("\nRemoved {}\t{} variables left\n" \
-                .format(used[min_index], len(used) - 1))
+            print(f"\nRemoved {used[min_index]}\t{len(used)-1} variables left\n")
             removed_variables.append(used[min_index])
             min_losses.append(min(losses))
             used = used[:min_index]+used[min_index+1:]
             print("{}\n".format(used))
-        print(("\nFinal set: {}\nFinal loss: {}"
-              + "\nRemoved_variables: {}\nLosses at each step{}") \
-                .format(used, min(losses), removed_variables, min_losses))
+        print(f"\nFinal set: {used}\nFinal loss: {min(losses)}\nRemoved "
+              + f"variables: {removed_variables}\nLosses at each step{min_losses}")
         return used, min(losses), removed_variables, min_losses
 
     @staticmethod
