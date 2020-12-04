@@ -47,10 +47,8 @@ class Stepper:
 
     @staticmethod
     def get_score(train_ds, val_ds, repetitions, const):
-        losses = []
-        for i in range(repetitions):
-            autoencoder, _, _, _, _, _ = \
-                AutoEncoder.make_models(const)
+        def get_val_loss_after_training():
+            autoencoder, _, _, _, _, _ = AutoEncoder.make_models(const)
             history = autoencoder.fit(
                 x=train_ds,
                 epochs=const.epochs,
@@ -58,5 +56,7 @@ class Stepper:
                 validation_data=val_ds,
                 callbacks=[tf.keras.callbacks.EarlyStopping(
                     monitor="val_loss", patience=3)])
-            losses.append(history.history["val_loss"][-1])
-        return np.mean(losses)
+            return history.history["val_loss"][-1]
+
+        return np.mean(
+            [get_val_loss_after_training() for _ in range(repetitions)])
