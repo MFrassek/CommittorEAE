@@ -3,17 +3,12 @@ from losses import *
 import tensorflow as tf
 import numpy as np
 
+
 class Stepper:
     @staticmethod
     def iter_top_down(
-            pipeline,
-            train_dataset,
-            val_dataset,
-            used,
-            param_limit,
-            epochs,
-            repetitions,
-            const):
+            pipeline, train_dataset, val_dataset, used, param_limit, epochs,
+            repetitions):
         """Iteratively finds the least informative input dimension and removes
         it until only a predefined number of input dimensions is left.
         At each iteration generates n datasets, all leaving out one of the
@@ -39,10 +34,10 @@ class Stepper:
                 losses.append(
                     Stepper.get_score(
                         len(reduced_used),
-                        train_ds,val_ds,
+                        train_ds, val_ds,
                         epochs,
                         repetitions,
-                        const))
+                        pipeline.const))
                 print("  Mean label loss: {:.3f}".format(losses[-1]))
             min_index = losses.index(min(losses))
             print("\nRemoved {}\t{} variables left\n" \
@@ -53,17 +48,11 @@ class Stepper:
             print("{}\n".format(used))
         print(("\nFinal set: {}\nFinal loss: {}"
               + "\nRemoved_variables: {}\nLosses at each step{}") \
-                .format(used, min(losses),removed_variables, min_losses))
+                .format(used, min(losses), removed_variables, min_losses))
         return used, min(losses), removed_variables, min_losses
 
     @staticmethod
-    def get_score(
-            len_reduced,
-            train_ds,
-            val_ds,
-            epochs,
-            repetitions,
-            const):
+    def get_score(len_reduced, train_ds, val_ds, epochs, repetitions, const):
         losses = []
         for i in range(repetitions):
             autoencoder, _, _, _, _, _ = \
