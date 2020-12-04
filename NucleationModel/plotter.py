@@ -490,7 +490,7 @@ def make_single_map_labels_and_tick_labels(ax, pipeline, dim_position):
 
 
 def make_representative_path_plot(
-        const, latent_minimum, latent_maximum, steps, reconstruction_decoder):
+        const, latent_minimum, latent_maximum, reconstruction_decoder):
     def add_trace(prediction, i):
         return go.Scatterpolar(
             r=np.append(prediction, prediction[0]),
@@ -498,12 +498,13 @@ def make_representative_path_plot(
             name=f"{latent_linspace[i]:.1f}",
             showlegend=True,
             line=dict(color="rgb({},{},{})".format(
-                0.8 - 0.6 * i / steps,
-                0.2 + 0.6 * i / steps,
-                0.2 + 0.6 * i / steps)))
+                0.8 - 0.6 * i / const.unprojection_steps,
+                0.2 + 0.6 * i / const.unprojection_steps,
+                0.2 + 0.6 * i / const.unprojection_steps)))
 
     latent_linspace = np.linspace(
-        np.floor(latent_minimum), np.ceil(latent_maximum), steps)
+        np.floor(latent_minimum), np.ceil(latent_maximum),
+        const.unprojection_steps)
     var_names = [f"${name}$" for name in const.used_variable_names]
     predictions = [reconstruction_decoder.predict([latent_value])[0]
                    for latent_value in latent_linspace]

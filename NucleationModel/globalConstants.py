@@ -128,6 +128,7 @@ class Const():
             "c", "g", "r", "indigo", "y", "m",
             "k", "lightpink", "orange", "olive", "b", "darkviolet"]
         self._projection_steps = 20
+        self._unprojection_steps = 11
 
     @property
     def dataSetType(self):
@@ -348,6 +349,11 @@ class Const():
     @property
     def projection_steps(self):
         return self._projection_steps
+
+    @property
+    def unprojection_steps(self):
+        return self._unprojection_steps
+
 
     @property
     def data_stamp(self):
