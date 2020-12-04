@@ -330,14 +330,13 @@ def make_loss_history_plot(history):
     plt.show()
 
 
-def make_projected_path_plot(pipeline, model, steps, pre_stamp):
+def make_projected_path_plot(pipeline, model, steps):
     projected_paths, labels = \
         get_projected_paths_and_labels(pipeline, model, steps)
     model_output_name = model.output_names[0]
     plot_projected_paths(
         projected_paths=projected_paths, labels=labels,
-        model_output_name=model_output_name, steps=steps,
-        pre_stamp=pre_stamp, const=pipeline.const)
+        model_output_name=model_output_name, steps=steps, const=pipeline.const)
 
 
 def get_projected_paths_and_labels(pipeline, model, steps):
@@ -360,7 +359,7 @@ def make_projected_path_from_path(model, pipeline, path, steps):
 
 
 def plot_projected_paths(
-        projected_paths, labels, model_output_name, steps, pre_stamp, const):
+        projected_paths, labels, model_output_name, steps, const):
     label_cnt = len(labels)
     for plot_path, label, color in zip(projected_paths, labels, const.plt_colors):
         plt.plot(*np.transpose(plot_path), label=str(label), color=color)
@@ -373,7 +372,7 @@ def plot_projected_paths(
     plt.ylim(np.floor(projected_minimum)-0.1, np.ceil(projected_maximum)+0.1)
     plt.legend(bbox_to_anchor=(1, 1), loc='upper left')
     plt.subplots_adjust(right=0.82)
-    plt.savefig(f"results/{pre_stamp}_LatentSpacePath_plot_{const.model_stamp}"
+    plt.savefig(f"results/{const.dataSetType}_LatentSpacePath_plot_{const.model_stamp}"
                 + f"_{const.bottleneck_size}D_{label_cnt}.png")
     plt.show()
 
