@@ -354,7 +354,6 @@ class Const():
     def unprojection_steps(self):
         return self._unprojection_steps
 
-
     @property
     def data_stamp(self):
         return f"kl{'_'.join(self._keep_labels)}_oc{self._outlier_cutoff}"
@@ -374,8 +373,8 @@ class Const():
         assert isinstance(x, list), "Can only be set to type list"
         self._used_variable_names = x
         self._used_name_to_list_position = {
-            self._used_list_var_names[i]: i
-            for i in range(len(self._used_list_var_names))}
+            self._used_variable_names[i]: i
+            for i in range(len(self._used_variable_names))}
         self._used_list_positions = [
             self._name_to_list_position[name]
             for name in self._used_variable_names]
