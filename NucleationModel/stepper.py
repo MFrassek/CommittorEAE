@@ -7,7 +7,7 @@ import numpy as np
 class Stepper:
     @staticmethod
     def iter_top_down(
-            pipeline, train_dataset, val_dataset, used, param_limit, epochs,
+            pipeline, train_dataset, val_dataset, used, param_limit,
             repetitions):
         """Iteratively finds the least informative input dimension and removes
         it until only a predefined number of input dimensions is left.
@@ -35,7 +35,6 @@ class Stepper:
                     Stepper.get_score(
                         len(reduced_used),
                         train_ds, val_ds,
-                        epochs,
                         repetitions,
                         pipeline.const))
                 print("  Mean label loss: {:.3f}".format(losses[-1]))
@@ -52,7 +51,7 @@ class Stepper:
         return used, min(losses), removed_variables, min_losses
 
     @staticmethod
-    def get_score(len_reduced, train_ds, val_ds, epochs, repetitions, const):
+    def get_score(len_reduced, train_ds, val_ds, repetitions, const):
         losses = []
         for i in range(repetitions):
             autoencoder, _, _, _, _, _ = \
@@ -60,11 +59,10 @@ class Stepper:
                     len_reduced, const)
             history = autoencoder.fit(
                 x=train_ds,
-                epochs=epochs,
+                epochs=const.epochs,
                 verbose=0,
                 validation_data=val_ds,
                 callbacks=[tf.keras.callbacks.EarlyStopping(
-                    monitor="val_loss",
-                    patience=3)])
+                    monitor="val_loss", patience=3)])
             losses.append(history.history["val_label_loss"][-1])
         return np.mean(losses)
