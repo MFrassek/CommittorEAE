@@ -1,14 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import copy
 import pickle
 from os import listdir
-
-
-def make_png_with_bad_as_transparent_colormap():
-    c_map = copy.copy(plt.cm.get_cmap('gray'))
-    c_map.set_bad(alpha=0)
-    return c_map
 
 
 def function_to_str(function):
