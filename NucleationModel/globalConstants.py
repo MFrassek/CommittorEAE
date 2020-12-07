@@ -394,27 +394,28 @@ class Const():
 def make_banded_label_colormap(logvmin):
     resolution = 1001
     bandwidth = 0.1
-    band_bottom_fraction = math.log(0.5-bandwidth/2, 10)/math.log(logvmin, 10)
-    band_bottom_index = round(band_bottom_fraction*resolution)
-    band_top_fraction = math.log(0.5+bandwidth/2, 10)/math.log(logvmin, 10)
-    band_top_index = round(band_top_fraction*resolution)
-    bottom = cm.get_cmap("summer", resolution)
-    middle = cm.get_cmap("Greys", 10)
-    top = cm.get_cmap("summer", resolution)
+    band_bottom_fraction = \
+        translate_value_to_colormap_fraction(0.5 - bandwidth / 2, logvmin)
+    band_bottom_index = round(band_bottom_fraction * resolution)
+    band_top_fraction = \
+        translate_value_to_colormap_fraction(0.5 + bandwidth / 2, logvmin)
+    band_top_index = round(band_top_fraction * resolution)
+    bottom_map = cm.get_cmap("summer", resolution)
+    cut_bottom_map = bottom_map(np.linspace(
+            0, 1 - band_bottom_fraction, resolution - band_bottom_index))
+    middle_map = cm.get_cmap("Greys", 10)
+    cut_middle_map = middle_map(np.linspace(
+            0.9, 1.0, band_bottom_index - band_top_index))
+    top_map = cm.get_cmap("summer", resolution)
+    cut_top_map = top_map(np.linspace(
+            1 - band_top_fraction, 1, band_top_index))
     c_map = ListedColormap(np.vstack((
-        bottom(np.linspace(
-            0,
-            1 - band_bottom_fraction,
-            resolution - band_bottom_index)),
-        middle(np.linspace(
-            0.9,
-            1.0,
-            band_bottom_index - band_top_index)),
-        top(np.linspace(
-            1 - band_top_fraction,
-            1,
-            band_top_index)))), "SplitSummer")
+        cut_bottom_map, cut_middle_map, cut_top_map)), "SplitSummer")
     return c_map
+
+
+def translate_value_to_colormap_fraction(value, logvmin):
+    return math.log(value, 10)/math.log(logvmin, 10)
 
 
 def make_density_colormap():
