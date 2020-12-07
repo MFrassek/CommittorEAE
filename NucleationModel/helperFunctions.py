@@ -37,10 +37,6 @@ def print_coverage(list_var_names, dataset):
         print("{}: {}".format(list_var_names[i], AACoverageOfABRange[i]))
 
 
-def flatten_list_of_lists(list_of_lists):
-    return [y for x in list_of_lists for y in x]
-
-
 def store_model_weights(
         path, autoencoder, autoencoder_1, autoencoder_2,
         encoder, decoder_1, decoder_2):

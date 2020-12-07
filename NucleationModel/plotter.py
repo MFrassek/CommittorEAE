@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-from helperFunctions import flatten_list_of_lists
 
 
 class DimensionalPosition():
@@ -387,6 +386,10 @@ def get_low_and_high_point_of_projected_paths(paths):
     high_point = np.amax(
         np.transpose(flattened_paths)[1], axis=0)
     return low_point, high_point
+
+
+def flatten_list_of_lists(list_of_lists):
+    return [y for x in list_of_lists for y in x]
 
 
 def make_relative_importance_plot(encoder, const):
