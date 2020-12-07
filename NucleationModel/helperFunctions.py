@@ -4,21 +4,6 @@ import pickle
 from os import listdir
 
 
-def get_all_ranges(datasets: list):
-    ranges = [
-        [np.float("inf"), np.float("-inf")]
-        for i in datasets[0].past_snapshots[0]]
-    dimensions = len(ranges)
-    for dataset in datasets:
-        for snapshot in dataset.past_snapshots:
-            for dim in range(dimensions):
-                if snapshot[dim] < ranges[dim][0]:
-                    ranges[dim][0] = snapshot[dim]
-                if snapshot[dim] > ranges[dim][1]:
-                    ranges[dim][1] = snapshot[dim]
-    return ranges
-
-
 def merge_all_OPS_simulation_pickle_files(folder_name):
     file_names = listdir(folder_name)
     all_paths = []
