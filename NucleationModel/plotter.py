@@ -1,10 +1,8 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import tensorflow as tf
 import plotly.graph_objects as go
 from helperFunctions import flatten_list_of_lists
-from autoEncoder import AutoEncoder
 
 
 class DimensionalPosition():
