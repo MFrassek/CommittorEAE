@@ -92,25 +92,12 @@ class AutoEncoder:
         keras.utils.plot_model(model, file_name, show_shapes=True)
 
     @staticmethod
-    def store_model_weights(
-            path, autoencoder, autoencoder_1, autoencoder_2,
-            encoder, decoder_1, decoder_2):
-        autoencoder.save_weights("{}/autoencoder".format(path))
-        autoencoder_1.save_weights("{}/autoencoder_1".format(path))
-        autoencoder_2.save_weights("{}/autoencoder_2".format(path))
-        encoder.save_weights("{}/encoder".format(path))
-        decoder_1.save_weights("{}/decoder_1".format(path))
-        decoder_2.save_weights("{}/decoder_2".format(path))
+    def store_model_weights(path, *models):
+        for model in models:
+            model.save_weights(f"{path}/{model.name}")
 
     @staticmethod
-    def load_model_weights(
-            path, autoencoder, autoencoder_1, autoencoder_2,
-            encoder, decoder_1, decoder_2):
-        autoencoder.load_weights("{}/autoencoder".format(path))
-        autoencoder_1.load_weights("{}/autoencoder_1".format(path))
-        autoencoder_2.load_weights("{}/autoencoder_2".format(path))
-        encoder.load_weights("{}/encoder".format(path))
-        decoder_1.load_weights("{}/decoder_1".format(path))
-        decoder_2.load_weights("{}/decoder_2".format(path))
-        return autoencoder, autoencoder_1, autoencoder_2, \
-            encoder, decoder_1, decoder_2
+    def load_model_weights(path, *models):
+        for model in models:
+            model.load_weights(f"{path}/{model.name}")
+        return models
