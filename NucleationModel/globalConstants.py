@@ -1,7 +1,7 @@
 from helperFunctions import \
     make_halfpoint_divided_label_colormap, \
     make_density_colormap
-from losses import *
+from losses import binaryNegLikelihood
 from tensorflow import keras
 from data_read import get_toy_paths, get_TPS_and_TIS_paths
 
@@ -379,34 +379,10 @@ class Const():
             self._name_to_list_position[name]
             for name in self._used_variable_names]
 
-    @TIS_folder_name.setter
-    def TIS_folder_name(self, x):
-        assert isinstance(x, str), "Can only be set to type str"
-        self._TIS_folder_name = x
-
-    @TPS_folder_name.setter
-    def TPS_folder_name(self, x):
-        assert isinstance(x, str), "Can only be set to type str"
-        self._TPS_folder_name = x
-
-    @keep_labels.setter
-    def keep_labels(self, x):
-        assert isinstance(x, list), "Can only be set to type list"
-        self._keep_labels = x
-
     @bottleneck_size.setter
     def bottleneck_size(self, x):
         assert isinstance(x, int), "Can only be set to type int"
         self._bottleneck_size = x
-
-    @loss_weights.setter
-    def loss_weights(self, x):
-        assert isinstance(x, list), "Can only be set to type list"
-        self._loss_weights = x
-
-    @outlier_cutoff.setter
-    def outlier_cutoff(self, x):
-        self._outlier_cutoff = x
 
     @epochs.setter
     def epochs(self, x):
