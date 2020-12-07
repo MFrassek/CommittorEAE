@@ -1,8 +1,5 @@
 import sys
-import math
 import numpy as np
-from matplotlib import cm
-from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 import copy
 import pickle
@@ -31,38 +28,6 @@ def get_size(obj, seen=None):
             and not isinstance(obj, (str, bytes, bytearray)):
         size += sum([get_size(i, seen) for i in obj])
     return size
-
-
-def make_halfpoint_divided_label_colormap(logvmin):
-    resolution = 1001
-    bandwidth = 0.1
-    lower_bound_halfpoint = math.log(0.5-bandwidth/2, 10)/math.log(logvmin, 10)
-    lower_bound_halfpoint_int = round(lower_bound_halfpoint*resolution)
-    upper_bound_halfpoint = math.log(0.5+bandwidth/2, 10)/math.log(logvmin, 10)
-    upper_bound_halfpoint_int = round(upper_bound_halfpoint*resolution)
-    bottom = cm.get_cmap("summer", resolution)
-    middle = cm.get_cmap("Greys", 10)
-    top = cm.get_cmap("summer", resolution)
-    c_map = ListedColormap(np.vstack((
-        bottom(np.linspace(
-            0,
-            1 - lower_bound_halfpoint,
-            resolution - lower_bound_halfpoint_int)),
-        middle(np.linspace(
-            0.9,
-            1.0,
-            lower_bound_halfpoint_int - upper_bound_halfpoint_int)),
-        top(np.linspace(
-            1 - upper_bound_halfpoint,
-            1,
-            upper_bound_halfpoint_int)))), "SplitSummer")
-    return c_map
-
-
-def make_density_colormap():
-    resolution = 1001
-    cmap = cm.get_cmap("autumn", resolution)
-    return cmap
 
 
 def make_png_with_bad_as_transparent_colormap():
