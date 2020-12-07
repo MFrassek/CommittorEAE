@@ -3,7 +3,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import plotly.graph_objects as go
-from helperFunctions import *
+from helperFunctions import flatten_list_of_lists
 from autoEncoder import AutoEncoder
 
 
@@ -38,9 +38,8 @@ class DimensionalPosition():
 
 
 def make_super_map_plot(method, pipeline, **kwargs):
-    method_name = function_to_str(method)
     super_map = calculate_super_map(method, pipeline, **kwargs)
-    plot_super_map(method_name, pipeline, super_map)
+    plot_super_map(method.__name__, pipeline, super_map)
 
 
 def calculate_super_map(method, pipeline, **kwargs):
@@ -444,14 +443,13 @@ def make_single_map_plot(
         inject_dividing_line(line_formula, pipeline, dim_position)
     except TypeError:
         pass
-    method_name = function_to_str(method)
-    cmap = select_color_map(method_name, pipeline.const)
+    cmap = select_color_map(method.__name__, pipeline.const)
     heatmap = np.transpose(method(dim_position, **kwargs))
     make_subplot_heatmap(ax, heatmap, pipeline.const, cmap)
     make_single_map_labels_and_tick_labels(ax, pipeline, dim_position)
     make_color_bar([[ax], [ax]], pipeline.const)
     plt.savefig(
-        get_output_basename(method_name, pipeline.const)
+        get_output_basename(method.__name__, pipeline.const)
         + f"_x{dim_position.x_dim}_y_{dim_position.y_dim}.png")
     plt.show()
 

@@ -4,10 +4,6 @@ import pickle
 from os import listdir
 
 
-def function_to_str(function):
-    return str(function).split(" ")[1]
-
-
 def get_all_ranges(datasets: list):
     ranges = [
         [np.float("inf"), np.float("-inf")]
