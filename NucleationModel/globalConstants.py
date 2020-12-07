@@ -121,7 +121,7 @@ class Const():
         # Lower bondary for a logarithmic colormap
         self._logvmin = 10**(-4)
         # Colormap used for the heat map plots
-        self._label_cmap = make_halfpoint_divided_label_colormap(self._logvmin)
+        self._label_cmap = make_banded_label_colormap(self._logvmin)
         # Colormap used for the desnity plots
         self._density_cmap = make_density_colormap()
         # List of colors for plt.plots
@@ -391,29 +391,29 @@ class Const():
         self._epochs = x
 
 
-def make_halfpoint_divided_label_colormap(logvmin):
+def make_banded_label_colormap(logvmin):
     resolution = 1001
     bandwidth = 0.1
-    lower_bound_halfpoint = math.log(0.5-bandwidth/2, 10)/math.log(logvmin, 10)
-    lower_bound_halfpoint_int = round(lower_bound_halfpoint*resolution)
-    upper_bound_halfpoint = math.log(0.5+bandwidth/2, 10)/math.log(logvmin, 10)
-    upper_bound_halfpoint_int = round(upper_bound_halfpoint*resolution)
+    band_bottom_fraction = math.log(0.5-bandwidth/2, 10)/math.log(logvmin, 10)
+    band_bottom_index = round(band_bottom_fraction*resolution)
+    band_top_fraction = math.log(0.5+bandwidth/2, 10)/math.log(logvmin, 10)
+    band_top_index = round(band_top_fraction*resolution)
     bottom = cm.get_cmap("summer", resolution)
     middle = cm.get_cmap("Greys", 10)
     top = cm.get_cmap("summer", resolution)
     c_map = ListedColormap(np.vstack((
         bottom(np.linspace(
             0,
-            1 - lower_bound_halfpoint,
-            resolution - lower_bound_halfpoint_int)),
+            1 - band_bottom_fraction,
+            resolution - band_bottom_index)),
         middle(np.linspace(
             0.9,
             1.0,
-            lower_bound_halfpoint_int - upper_bound_halfpoint_int)),
+            band_bottom_index - band_top_index)),
         top(np.linspace(
-            1 - upper_bound_halfpoint,
+            1 - band_top_fraction,
             1,
-            upper_bound_halfpoint_int)))), "SplitSummer")
+            band_top_index)))), "SplitSummer")
     return c_map
 
 
