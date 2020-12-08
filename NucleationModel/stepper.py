@@ -1,5 +1,4 @@
 from autoEncoder import AutoEncoder
-from losses import *
 import tensorflow as tf
 import numpy as np
 
