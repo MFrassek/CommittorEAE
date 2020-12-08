@@ -346,7 +346,7 @@ def make_projected_path_from_path(model, pipeline, path):
     out_size = model.layers[-1].output_shape[1]
     if out_size > 1:
         raise ValueError(
-            "Data of dimensionality {} cannot be plotted".format(out_size))
+            f"Data of dimensionality {out_size} cannot be plotted")
     bnr_path = pipeline.reduce(pipeline.bound_normalize(path))
     path_len = len(bnr_path)
     steps = pipeline.const.projection_steps

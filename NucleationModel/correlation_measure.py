@@ -14,8 +14,7 @@ def measure_correlation(snapshots, correlation_threshold):
               "\n\t".join([convert_correlation_list_entry_to_string(entry)
                            for entry in correlated_inputs])))
     else:
-        print("No correlation above {} was found between the inputs."
-              .format(correlation_threshold))
+        print(f"No correlation above {correlation_threshold} was found between the inputs.")
     return correlated_inputs
 
 
@@ -31,7 +30,7 @@ def get_covariance_matrix(snapshots):
 
 
 def make_correlation_list_entry(row_nr, col_nr, entry):
-    return [str(row_nr), str(col_nr), "{:.3f}".format(entry)]
+    return [str(row_nr), str(col_nr), f"{entry:.3f}"]
 
 
 def convert_correlation_list_entry_to_string(entry):

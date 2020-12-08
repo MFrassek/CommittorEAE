@@ -8,8 +8,9 @@ class Dataset():
         self._dimensions = len(snapshots[0])
 
     def __str__(self):
-        return "{} set has a size of {} snapshots along {} input dimensions"\
-            .format(self._flag, self._size, self._dimensions)
+        return f"{self._flag} set has a size of {self._size} snapshots along "\
+         + f"{self._dimensions} input dimensions"\
+
 
     @staticmethod
     def initialize_train_val_test_datasets(

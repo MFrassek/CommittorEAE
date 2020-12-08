@@ -68,8 +68,8 @@ def make_snapshots_from_paths(
         snapshot_labels.extend(
             [get_snapshot_label(path_label, const)] * path_len)
     snapshot_weights = normalize_snapshots_weights(snapshot_weights)
-    print("Total mean weights: {}".format(np.mean(snapshot_weights)))
-    print("Total sum weights: {}".format(np.sum(snapshot_weights)))
+    print(f"Total mean weights: {np.mean(snapshot_weights)}")
+    print(f"Total sum weights: {np.sum(snapshot_weights)}")
     return np.array(snapshots), \
         np.array(snapshot_labels), \
         np.array(snapshot_weights), \
@@ -106,9 +106,9 @@ def filter_paths(paths, path_labels, path_weights, path_origins, const):
 
 def make_paths_from_toy_data(const):
     paths = np.array(
-        pickle.load(open("{}/paths.p".format(const.toy_folder_name), "rb")))
+        pickle.load(open(f"{const.toy_folder_name}/paths.p", "rb")))
     labels = np.array(
-        pickle.load(open("{}/labels.p".format(const.toy_folder_name), "rb")))
+        pickle.load(open(f"{const.toy_folder_name}/labels.p", "rb")))
     weights = np.ones(len(labels))
     origins = np.ones(len(labels))
     paths, labels = \
@@ -161,15 +161,13 @@ def make_paths_from_TIS_data(const):
             shuffle(
                 origin_lines, weight_lines, reweight_lines, random_state=42)
         frac_len = int(len(origin_lines) * const.used_dataset_fraction)
-        print("Total paths: {}\t Used paths: {}"
-              .format(len(origin_lines), frac_len))
+        print(f"Total paths: {len(origin_lines)}\t Used paths: {frac_len}")
         origin_names = get_names_from_lines(origin_lines, frac_len, str)
         weight_names = get_names_from_lines(weight_lines, frac_len, int)
         reweight_names = get_names_from_lines(reweight_lines, frac_len, float)
         for file_nr in range(frac_len):
             path = read_path_from_file(
-                "{}/{}/light_data/{}".format(
-                    folder_name, interface_name, origin_names[file_nr]),
+                f"{folder_name}/{interface_name}/light_data/{origin_names[file_nr]}",
                 const.precision)
             if path_outside_state_definition(path, const):
                 handle_path_outside_state_definition(
@@ -191,8 +189,8 @@ def get_lines_from_file(folder_name, interface_name, file_string):
     """Open file with the path "folder_name/interface_name/filestring"
     and return its contents.
     """
-    with open(glob.glob("{}/{}/{}".format(
-            folder_name, interface_name, file_string))[0], "r") as file:
+    with open(glob.glob(
+            f"{folder_name}/{interface_name}/{file_string}")[0], "r") as file:
         return file.readlines()
 
 
@@ -211,8 +209,7 @@ def make_paths_from_TPS_data(TPS_weight, const):
     origins = []
     for file_name in listdir(folder_name):
         path = read_path_from_file(
-            "{}/{}".format(folder_name, file_name),
-            const.precision)
+            f"{folder_name}/{file_name}", const.precision)
         if path_outside_state_definition(path, const):
             handle_path_outside_state_definition(file_name, path)
         else:
@@ -221,7 +218,7 @@ def make_paths_from_TPS_data(TPS_weight, const):
             origins.append("TPS")
 
     frac_len = int(len(paths) * const.used_dataset_fraction)
-    print("Total paths: {}\t Used paths: {}".format(len(paths), frac_len))
+    print(f"Total paths: {len(paths)}\t Used paths: {frac_len}")
     weights = [TPS_weight for i in range(frac_len)]
     paths, labels, origins = shuffle(paths, labels, origins, random_state=42)
     return np.array(paths)[:frac_len], np.array(labels)[:frac_len], \
@@ -246,9 +243,8 @@ def snapshots_outside_state_definition(snapshot, const):
 
 
 def handle_path_outside_state_definition(file_name, path):
-    print(("Path in {} begins (mcg = {}) or ends"
-           + "(mcg = {}) outside of state definition.")
-          .format(file_name, path[0][0], path[-1][0]))
+    print(f"Path in {file_name} begins (mcg = {path[0][0]}) or ends"
+          + f"(mcg = {path[-1][0]}) outside of state definition.")
 
 
 def determine_label(path, const):
@@ -347,7 +343,7 @@ def read_shooting_points(filename):
                 read_data_lines_from_data_file(filename)))
     precision = 2
     shooting_points = round_points_to_precision(shooting_points, precision)
-    print("{} shooting points read".format(len(labels)))
+    print(f"{len(labels)} shooting points read")
     return shooting_points, labels
 
 
@@ -398,9 +394,9 @@ def get_one_toy_path(folder_name, label, seed=42):
 
 def read_paths_and_labels_from_pickles(folder_name):
     paths = np.array(
-        pickle.load(open("{}/paths.p".format(folder_name), "rb")))
+        pickle.load(open(f"{folder_name}/paths.p", "rb")))
     labels = np.array(
-        pickle.load(open("{}/labels.p".format(folder_name), "rb")))
+        pickle.load(open(f"{folder_name}/labels.p", "rb")))
     return paths, labels
 
 
@@ -426,9 +422,9 @@ def get_TIS_interface_names(const):
 def get_one_TIS_path(const, interface, seed=42):
     path = read_path_from_file(
         get_file_path_with_randomly_chosen_file(
-            "{}/{}/light_data".format(const.TIS_folder_name, interface), seed),
+            f"{const.TIS_folder_name}/{interface}/light_data", seed),
         2)
-    print("Label: {}".format(determine_label(path, const)))
+    print(f"Label: {determine_label(path, const)}")
     return path
 
 
@@ -437,12 +433,12 @@ def get_one_TPS_path(const, seed=42):
         get_file_path_with_randomly_chosen_file(
             const.TPS_folder_name, seed),
         2)
-    print("Label: {}".format(determine_label(path, const)))
+    print(f"Label: {determine_label(path, const)}")
     return path
 
 
 def get_file_path_with_randomly_chosen_file(folder_name, seed):
-    return "{}/{}".format(folder_name, choose_random_file(folder_name, seed))
+    return f"{folder_name}/{choose_random_file(folder_name, seed)}"
 
 
 def choose_random_file(folder_name, seed):
@@ -452,4 +448,4 @@ def choose_random_file(folder_name, seed):
 
 
 def convert_interface_name_to_math_text(interface_name):
-    return "$MCG_{}$".format("{"+interface_name[3:]+"}")
+    return f"$MCG_{'{'+interface_name[3:]+'}'}$"
