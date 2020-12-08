@@ -569,13 +569,12 @@ def set_axis_labels_and_tick_labels_for_superhist(pipeline, axs, max_row_len):
         set_xtick_labels(axs[i//max_row_len][i % max_row_len], pipeline, i)
 
 
-def make_histogram_with_broken_axis_plot(
-        xs, bins, lower_range, upper_range, filename):
+def make_histogram_with_broken_axis_plot(xs, bins, lower_range, upper_range):
     f, (upper_ax, lower_ax) = plt.subplots(2, 1, sharex=True)
     make_broken_hist_upper_half(upper_ax, xs, bins, upper_range)
     make_broken_hist_lower_half(lower_ax, xs, bins, lower_range)
     make_diagonal_break_lines(upper_ax, lower_ax)
-    plt.savefig(filename)
+    plt.savefig("results/pB_distribution.png")
     plt.show()
 
 
