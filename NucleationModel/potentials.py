@@ -1,5 +1,14 @@
-from openpathsampling.engines.toy.pes import PES
+from openpathsampling.engines.toy.pes import PES, PES_Add, OuterWalls, Gaussian
 import numpy as np
+
+
+class DoublewellPotential(PES_Add):
+    def __init__(self):
+        super(DoublewellPotential, self).__init__(
+            OuterWalls([1.0, 1.0], [0.0, 0.0]),
+            PES_Add(
+                Gaussian(-0.7, [7.5, 7.5], [-0.5, 0.0]),
+                Gaussian(-0.7, [7.5, 7.5], [0.5, 0.0])))
 
 
 class ZPotential(PES):
