@@ -62,7 +62,7 @@ def make_snapshots_from_paths(
         snapshots.extend(path)
         path_len = len(path)
         snapshot_weights.extend(
-            [get_snapshot_weight(path_weight, path_len)] * path_len)
+            [path_weight] * path_len)
         snapshot_origins.extend(
             [path_origin] * path_len)
         snapshot_labels.extend(
@@ -74,10 +74,6 @@ def make_snapshots_from_paths(
         np.array(snapshot_labels), \
         np.array(snapshot_weights), \
         np.array(snapshot_origins)
-
-
-def get_snapshot_weight(path_weight, path_len):
-    return path_weight / path_len
 
 
 def get_snapshot_label(path_label, const):
